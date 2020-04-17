@@ -16,3 +16,7 @@ def on_join(data):
     name = data['name']
     join_room(room)
     emit('joinedRoom', dict(response=f'{name} has joined the room.'), room=room)
+
+@sio.on('fromHost')
+def game_mode(data):
+    emit('gameChannel', data, room=data.get('roomID'))

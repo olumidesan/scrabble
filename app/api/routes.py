@@ -6,7 +6,7 @@ from .auth import token_auth, error_response
 from random import choice
 from flask import jsonify, request
 
-
+# The weight each scrabble piece carries
 pieces_weight = {
     ' ': 0,
     'A': 1,
@@ -37,6 +37,7 @@ pieces_weight = {
     'Q': 10
 }
 
+# The number of pieces each scrabble piece has
 pieces_number = {
     ' ': 2,
     'A': 9,
@@ -71,7 +72,10 @@ pieces_number = {
 pieces = list(pieces_number.keys())
 
 def get_pieces(amount):
-    """Gets pieces from the bag"""
+    """
+    Gets pieces from the bag 
+    and updates the bag, of course
+    """
 
     # Storage for the requested new pieces
     new_pieces = [] 
@@ -106,6 +110,9 @@ def bag():
     amount = payload.get('amount')
 
     new_pieces = get_pieces(amount)
+    print('-'*60)
+    print(sum(pieces_number.values()))
+    print('-'*60)
 
     return jsonify(dict(pieces=new_pieces))
 

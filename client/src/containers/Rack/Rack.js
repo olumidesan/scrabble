@@ -91,4 +91,4 @@ export class Rack extends Component {
     }
 }
 
-export default Rack
+export default Rack;

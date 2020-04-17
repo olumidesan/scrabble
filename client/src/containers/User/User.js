@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import io from 'socket.io-client';
+import Extras from '../Extras/Extras';
 
 export default class User extends Component {
     constructor(props) {
@@ -8,12 +9,13 @@ export default class User extends Component {
         this.socket = io('http://192.168.0.165:5005', { transports: ['websocket'] });
         this.state = {
             name: '',
-            isHost: false,
             roomID: '',
-            isConfigured: false,
+            isHost: false,
             isTurn: false,
-            connectedPlayers: 0,
             numOfPlayers: 0,
+            gameStarted: false,
+            isConfigured: false,
+            connectedPlayers: 0,
             yCID: window.crypto.getRandomValues(new Uint32Array(1))[0].toString(),
         }
     }
@@ -52,7 +54,6 @@ export default class User extends Component {
     joinRoom = (e) => {
         e.preventDefault();
         this.socket.emit('join', { name: this.state.name, roomID: this.state.roomID });
-        // document.querySelector('.joinForm').style.display = 'none';
     }
 
     componentDidMount = () => {
@@ -63,9 +64,20 @@ export default class User extends Component {
         document.querySelector('.configForm').style.display = 'none';
         document.querySelector('.joinForm').style.display = 'none';
         this.socket.on('joinedRoom', (data) => {
-            console.log(data);
-            this.setState({ connectedPlayers: this.state.connectedPlayers + 1 })
-        })
+            this.setState({ connectedPlayers: this.state.connectedPlayers + 1 }, () => {
+                if (this.state.connectedPlayers === this.state.numOfPlayers) {
+                    this.socket.emit('fromHost', { roomID: this.state.yCID, gameStarted: true });
+                }
+            })
+        });
+        this.socket.on('gameChannel', (data) => {
+            if (data.gameStarted === true) {
+                document.querySelectorAll('.configElements').forEach((node) => {
+                    node.remove();
+                });
+                this.setState({ gameStarted: true });
+            }
+        });
     }
 
     render() {
@@ -109,10 +121,13 @@ export default class User extends Component {
             </div>
         return (
             <div className='userSpace'>
-                {landingPage}
-                {formInput}
-                {formJoin}
-                {gameStart}
+                <div className="configElements">
+                    {landingPage}
+                    {formInput}
+                    {formJoin}
+                    {gameStart}
+                </div>
+                {this.state.gameStarted ? <Extras /> : null}
             </div>
         )
     }

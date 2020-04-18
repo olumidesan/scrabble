@@ -20,7 +20,6 @@ class Bag extends Component {
             <div className="bag">
                 <div>
                     {this.state.piecesLeft}<br></br>
-                    Bag
                 </div>
             </div>
         )

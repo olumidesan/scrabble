@@ -6,17 +6,19 @@ export default class User extends Component {
     constructor(props) {
         super(props);
 
+        this.numOfPlayers = 0;
+        this.yCID = window.crypto.getRandomValues(new Uint32Array(1))[0].toString().slice(0, 6);
         this.socket = io('http://192.168.0.165:5005', { transports: ['websocket'] });
+
         this.state = {
+            score: 0,
             name: '',
             roomID: '',
+            players: [],
             isHost: false,
             isTurn: false,
-            numOfPlayers: 0,
             gameStarted: false,
-            isConfigured: false,
-            connectedPlayers: 0,
-            yCID: window.crypto.getRandomValues(new Uint32Array(1))[0].toString(),
+            connectedPlayers: 0
         }
     }
 
@@ -27,7 +29,7 @@ export default class User extends Component {
 
     registerHost = () => {
         if (!this.state.isHost) {
-            this.setState({ isHost: true });
+            this.setState({ isHost: true, roomID: this.yCID });
         }
         document.querySelector('.landing').style.display = 'none';
         document.querySelector('.configForm').style.display = 'block';
@@ -40,17 +42,18 @@ export default class User extends Component {
     saveUser = (event) => {
         this.setState({ name: event.target.value })
     }
+
     savePlayers = (event) => {
-        this.setState({ numOfPlayers: parseInt(event.target.value) })
+        this.numOfPlayers = parseInt(event.target.value);
     }
 
     startGame = (e) => {
         e.preventDefault();
-        this.setState({ isConfigured: true });
         document.querySelector('.configForm').style.display = 'none';
         document.querySelector('.message').style.display = 'block';
-        this.socket.emit('join', { name: this.state.name, roomID: this.state.yCID });
+        this.socket.emit('join', { name: this.state.name, roomID: this.yCID });
     }
+
     joinRoom = (e) => {
         e.preventDefault();
         this.socket.emit('join', { name: this.state.name, roomID: this.state.roomID });
@@ -61,21 +64,33 @@ export default class User extends Component {
             this.socket.io.opts.transports = ['polling', 'websocket'];
         });
         document.querySelector('.message').style.display = 'none';
-        document.querySelector('.configForm').style.display = 'none';
         document.querySelector('.joinForm').style.display = 'none';
+        document.querySelector('.configForm').style.display = 'none';
         this.socket.on('joinedRoom', (data) => {
-            this.setState({ connectedPlayers: this.state.connectedPlayers + 1 }, () => {
-                if (this.state.connectedPlayers === this.state.numOfPlayers) {
-                    this.socket.emit('fromHost', { roomID: this.state.yCID, gameStarted: true });
+            this.setState({
+                players: [...this.state.players, data.name],
+                connectedPlayers: this.state.connectedPlayers + 1,
+            }, () => {
+                if (this.state.isHost && (this.state.connectedPlayers === this.numOfPlayers)) {
+                    this.socket.emit('fromHost', {
+                        hostName: this.state.name,
+                        roomID: this.state.roomID,
+                        gameStarted: true
+                    });
                 }
-            })
+            });
         });
         this.socket.on('gameChannel', (data) => {
             if (data.gameStarted === true) {
                 document.querySelectorAll('.configElements').forEach((node) => {
                     node.remove();
                 });
-                this.setState({ gameStarted: true });
+                this.setState({
+                    gameStarted: true,
+                    isTurn: true,
+                    connectedPlayers: !this.state.isHost ? this.state.connectedPlayers + 1 : this.state.connectedPlayers,
+                    players: !this.state.isHost ? [...this.state.players, data.hostName] : [...this.state.players]
+                });
             }
         });
     }
@@ -115,9 +130,9 @@ export default class User extends Component {
             <div className="message">
                 <span>Waiting for players to join...</span>
                 <br />
-                <span>Room ID: {this.state.yCID}</span>
+                <span>Room ID: {this.state.roomID}</span>
                 <br />
-                <span>Number of players: {this.state.connectedPlayers}/{this.state.numOfPlayers}</span>
+                <span>Number of players: {this.state.connectedPlayers}/{this.numOfPlayers}</span>
             </div>
         return (
             <div className='userSpace'>
@@ -127,7 +142,12 @@ export default class User extends Component {
                     {formJoin}
                     {gameStart}
                 </div>
-                {this.state.gameStarted ? <Extras /> : null}
+                {this.state.gameStarted ?
+                    <Extras
+                        roomID={this.state.roomID}
+                        socket={this.socket}
+                        name={this.state.name}
+                        isTurn={this.state.isTurn} /> : null}
             </div>
         )
     }

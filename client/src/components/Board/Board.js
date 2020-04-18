@@ -60,7 +60,6 @@ function Board() {
                     <div className="droppable tile">
                     </div>
                     <div className="droppable tile">
-                        <div></div>
                     </div>
                     <div className="droppable tile">
                     </div>
@@ -93,7 +92,6 @@ function Board() {
                     <div className="droppable tile">
                     </div>
                     <div className="droppable tile">
-                        <div></div>
                     </div>
                     <div className="droppable tile dW">
                     </div>
@@ -190,7 +188,6 @@ function Board() {
                     <div className="droppable tile">
                     </div>
                     <div className="droppable tile">
-                        <div></div>
                     </div>
                     <div className="droppable tile">
                     </div>
@@ -223,7 +220,6 @@ function Board() {
                     <div className="droppable tile">
                     </div>
                     <div className="droppable tile">
-                        <div></div>
                     </div>
                     <div className="droppable tile dL">
                     </div>
@@ -288,7 +284,6 @@ function Board() {
                     <div className="droppable tile">
                     </div>
                     <div className="droppable tile">
-                        <div></div>
                     </div>
                     <div className="droppable tile dL">
                     </div>
@@ -321,7 +316,6 @@ function Board() {
                     <div className="droppable tile">
                     </div>
                     <div className="droppable tile">
-                        <div></div>
                     </div>
                     <div className="droppable tile">
                     </div>
@@ -418,7 +412,6 @@ function Board() {
                     <div className="droppable tile">
                     </div>
                     <div className="droppable tile">
-                        <div></div>
                     </div>
                     <div className="droppable tile dW">
                     </div>
@@ -451,7 +444,6 @@ function Board() {
                     <div className="droppable tile">
                     </div>
                     <div className="droppable tile">
-                        <div></div>
                     </div>
                     <div className="droppable tile">
                     </div>

@@ -2,28 +2,35 @@ import React, { Component } from 'react';
 import axios from '../../helpers/axios';
 
 export class Rack extends Component {
-    state = {
-        currentPieces: [],
-        noOfPieces: 0
-    }
+    constructor(props) {
+        super(props);
 
+        this.state = {
+            currentPieces: [],
+            noOfPieces: 0
+        }
+    }
     getFromBag = (amount) => {
         axios.post('/bag', { amount: amount })
             .then(r => {
                 this.setState({ currentPieces: r.data.pieces },
-                    () => { this.populateRack(this.state.currentPieces) })
+                    () => { this.populateRack(this.state.currentPieces) });
             })
-            .catch(e => console.log(e.data))
+            .catch(e => console.log(e.data));
     }
 
     recallPieces = () => {
         // Current implementation is to remove all pieces played on the board
-        // and then re-create the initial rack pieces
-        let playedPieces = document.querySelectorAll('.bp');
-        if (playedPieces.length > 0) {
-            playedPieces.forEach((piece) => piece.remove())
+        // and then re-create the initial rack pieces.
+
+        // It has to be your turn for this function to work
+        if (this.props.isTurn) {
+            let playedPieces = document.querySelectorAll('.bp');
+            if (playedPieces.length > 0) {
+                playedPieces.forEach((piece) => piece.remove())
+            }
+            this.populateRack(this.state.currentPieces);
         }
-        this.populateRack(this.state.currentPieces);
     }
 
     inPlaceShuffle = (arr) => {
@@ -38,7 +45,7 @@ export class Rack extends Component {
 
     shufflePieces = () => {
         let pieces = []; // For the pieces that will be shuffled
-        
+
         // For each piece in the rack, get the letter and value and then
         // store each one in the above array
         document.querySelectorAll('.pieceContainer').forEach((piece) => {
@@ -82,8 +89,8 @@ export class Rack extends Component {
                         <div className="tileOption"><button onClick={this.recallPieces}>Recall</button></div>
                         <div className="tileOption"><button onClick={this.shufflePieces}>Shuffle</button></div>
                         <div className="tileOption"><button onClick={this.shufflePieces}>Swap</button></div>
-                        <div className="tileOption"><button onClick={this.shufflePieces}>Skip Turn</button></div>
-                        <div className="tileOption"><button onClick={this.shufflePieces}>Play</button></div>
+                        {/* <div className="tileOption"><button onClick={this.shufflePieces}>Skip Turn</button></div>
+                        <div className="tileOption"><button onClick={this.shufflePieces}>Play</button></div> */}
                     </div>
                 </div>
             </div>

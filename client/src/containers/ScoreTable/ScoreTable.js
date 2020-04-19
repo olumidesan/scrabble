@@ -18,7 +18,7 @@ export default class ScoreTable extends Component {
             return <tr key={index}>
                 <td>{player}</td>
                 <td>{this.state.score}</td>
-                <td>No</td>
+                <td id={`turn_${player}`}>No</td>
             </tr>;
         });
         return (

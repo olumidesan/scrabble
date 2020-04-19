@@ -104,7 +104,7 @@ export default class GameUser extends Component {
                 // that the game has started.
                 if (this.state.isHost && (this.state.connectedPlayers === this.numOfPlayers)) {
                     this.socket.emit('fromHost', {
-                        hostName: this.state.name,
+                        allPlayers: this.state.players,
                         roomID: this.state.roomID,
                         gameStarted: true
                     });
@@ -114,28 +114,49 @@ export default class GameUser extends Component {
 
         // When a draw has been made. Announce who goes first.
         this.socket.on('drawDone', (data) => {
-            if (data.firstToPlay === this.state.name) {
-                this.setState({ isTurn: true });
-            }
-            toast.info(`${data.firstToPlay} goes first.`);
+            let firsToPlayMessage, playOrderMessage = '';
+            let firstToPlay = data.playOrder[0];
 
+            if (firstToPlay === this.state.name) {
+                this.setState({ isTurn: true });
+                firsToPlayMessage = `${firstToPlay} (You) get to play first`;
+            }
+            else {
+                firsToPlayMessage = `${firstToPlay} goes first.`;
+            }
+
+            // Show on the score table whose turn it is
+            document.getElementById(`turn_${firstToPlay}`).innerText = 'Yes';
+
+            // Also announce the turn order
+            data.playOrder.forEach((player, index) => {
+                if ((index + 1) === data.playOrder.length) {
+                    playOrderMessage += player;
+                }
+                else {
+                    playOrderMessage += `${player}, then `
+                }
+            });
+
+            toast.info(firsToPlayMessage);
+            toast.info(`Heads up: The turn order is, ${playOrderMessage}.`)
         });
 
         // If the game has started, remove the configuration
         // elements. Then update the state of the connected clients.
         this.socket.on('gameChannel', (data) => {
             if (data.gameStarted === true) {
-                // Unhide main game space and remove the config divs
-                document.querySelector('.entry').removeAttribute('style');
-                document.querySelectorAll('.configElements').forEach((node) => {
-                    node.remove();
-                });
                 // The host already has its name and connected players state up to date
                 // The remainder of the clients don't however. This does the actual update
                 this.setState({
                     gameStarted: true,
-                    connectedPlayers: !this.state.isHost ? this.state.connectedPlayers + 1 : this.state.connectedPlayers,
-                    players: !this.state.isHost ? [...this.state.players, data.hostName] : [...this.state.players]
+                    connectedPlayers: !this.state.isHost ? data.allPlayers.length + 1 : this.state.connectedPlayers,
+                    players: !this.state.isHost ? [...data.allPlayers] : [...this.state.players]
+                });
+                // Unhide main game space and remove the config divs
+                document.querySelector('.entry').removeAttribute('style');
+                document.querySelectorAll('.configElements').forEach((node) => {
+                    node.remove();
                 });
             }
             let welcomeMessage = this.state.isHost ?

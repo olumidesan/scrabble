@@ -5,6 +5,7 @@ from time import sleep
 from flask import session, request
 from flask_socketio import join_room, leave_room, emit
 
+
 @sio.on('join')
 def on_join(data):
     """Event handler for room joins"""
@@ -20,8 +21,8 @@ def from_host(data):
     """
     Event handler for host messages
     """
-    
-    emit('gameChannel', data, room=data.get('roomID'))
+    room = data.get('roomID')
+    emit('gameChannel', data, room=room)
 
 @sio.on('rackEvent')
 def rack_to_board(data):
@@ -51,7 +52,7 @@ def recall_event(data):
     emit('recallPieces', data, room=data.get('roomID'))
 
 @sio.on('drawEvent')
-def recall_event(data):
+def draw_event(data):
     """
     Event handler for play draw
     """

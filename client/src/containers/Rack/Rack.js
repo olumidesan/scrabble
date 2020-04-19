@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from '../../helpers/axios';
-import { toast } from 'react-toastify';
+// import { toast } from 'react-toastify';
 
 export class Rack extends Component {
     constructor(props) {
@@ -34,18 +34,15 @@ export class Rack extends Component {
         // Honestly don't know why JS doesn't have a `random.choice()` method
         e.preventDefault();
 
-        let firstToPlay = this.getRandom(this.props.players);
+        // Shuffle all the players. The resulting order is the order
+        // with which the players will take turns
+        let playOrder = this.inPlaceShuffle(this.props.players);
 
         // Tell the others who gets to play first
         this.props.socket.emit('drawEvent', {
-            firstToPlay: firstToPlay,
+            playOrder: playOrder,
             roomID: this.props.roomID
         });
-
-        // Announce that it's you
-        if (firstToPlay === this.props.name) {
-            toast.info(`${firstToPlay} (You) get to play first`);
-        }
 
         let drawButton = document.getElementById('drawButton');
         if (drawButton !== null) {
@@ -90,7 +87,7 @@ export class Rack extends Component {
     }
 
     inPlaceShuffle = (arr) => {
-        // https://stackoverflow.com/
+        // https://stackoverflow.com/cant-remember
 
         for (let i = arr.length - 1; i > 0; i--) {
             let j = Math.floor(Math.random() * (i + 1));

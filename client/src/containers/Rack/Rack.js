@@ -11,12 +11,14 @@ export class Rack extends Component {
         }
     }
     getFromBag = (amount) => {
-        axios.post('/bag', { amount: amount })
-            .then(r => {
-                this.setState({ currentPieces: r.data.pieces },
-                    () => { this.populateRack(this.state.currentPieces) });
-            })
-            .catch(e => console.log(e.data));
+        if (amount > 0) {
+            axios.post('/bag', { amount: amount })
+                .then(r => {
+                    this.setState({ currentPieces: r.data.pieces },
+                        () => { this.populateRack(this.state.currentPieces) });
+                })
+                .catch(e => console.log(e.data));
+        }
     }
 
     recallPieces = () => {
@@ -43,8 +45,9 @@ export class Rack extends Component {
         return arr;
     }
 
-    shufflePieces = () => {
-        let pieces = []; // For the pieces that will be shuffled
+    getPiecesOnRack = () => {
+        // Storage for the pieces on the rack
+        let pieces = []; 
 
         // For each piece in the rack, get the letter and value and then
         // store each one in the above array
@@ -52,8 +55,16 @@ export class Rack extends Component {
             pieces.push({
                 letter: piece.textContent.slice(0, 1),
                 value: parseInt(piece.textContent.slice(1))
-            })
+            });
         });
+
+        return pieces;
+    }
+
+    shufflePieces = () => {
+        // Get the pieces on the rack
+        let pieces = this.getPiecesOnRack();
+
         // Shuffle and update rack
         this.populateRack(this.inPlaceShuffle(pieces));
     }
@@ -69,7 +80,7 @@ export class Rack extends Component {
             pieceContainer.setAttribute('id', `userPiece${index}`);
             pieceContainer.setAttribute('class', 'pieceContainer');
             pieceContainer.setAttribute('draggable', 'true');
-            piece = `<div class='piece'><div class='letter'>${alphabet.letter}</div><span>${alphabet.value}</span></div>`;
+            piece = `<div class='piece'><span class="letter">${alphabet.letter}</span><span class="value">${alphabet.value}</span></div>`;
             pieceContainer.innerHTML = piece;
             rack.appendChild(pieceContainer);
         }

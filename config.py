@@ -1,6 +1,5 @@
 
 class CommonConfig:
-    
     # Redis Settings
     REDIS_CHANNEL_NAME = 'scrabble'
     REDIS_BROKER_PATH = 'redis://localhost:6379/0'

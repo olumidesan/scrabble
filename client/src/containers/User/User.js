@@ -4,6 +4,7 @@ import io from 'socket.io-client';
 import Board from '../Board/Board';
 import Rack from '../Rack/Rack';
 import ScoreTable from '../ScoreTable/ScoreTable';
+import axios from '../../helpers/axios';
 
 export default class GameUser extends Component {
     constructor(props) {
@@ -11,7 +12,7 @@ export default class GameUser extends Component {
 
         this.numOfPlayers = 0;
         this.socket = io('http://192.168.0.165:5005', { transports: ['websocket'] });
-        this.yCID = 'SC-44' //`SC-${window.crypto.getRandomValues(new Uint32Array(1))[0].toString().slice(0, 6)}`;
+        this.yCID = `SC-${window.crypto.getRandomValues(new Uint32Array(1))[0].toString().slice(0, 6)}`;
 
         this.state = {
             name: '',
@@ -38,7 +39,7 @@ export default class GameUser extends Component {
     }
 
     saveID = (event) => {
-        this.setState({ roomID: `SC-${event.target.value}` })
+        this.setState({ roomID: `SC-${event.target.value}`.toString() })
     }
 
     saveUser = (event) => {
@@ -51,19 +52,58 @@ export default class GameUser extends Component {
 
     startGame = (e) => {
         e.preventDefault();
+
+        // Name should be at least three letters
+        if (this.state.name.length < 3) {
+            toast.error("Kindly enter a longer name. Don't be shy.");
+            return;
+        }
+        // Number of players must be two, three or four
+        if (![2, 3, 4].includes(this.numOfPlayers)) {
+            toast.error("Kindly select a valid number of players");
+            return;
+        }
         document.querySelector('.configForm').style.display = 'none';
         document.querySelector('.waitingMessage').style.display = 'block';
         this.socket.emit('join', { name: this.state.name, roomID: this.yCID });
     }
 
+    __makeAxiosRequest = (url) => {
+        return axios.get(url)
+            .then(r => r.data.rooms)
+            .catch(e => console.log(e.data));
+    }
+
     joinRoom = (e) => {
         e.preventDefault();
-        // Validation
-        this.socket.emit('join', { name: this.state.name, roomID: this.state.roomID });
-        if (!this.state.gameStarted) {
+
+        // Name should be at least three letters
+        if (this.state.name.length < 3) {
+            toast.error("Kindly enter a longer name. Don't be shy.");
+            return;
+        }
+        // Game IDs must be nine characters
+        if (this.state.roomID.length !== 9) {
+            toast.error("Sorry, that's an invalid Game ID.");
+            return;
+        }
+
+        // Get all the current game session IDs and validate
+        // that the inputted Game ID is valid
+        let gameIDs = this.__makeAxiosRequest('/rooms');
+        gameIDs.then(ids => {
+            // Validate
+            if (!ids.includes(this.state.roomID)) {
+                toast.error(`😬 There's currently no game session with ID, ${this.state.roomID}.`);
+                return;
+            }
+
+            // Join the room
+            this.socket.emit('join', { name: this.state.name, roomID: this.state.roomID });
+            // Show waiting room
             document.querySelector('.joinForm').style.display = 'none';
             document.querySelector('.waitingMessage').style.display = 'block';
-        }
+        });
     }
 
     showHome = (e) => {
@@ -93,7 +133,7 @@ export default class GameUser extends Component {
         // When a new player joins (host or not)
         this.socket.on('joinedRoom', (data) => {
             // Save the player's name and update the number of
-            // connected players. For this host, this happens 
+            // connected players. For the host, this happens 
             // immediately the game starts
             this.setState({
                 players: [...this.state.players, data.name],
@@ -101,7 +141,8 @@ export default class GameUser extends Component {
             }, () => {
                 // If the client is the host and the number of connected players
                 // is the same as the number of required players, then announce
-                // that the game has started.
+                // that the game has started. Also send all the registered players
+                // to everybody so they can update their state
                 if (this.state.isHost && (this.state.connectedPlayers === this.numOfPlayers)) {
                     this.socket.emit('fromHost', {
                         allPlayers: this.state.players,
@@ -114,15 +155,18 @@ export default class GameUser extends Component {
 
         // When a draw has been made. Announce who goes first.
         this.socket.on('drawDone', (data) => {
-            let firsToPlayMessage, playOrderMessage = '';
             let firstToPlay = data.playOrder[0];
+            let firsToPlayMessage, playOrderMessage = '';
+
+            // Reorder the players to match the turn
+            this.setState({ players: data.playOrder });
 
             if (firstToPlay === this.state.name) {
                 this.setState({ isTurn: true });
                 firsToPlayMessage = `${firstToPlay} (You) get to play first`;
             }
             else {
-                firsToPlayMessage = `${firstToPlay} goes first.`;
+                firsToPlayMessage = `${firstToPlay} gets to play first.`;
             }
 
             // Show on the score table whose turn it is
@@ -150,15 +194,17 @@ export default class GameUser extends Component {
                 // The remainder of the clients don't however. This does the actual update
                 this.setState({
                     gameStarted: true,
-                    connectedPlayers: !this.state.isHost ? data.allPlayers.length + 1 : this.state.connectedPlayers,
+                    connectedPlayers: !this.state.isHost ? data.allPlayers.length : this.state.connectedPlayers,
                     players: !this.state.isHost ? [...data.allPlayers] : [...this.state.players]
                 });
+
                 // Unhide main game space and remove the config divs
                 document.querySelector('.entry').removeAttribute('style');
                 document.querySelectorAll('.configElements').forEach((node) => {
                     node.remove();
                 });
             }
+
             let welcomeMessage = this.state.isHost ?
                 "All players have joined. Make a draw using the yellow button on your button rack. You'll"
                 :

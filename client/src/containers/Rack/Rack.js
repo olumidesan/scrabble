@@ -13,7 +13,7 @@ export class Rack extends Component {
     }
 
     skipTurn = () => {
-
+        // tbd
     }
 
     playTurn = () => {
@@ -21,7 +21,7 @@ export class Rack extends Component {
     }
 
     swapPieces = () => {
-
+        // tbd
     }
 
     getRandom = (arr) => {
@@ -71,6 +71,14 @@ export class Rack extends Component {
         }
     }
 
+    shufflePieces = () => {
+        // Get the pieces on the rack
+        let pieces = this.getPiecesOnRack();
+
+        // Shuffle and update rack
+        this.populateRack(this.inPlaceShuffle(pieces));
+    }
+
     recallPieces = () => {
         // Current implementation is to remove all pieces played on the board
         // and then re-create the initial rack pieces.
@@ -112,14 +120,6 @@ export class Rack extends Component {
         });
 
         return pieces;
-    }
-
-    shufflePieces = () => {
-        // Get the pieces on the rack
-        let pieces = this.getPiecesOnRack();
-
-        // Shuffle and update rack
-        this.populateRack(this.inPlaceShuffle(pieces));
     }
 
     populateRack = (pieces) => {

@@ -4,9 +4,9 @@ import React from 'react';
 
 const Toastify = () => {
     return (<ToastContainer
-        autoClose={15000}
+        autoClose={12000}
         hideProgressBar
-        newestOnTop={false}
+        newestOnTop={true}
         closeOnClick={false}
         rtl={false}
         pauseOnVisibilityChange

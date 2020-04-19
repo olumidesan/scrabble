@@ -1,4 +1,5 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 
 class Board extends React.Component {
 
@@ -48,6 +49,9 @@ class Board extends React.Component {
                     this.setState({ isBoardDrag: true });
                 }
                 this.setState({ currentPiece: event.target });
+            }
+            else {
+                toast.error(`It's not your turn, ${this.props.name}. Wait your turn.`);
             }
         });
 

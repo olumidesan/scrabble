@@ -81,6 +81,14 @@
     background-color: #1a7537
 }
 
+.Toastify__toast--error {
+    background-color: #bb2618
+}
+
+.Toastify__toast--info {
+    background-color: #1272b3
+}
+
 .bag {
     border: 2px red solid;
 }

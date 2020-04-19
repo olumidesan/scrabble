@@ -93,15 +93,19 @@ def get_pieces(amount):
     # If the requested amount is less than the number of
     # pieces in the bag, re-assign the amount to the remainder
     amount = bag_length if bag_length < amount else amount
+
     # Fill up the requested new pieces
     while len(new_pieces) != amount:
         # Get a random piece
         piece = choice(pieces)
+
         # If the piece hasn't been exhausted
         if pieces_number.get(piece) > 0:
+
             # Add it to the result array
             new_pieces.append(dict(letter=piece, value=pieces_weight[piece]))
-            # Decrease the number of said piecce
+            
+            # Decrease the number of said piece
             pieces_number[piece] -= 1   
 
     return new_pieces

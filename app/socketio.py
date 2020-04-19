@@ -5,6 +5,9 @@ from time import sleep
 from flask import session, request
 from flask_socketio import join_room, leave_room, emit
 
+# Don't want to use a database. Currently
+# relying on Python's thread-safe built-in data-types 
+rooms = []
 
 @sio.on('join')
 def on_join(data):
@@ -12,6 +15,9 @@ def on_join(data):
 
     room = data['roomID']
     join_room(room)
+
+    # Add to the rooms if not already there
+    rooms.append(room) if room not in rooms else None
     
     emit('joinedRoom', data, room=room)
 

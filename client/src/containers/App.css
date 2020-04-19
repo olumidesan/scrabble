@@ -51,15 +51,15 @@
     height: 40px;
     margin-top: 10px;
 }
-/* .userSpace {
-    display: flex;
-    width: 500px;
-    height: 989px;
-    justify-content: center ;
-    margin: auto;
-    align-items: center;
-    border: 2px red solid;
-} */
+
+.rackButton {
+    height: 40px;
+    margin-top: 10px;
+}
+
+.Toastify__toast {
+    padding: 18px;
+}
 
 .label {
     font-size: 0.9em;
@@ -71,6 +71,14 @@
 .gameSpace {
     display: flex;
     margin: auto;
+}
+
+.Toastify__toast-container {
+    width: 500px;
+}
+
+.Toastify__toast--success {
+    background-color: #1a7537
 }
 
 .bag {
@@ -189,4 +197,10 @@
 .tileOption {
     height: 40px;
     width: 65px;
+}
+
+.rackButtons {
+    display: flex;
+    justify-content: center;
+    width: 354px;
 }

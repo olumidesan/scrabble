@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from '../../helpers/axios';
+import { toast } from 'react-toastify';
 
 export class Rack extends Component {
     constructor(props) {
@@ -10,7 +11,50 @@ export class Rack extends Component {
             noOfPieces: 0
         }
     }
+
+    skipTurn = () => {
+
+    }
+
+    playTurn = () => {
+
+    }
+
+    swapPieces = () => {
+
+    }
+
+    getRandom = (arr) => {
+        // https://stackoverflow.com/questions/4550505/getting-a-random-value-from-a-javascript-array
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    makeDraw = (e) => {
+        // Select a random player to start from all the players
+        // Honestly don't know why JS doesn't have a `random.choice()` method
+        e.preventDefault();
+
+        let firstToPlay = this.getRandom(this.props.players);
+
+        // Tell the others who gets to play first
+        this.props.socket.emit('drawEvent', {
+            firstToPlay: firstToPlay,
+            roomID: this.props.roomID
+        });
+
+        // Announce that it's you
+        if (firstToPlay === this.props.name) {
+            toast.info(`${firstToPlay} (You) get to play first`);
+        }
+
+        let drawButton = document.getElementById('drawButton');
+        if (drawButton !== null) {
+            drawButton.remove();
+        }
+    }
+
     getFromBag = (amount) => {
+        // Get passed amount from bag
         if (amount > 0) {
             axios.post('/bag', { amount: amount })
                 .then(r => {
@@ -21,21 +65,33 @@ export class Rack extends Component {
         }
     }
 
+    clearPlayedPieces = () => {
+        // Clear the board of all played pieces.
+        // Defined separately to allow for `recallPieces()` reuse
+        let playedPieces = document.querySelectorAll('.bp');
+        if (playedPieces.length > 0) {
+            playedPieces.forEach((piece) => piece.remove())
+        }
+    }
+
     recallPieces = () => {
         // Current implementation is to remove all pieces played on the board
         // and then re-create the initial rack pieces.
 
         // It has to be your turn for this function to work
         if (this.props.isTurn) {
-            let playedPieces = document.querySelectorAll('.bp');
-            if (playedPieces.length > 0) {
-                playedPieces.forEach((piece) => piece.remove())
-            }
+            this.props.socket.emit('recallEvent', {
+                name: this.props.name,
+                roomID: this.props.roomID
+            })
+            this.clearPlayedPieces();
             this.populateRack(this.state.currentPieces);
         }
     }
 
     inPlaceShuffle = (arr) => {
+        // https://stackoverflow.com/
+
         for (let i = arr.length - 1; i > 0; i--) {
             let j = Math.floor(Math.random() * (i + 1));
             let temp = arr[i];
@@ -47,7 +103,7 @@ export class Rack extends Component {
 
     getPiecesOnRack = () => {
         // Storage for the pieces on the rack
-        let pieces = []; 
+        let pieces = [];
 
         // For each piece in the rack, get the letter and value and then
         // store each one in the above array
@@ -87,6 +143,11 @@ export class Rack extends Component {
     }
 
     componentDidMount = () => {
+        this.props.socket.on('recallPieces', (data) => {
+            if (data.name !== this.props.name) {
+                this.clearPlayedPieces();
+            }
+        });
         this.getFromBag(7);
     }
 
@@ -95,13 +156,16 @@ export class Rack extends Component {
             <div className="rack">
                 <div className="rackPieces">
                 </div>
-                <div className='rackOptions'>
-                    <div className="tileOptions">
-                        <div className="tileOption"><button onClick={this.recallPieces}>Recall</button></div>
-                        <div className="tileOption"><button onClick={this.shufflePieces}>Shuffle</button></div>
-                        <div className="tileOption"><button onClick={this.shufflePieces}>Swap</button></div>
-                        {/* <div className="tileOption"><button onClick={this.shufflePieces}>Skip Turn</button></div>
-                        <div className="tileOption"><button onClick={this.shufflePieces}>Play</button></div> */}
+                <div className='rackButtons'>
+                    <div className="buttons is-fullwidth has-addons">
+                        <button title="Recall Pieces" onClick={this.recallPieces} className="button rackButton is-link"><i className="fas fa-undo"></i></button>
+                        <button title="Shuffle Pieces" onClick={this.shufflePieces} className="button rackButton is-link"><i className="fas fa-random"></i></button>
+                        <button title="Swap Pieces" onClick={this.swapPieces} className="button rackButton is-link"><i className="fas fa-exchange-alt"></i></button>
+                        <button title="Skip Turn" onClick={this.skipTurn} className="button rackButton is-link"><i className="fas fa-forward"></i></button>
+                        <button title="Play" className="button rackButton is-success" onClick={this.playTurn}><i className="fas fa-play"></i></button>
+                        {this.props.isHost ?
+                            <button id="drawButton" title="Play" className="button rackButton is-warning" onClick={this.makeDraw}>Draw</button>
+                            : null}
                     </div>
                 </div>
             </div>

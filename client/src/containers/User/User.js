@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { toast } from 'react-toastify';
 import io from 'socket.io-client';
 import Board from '../Board/Board';
 import Rack from '../Rack/Rack';
@@ -10,15 +11,14 @@ export default class GameUser extends Component {
 
         this.numOfPlayers = 0;
         this.socket = io('http://192.168.0.165:5005', { transports: ['websocket'] });
-        this.yCID = `SC-${window.crypto.getRandomValues(new Uint32Array(1))[0].toString().slice(0, 6)}`;
+        this.yCID = 'SC-44' //`SC-${window.crypto.getRandomValues(new Uint32Array(1))[0].toString().slice(0, 6)}`;
 
         this.state = {
-            score: 0,
             name: '',
             roomID: '',
             players: [],
             isHost: false,
-            isTurn: true,
+            isTurn: false,
             gameStarted: false,
             connectedPlayers: 0
         }
@@ -58,9 +58,7 @@ export default class GameUser extends Component {
 
     joinRoom = (e) => {
         e.preventDefault();
-        // if (e.target.value.length < 3) {
-
-        // }
+        // Validation
         this.socket.emit('join', { name: this.state.name, roomID: this.state.roomID });
         if (!this.state.gameStarted) {
             document.querySelector('.joinForm').style.display = 'none';
@@ -70,6 +68,9 @@ export default class GameUser extends Component {
 
     showHome = (e) => {
         e.preventDefault();
+        this.setState({ isHost: false, name: '' }) // Essentially a reset
+        this.numOfPlayers = 0;
+
         document.querySelector('.landing').style.display = 'block';
         document.querySelector('.joinForm').style.display = 'none';
         document.querySelector('.configForm').style.display = 'none';
@@ -81,7 +82,7 @@ export default class GameUser extends Component {
         document.querySelector('.joinForm').style.display = 'none';
         document.querySelector('.configForm').style.display = 'none';
         document.querySelector('.entry').style.display = 'none';
-        
+
         /* Register event listeners */
 
         // Incase socket.io loses connection to the server
@@ -111,10 +112,20 @@ export default class GameUser extends Component {
             });
         });
 
+        // When a draw has been made. Announce who goes first.
+        this.socket.on('drawDone', (data) => {
+            if (data.firstToPlay === this.state.name) {
+                this.setState({ isTurn: true });
+            }
+            toast.info(`${data.firstToPlay} goes first.`);
+
+        });
+
         // If the game has started, remove the configuration
         // elements. Then update the state of the connected clients.
         this.socket.on('gameChannel', (data) => {
             if (data.gameStarted === true) {
+                // Unhide main game space and remove the config divs
                 document.querySelector('.entry').removeAttribute('style');
                 document.querySelectorAll('.configElements').forEach((node) => {
                     node.remove();
@@ -123,11 +134,15 @@ export default class GameUser extends Component {
                 // The remainder of the clients don't however. This does the actual update
                 this.setState({
                     gameStarted: true,
-                    isTurn: true,
                     connectedPlayers: !this.state.isHost ? this.state.connectedPlayers + 1 : this.state.connectedPlayers,
                     players: !this.state.isHost ? [...this.state.players, data.hostName] : [...this.state.players]
                 });
             }
+            let welcomeMessage = this.state.isHost ?
+                "All players have joined. Make a draw using the yellow button on your button rack. You'll"
+                :
+                "The host will make a draw, and you'll"
+            toast.success(`✨ Welcome, ${this.state.name}! ${welcomeMessage} be notified (just like this) of who gets to play first. Good luck!`)
         });
     }
 
@@ -153,8 +168,8 @@ export default class GameUser extends Component {
                     </div>
                     <br />
                     <div className='centralize field is-grouped is-grouped-centered'>
-                            <button style={{marginRight:'5px'}} className="button optionButton is-fullwidth is-light" onClick={this.showHome}>Cancel</button>
-                            <button style={{marginLeft:'5px'}} className="button optionButton is-fullwidth is-link" onClick={this.startGame}>Start</button>
+                        <button style={{ marginRight: '5px' }} className="button optionButton is-fullwidth is-light" onClick={this.showHome}>Cancel</button>
+                        <button style={{ marginLeft: '5px' }} className="button optionButton is-fullwidth is-link" onClick={this.startGame}>Start</button>
                     </div>
                 </form>
             </div>;
@@ -164,7 +179,7 @@ export default class GameUser extends Component {
                     <div className="field">
                         <label className="label">Your Name: <span className="imp">*</span></label>
                         <div className="control">
-                            <input className="input" type='text' onChange={this.saveUser} name='text' placeholder='e.g. Olumidesan' />
+                            <input className="input" type='text' onChange={this.saveUser} name='name' placeholder='e.g. Olumidesan' />
                         </div>
                     </div>
 
@@ -178,15 +193,15 @@ export default class GameUser extends Component {
                                         </span>
                                 </p>
                                 <div className="control">
-                                    <input className="input" type='text' onChange={this.saveID} name='text' placeholder='e.g. 903318' />
+                                    <input className="input" type='text' onChange={this.saveID} name='gameID' placeholder='e.g. 903318' />
                                 </div>
                             </div>
                         </div>
 
                     </div>
                     <div className='centralize field is-grouped is-grouped-centered'>
-                            <button style={{marginRight:'5px'}} className="button optionButton is-fullwidth is-light" onClick={this.showHome}>Cancel</button>
-                            <button style={{marginLeft:'5px'}} className="button optionButton is-fullwidth is-link" onClick={this.joinRoom}>Join</button>
+                        <button style={{ marginRight: '5px' }} className="button optionButton is-fullwidth is-light" onClick={this.showHome}>Cancel</button>
+                        <button style={{ marginLeft: '5px' }} className="button optionButton is-fullwidth is-link" onClick={this.joinRoom}>Join</button>
                     </div>
                 </form>
             </div>
@@ -248,8 +263,13 @@ export default class GameUser extends Component {
                 </div>
                 <div className="column is-one-third">
                     <div className="extras">
-                        <ScoreTable players={this.state.players} />
-                        <Rack isTurn={this.state.isTurn} />
+                        <ScoreTable socket={this.socket} isTurn={this.state.isTurn} players={this.state.players} />
+                        <Rack socket={this.socket}
+                            name={this.state.name}
+                            roomID={this.state.roomID}
+                            isHost={this.state.isHost}
+                            isTurn={this.state.isTurn}
+                            players={this.state.players} />
                     </div>
                 </div>
             </div>

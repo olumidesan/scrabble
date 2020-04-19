@@ -1,11 +1,24 @@
 import React, { Component } from 'react'
 
 export default class ScoreTable extends Component {
+    state = {
+        score: 0
+    }
+
+    componentDidMount = () => {
+        this.props.socket.on('playEvent', (data) => {
+            if (data.name === this.props.name) {
+                this.setState({ score: data.score });
+            }
+        })
+    }
+
     render() {
-        let players = this.props.players.map(player => {
-            return <tr key={player}>
+        let players = this.props.players.map((player, index) => {
+            return <tr key={index}>
                 <td>{player}</td>
-                <td>0</td>
+                <td>{this.state.score}</td>
+                <td>No</td>
             </tr>;
         });
         return (
@@ -15,6 +28,7 @@ export default class ScoreTable extends Component {
                         <tr>
                             <th>Player</th>
                             <th>Score</th>
+                            <th>Turn?</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -14,11 +14,11 @@ def on_join(data):
     
     emit('joinedRoom', data, room=room)
 
+# Re-broadcast events for player to other players
 @sio.on('fromHost')
 def from_host(data):
     """
     Event handler for host messages
-    Essentially a rebroadcast
     """
     
     emit('gameChannel', data, room=data.get('roomID'))
@@ -26,8 +26,7 @@ def from_host(data):
 @sio.on('rackEvent')
 def rack_to_board(data):
     """
-    Event handler for player messages
-    Essentially a rebroadcast
+    Event handler for rack-to-board plays
     """
     
     # Simulate delay to allow previous piece to be 
@@ -38,8 +37,23 @@ def rack_to_board(data):
 @sio.on('boardEvent')
 def board_drag(data):
     """
-    Event handler for player messages
-    Essentially a rebroadcast
+    Event handler for board drag plays
     """
 
     emit('boardDrag', data, room=data.get('roomID'))
+
+@sio.on('recallEvent')
+def recall_event(data):
+    """
+    Event handler for recall pieces plays
+    """
+
+    emit('recallPieces', data, room=data.get('roomID'))
+
+@sio.on('drawEvent')
+def recall_event(data):
+    """
+    Event handler for play draw
+    """
+
+    emit('drawDone', data, room=data.get('roomID'))

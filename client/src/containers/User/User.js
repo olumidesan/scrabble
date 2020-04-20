@@ -6,13 +6,17 @@ import Rack from '../Rack/Rack';
 import ScoreTable from '../ScoreTable/ScoreTable';
 import axios from '../../helpers/axios';
 
+
 export default class GameUser extends Component {
     constructor(props) {
         super(props);
 
         this.numOfPlayers = 0;
         this.socket = io('http://192.168.0.165:5005', { transports: ['websocket'] });
-        this.yCID = `SC-${window.crypto.getRandomValues(new Uint32Array(1))[0].toString().slice(0, 6)}`;
+
+        // Randomly generated id that represents the game room, just in case the client
+        // decides to be a game session host
+        this.roomID = `SC-${window.crypto.getRandomValues(new Uint32Array(1))[0].toString().slice(0, 6)}`;
 
         this.state = {
             name: '',
@@ -32,7 +36,7 @@ export default class GameUser extends Component {
 
     registerHost = () => {
         if (!this.state.isHost) {
-            this.setState({ isHost: true, roomID: this.yCID });
+            this.setState({ isHost: true, roomID: this.roomID });
         }
         document.querySelector('.landing').style.display = 'none';
         document.querySelector('.configForm').style.display = 'block';
@@ -65,7 +69,7 @@ export default class GameUser extends Component {
         }
         document.querySelector('.configForm').style.display = 'none';
         document.querySelector('.waitingMessage').style.display = 'block';
-        this.socket.emit('join', { name: this.state.name, roomID: this.yCID });
+        this.socket.emit('join', { name: this.state.name, roomID: this.roomID });
     }
 
     __makeAxiosRequest = (url) => {
@@ -158,7 +162,7 @@ export default class GameUser extends Component {
             let firstToPlay = data.playOrder[0];
             let firsToPlayMessage, playOrderMessage = '';
 
-            // Reorder the players to match the turn
+            // Reorder the state's players to match the turn order
             this.setState({ players: data.playOrder });
 
             if (firstToPlay === this.state.name) {
@@ -174,6 +178,9 @@ export default class GameUser extends Component {
 
             // Also announce the turn order
             data.playOrder.forEach((player, index) => {
+                if (player === this.state.name) {
+                    player = `${player} (You)`;
+                }
                 if ((index + 1) === data.playOrder.length) {
                     playOrderMessage += player;
                 }
@@ -183,7 +190,7 @@ export default class GameUser extends Component {
             });
 
             toast.info(firsToPlayMessage);
-            toast.info(`Heads up: The turn order is, ${playOrderMessage}.`)
+            toast.warn(`Heads up: The turn order is, ${playOrderMessage}.`)
         });
 
         // If the game has started, remove the configuration
@@ -210,6 +217,24 @@ export default class GameUser extends Component {
                 :
                 "The host will make a draw, and you'll"
             toast.success(`✨ Welcome, ${this.state.name}! ${welcomeMessage} be notified (just like this) of who gets to play first. Good luck!`)
+        });
+
+        // Register for event to effect an actual valid play
+        this.socket.on('validPlay', (data) => {
+            let message;
+            if (data.playerToPlay === this.state.name) {
+                this.setState({ isTurn: true });
+                message = `${data.playerToPlay}, it's your turn to play.`;
+                document.getElementById(`turn_${data.playerToPlay}`).innerText = 'Yes';
+            }
+            else {
+                this.setState({ isTurn: false });
+                message = `${data.playerToPlay}'s turn to play.`;
+                document.getElementById(`turn_${this.state.name}`).innerText = 'No';
+                document.getElementById(`turn_${data.playerToPlay}`).innerText = 'Yes';
+            }
+            // Show on the score table whose turn it is
+            toast.info(message);
         });
     }
 
@@ -292,6 +317,7 @@ export default class GameUser extends Component {
                     <span>Waiting for all players to join...</span>
                 </div>
                 <hr />
+                <div>Your name: <b>{this.state.name}</b></div>
                 <div>Game ID: <b>{this.state.roomID}</b></div>
                 <div>Connected players: <b>{this.state.connectedPlayers}/{this.numOfPlayers}</b></div>
                 <hr />
@@ -305,6 +331,7 @@ export default class GameUser extends Component {
                     <span>Waiting for all players to join...</span>
                 </div>
                 <hr />
+                <div>Your name: <b>{this.state.name}</b></div>
                 <div>Game ID: <b>{this.state.roomID}</b></div>
                 <div>You're in the waiting room. The game will start once all players like you have joined the host's session.</div>
             </div>

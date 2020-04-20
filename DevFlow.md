@@ -7,4 +7,6 @@
 - Restructure nasty css-hacked landing page
 - Validate name and game ids
 - Save scores on server and query from there, instead of emitting immediately?
-- Reset config forms on Cancel. State has been reset but forms haven't
+- Reset config forms on Cancel. State has been reset but forms haven't. 
+- Play logs and connection status
+- Remove haphazard definition of axios requests

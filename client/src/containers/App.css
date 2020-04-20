@@ -81,6 +81,10 @@
     background-color: #1a7537
 }
 
+.Toastify__toast--warning {
+    background-color: #796202
+}
+
 .Toastify__toast--error {
     background-color: #bb2618
 }

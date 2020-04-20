@@ -1,13 +1,19 @@
 
 from app import sio
 from time import sleep
+from collections import defaultdict
 
 from flask import session, request
 from flask_socketio import join_room, leave_room, emit
 
 # Don't want to use a database. Currently
 # relying on Python's thread-safe built-in data-types 
-rooms = []
+rooms = [] # For socketio rooms
+
+# For all players associated with rooms
+# identified by their roomID and ordered by turn
+players = defaultdict(list)
+
 
 @sio.on('join')
 def on_join(data):
@@ -60,7 +66,20 @@ def recall_event(data):
 @sio.on('drawEvent')
 def draw_event(data):
     """
-    Event handler for play draw
+    Event handler for draw play
+    """
+    room = data.get('roomID')
+    ordered_players = data.get('playOrder')
+
+    for o_o in ordered_players: # Lol
+        players[room].append(o_o)
+
+    emit('drawDone', data, room=room)
+
+@sio.on('playEvent')
+def play_event(data):
+    """
+    Event handler for an actual valid play
     """
 
-    emit('drawDone', data, room=data.get('roomID'))
+    emit('validPlay', data, room=data.get('roomID'))

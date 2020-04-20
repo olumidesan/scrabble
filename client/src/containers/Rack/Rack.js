@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from '../../helpers/axios';
 // import { toast } from 'react-toastify';
+// // import { toast } from 'react-toastify';
 
 export class Rack extends Component {
     constructor(props) {
@@ -12,12 +13,39 @@ export class Rack extends Component {
         }
     }
 
+
+    __makeAxiosRequest = (url, id) => {
+        return axios.post(url, {roomID: id})
+            .then(r => r.data)
+            .catch(e => console.log(e.data));
+    }
+
     skipTurn = () => {
         // tbd
     }
 
     playTurn = () => {
+        // You can, of course, only play when it's
+        // your turn
+        if (this.props.isTurn) {
+            // Before scoring
+            // Validate board play
+            // Compute score
+            // Validate words
 
+            // After validating
+            // Make played pieces immovable
+            // Update board with score
+            // Refill player's rack
+            // Pass turn
+            let nextPlayerToPlay = this.__makeAxiosRequest('/turn', this.props.roomID);
+            nextPlayerToPlay.then(data => {
+                this.props.socket.emit('playEvent', {
+                    playerToPlay: data.playerToPlay,
+                    roomID: this.props.roomID
+                });
+            });
+        }
     }
 
     swapPieces = () => {
@@ -44,6 +72,7 @@ export class Rack extends Component {
             roomID: this.props.roomID
         });
 
+        // Remove the draw button, as the draw has been done
         let drawButton = document.getElementById('drawButton');
         if (drawButton !== null) {
             drawButton.remove();
@@ -140,6 +169,8 @@ export class Rack extends Component {
     }
 
     componentDidMount = () => {
+        // Register for event to effect a recall when a player does 
+        // that. Effects reflection among all players
         this.props.socket.on('recallPieces', (data) => {
             if (data.name !== this.props.name) {
                 this.clearPlayedPieces();
@@ -161,7 +192,7 @@ export class Rack extends Component {
                         <button title="Skip Turn" onClick={this.skipTurn} className="button rackButton is-link"><i className="fas fa-forward"></i></button>
                         <button title="Play" className="button rackButton is-success" onClick={this.playTurn}><i className="fas fa-play"></i></button>
                         {this.props.isHost ?
-                            <button id="drawButton" title="Play" className="button rackButton is-warning" onClick={this.makeDraw}>Draw</button>
+                            <button id="drawButton" title="Draw" className="button rackButton is-warning" onClick={this.makeDraw}>Draw</button>
                             : null}
                     </div>
                 </div>

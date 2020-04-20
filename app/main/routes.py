@@ -1,7 +1,7 @@
 
 from app import env
 from . import main_bp as main
-from flask import render_template
+from flask import render_template, send_from_directory
 
 
 # @main.route('/', defaults={'path': ''})

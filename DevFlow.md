@@ -12,3 +12,5 @@
 - Remove haphazard definition of axios requests | Check
 - Show modal of pieces on bag click
 - Refactor app to use proper React componentization
+- Cater for shaky connections. Currently, if connection gets lost,
+  there are socketio errors

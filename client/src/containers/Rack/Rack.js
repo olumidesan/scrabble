@@ -27,8 +27,8 @@ export class Rack extends Component {
             // Update board with score
 
 
-            // Make played pieces immovable
-
+            // Make played pieces permanent. Announce to everybody
+            this.props.socket.emit('concreteEvent', { roomID: this.props.roomID });
 
             // Pass turn
             let nextPlayerToPlay = makeServerRequest({
@@ -90,6 +90,17 @@ export class Rack extends Component {
                 payload: { amount: amount }
             });
             return pieces;
+        }
+    }
+
+    concretizePlayedPieces = () => {
+        // Make all the pieces permanent
+        let playedPieces = document.querySelectorAll('.bp');
+        if (playedPieces.length > 0) {
+            playedPieces.forEach((piece) => {
+                piece.removeAttribute('class');
+                piece.removeAttribute('id');
+            });
         }
     }
 
@@ -178,6 +189,14 @@ export class Rack extends Component {
                 this.clearPlayedPieces();
             }
         });
+
+        // Register for event to effect a recall when a player does 
+        // that. Effects reflection among all players
+        this.props.socket.on('concretizePieces', () => {
+            this.concretizePlayedPieces();
+        });
+
+        // Get new pieces, update the state and populate the rack
         let newPieces = this.getFromBag(7 - this.state.currentPieces.length);
         newPieces.then((data) => {
             this.setState({ currentPieces: data.pieces },

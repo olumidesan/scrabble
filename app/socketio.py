@@ -94,3 +94,10 @@ def play_event(data):
     # Add bag length to payload
     data['bagLength'] = get_remaining_pieces()
     emit('validPlay', data, room=data.get('roomID'))
+
+@sio.on('concreteEvent')
+def concretize_play(data):
+    """
+    Event handler for an actual valid play
+    """
+    emit('concretizePieces', room=data.get('roomID'))

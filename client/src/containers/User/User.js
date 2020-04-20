@@ -367,7 +367,10 @@ export default class GameUser extends Component {
                 </div>
                 <div className="column is-one-third">
                     <div className="extras">
-                        <ScoreTable socket={this.socket} isTurn={this.state.isTurn} players={this.state.players} />
+                        <ScoreTable socket={this.socket}
+                            name={this.state.name}
+                            isTurn={this.state.isTurn}
+                            players={this.state.players} />
                         <Rack socket={this.socket}
                             name={this.state.name}
                             roomID={this.state.roomID}

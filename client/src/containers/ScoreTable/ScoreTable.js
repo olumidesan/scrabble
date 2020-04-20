@@ -16,7 +16,7 @@ export default class ScoreTable extends Component {
     render() {
         let players = this.props.players.map((player, index) => {
             return <tr key={index}>
-                <td>{player}</td>
+                <td>{this.props.name === player ? `${player} (You)` : player}</td>
                 <td>{this.state.score}</td>
                 <td id={`turn_${player}`}>No</td>
             </tr>;

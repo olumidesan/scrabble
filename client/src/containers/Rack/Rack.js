@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
-import axios from '../../helpers/axios';
-// import { toast } from 'react-toastify';
-// // import { toast } from 'react-toastify';
+import makeServerRequest from '../../helpers/axios';
 
 export class Rack extends Component {
     constructor(props) {
@@ -11,13 +9,6 @@ export class Rack extends Component {
             currentPieces: [],
             noOfPieces: 0
         }
-    }
-
-
-    __makeAxiosRequest = (url, id) => {
-        return axios.post(url, {roomID: id})
-            .then(r => r.data)
-            .catch(e => console.log(e.data));
     }
 
     skipTurn = () => {
@@ -38,7 +29,13 @@ export class Rack extends Component {
             // Update board with score
             // Refill player's rack
             // Pass turn
-            let nextPlayerToPlay = this.__makeAxiosRequest('/turn', this.props.roomID);
+
+
+            let nextPlayerToPlay = makeServerRequest({
+                requestType: 'post',
+                url: '/turn',
+                payload: { roomID: this.props.roomID }
+            });
             nextPlayerToPlay.then(data => {
                 this.props.socket.emit('playEvent', {
                     playerToPlay: data.playerToPlay,
@@ -82,12 +79,15 @@ export class Rack extends Component {
     getFromBag = (amount) => {
         // Get passed amount from bag
         if (amount > 0) {
-            axios.post('/bag', { amount: amount })
-                .then(r => {
-                    this.setState({ currentPieces: r.data.pieces },
-                        () => { this.populateRack(this.state.currentPieces) });
-                })
-                .catch(e => console.log(e.data));
+            let pieces = makeServerRequest({
+                requestType: 'post',
+                url: '/bag',
+                payload: { amount: amount }
+            });
+            pieces.then((data) => {
+                this.setState({ currentPieces: data.pieces },
+                    () => { this.populateRack(this.state.currentPieces) });
+            });
         }
     }
 

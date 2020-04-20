@@ -4,7 +4,7 @@ import io from 'socket.io-client';
 import Board from '../Board/Board';
 import Rack from '../Rack/Rack';
 import ScoreTable from '../ScoreTable/ScoreTable';
-import axios from '../../helpers/axios';
+import makeServerRequest from '../../helpers/axios';
 
 
 export default class GameUser extends Component {
@@ -72,12 +72,6 @@ export default class GameUser extends Component {
         this.socket.emit('join', { name: this.state.name, roomID: this.roomID });
     }
 
-    __makeAxiosRequest = (url) => {
-        return axios.get(url)
-            .then(r => r.data.rooms)
-            .catch(e => console.log(e.data));
-    }
-
     joinRoom = (e) => {
         e.preventDefault();
 
@@ -93,11 +87,11 @@ export default class GameUser extends Component {
         }
 
         // Get all the current game session IDs and validate
-        // that the inputted Game ID is valid
-        let gameIDs = this.__makeAxiosRequest('/rooms');
-        gameIDs.then(ids => {
+        // that the inputted Game ID is valid 
+        let gameIDs = makeServerRequest({ requestType: 'get', url: '/rooms', payload: {} });
+        gameIDs.then(data => {
             // Validate
-            if (!ids.includes(this.state.roomID)) {
+            if (!data.rooms.includes(this.state.roomID)) {
                 toast.error(`😬 There's currently no game session with ID, ${this.state.roomID}.`);
                 return;
             }

@@ -22,4 +22,12 @@ axios.interceptors.response.use(response => {
     return Promise.reject(error);
 });
 
-export default axios;
+const makeServerRequest = (opts) => {
+    // Payload is params for GET and same for POST
+    return axios[opts.requestType](opts.url, opts.payload)
+        .then(r => r.data)
+        .catch(e => console.log(e.data));
+}
+
+// export { __makeServerRequest};
+export default makeServerRequest;

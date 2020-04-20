@@ -9,4 +9,5 @@
 - Save scores on server and query from there, instead of emitting immediately?
 - Reset config forms on Cancel. State has been reset but forms haven't. 
 - Play logs and connection status | config
-- Remove haphazard definition of axios requests
+- Add connection status
+- Remove haphazard definition of axios requests | Check

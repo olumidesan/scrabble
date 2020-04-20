@@ -6,9 +6,14 @@ from collections import defaultdict
 from flask import session, request
 from flask_socketio import join_room, leave_room, emit
 
-# Don't want to use a database. Currently
-# relying on Python's thread-safe built-in data-types 
-rooms = [] # For socketio rooms
+# ----------- Persistence ------------
+# Don't want to use a database. 
+# Currently relying on Python's 
+# thread-safe built-in data-types 
+
+# For all socketio rooms, aliased
+# as game IDs
+rooms = []
 
 # For all players associated with rooms
 # identified by their roomID and ordered by turn
@@ -71,7 +76,7 @@ def draw_event(data):
     room = data.get('roomID')
     ordered_players = data.get('playOrder')
 
-    for o_o in ordered_players: # Lol
+    for o_o in ordered_players: # Lol o_o
         players[room].append(o_o)
 
     emit('drawDone', data, room=room)

@@ -16,7 +16,6 @@ turn_order = None
 @api.route('/rooms')
 def sio_rooms():
     """Returns the list of socketIO rooms"""
-
     return jsonify(dict(rooms=rooms))
 
 # Should be a GET request, but I need the roomID 
@@ -31,7 +30,7 @@ def player_turns():
     room_id = request.get_json(silent=True).get('roomID')
     if turn_order == None:
         turn_order = cycle(players.get(room_id))
-        next(turn_order) # Client knows already.
+        next(turn_order) # Client knows already, initially.
 
     player_to_play = next(turn_order)
 

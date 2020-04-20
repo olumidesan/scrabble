@@ -1,5 +1,6 @@
 
 from app import env, CLIENT_TOKEN
+
 from . import main_bp as main
 from flask import render_template, send_from_directory
 

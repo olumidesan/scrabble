@@ -32,8 +32,8 @@ export class Rack extends Component {
         if (this.props.isTurn) {
             // Before scoring
             // Validate board play
-            // Compute score
             // Validate words
+            // Compute score
 
             // After validating 
             // Update board with score
@@ -198,7 +198,7 @@ export class Rack extends Component {
     }
 
     toggleBag = () => {
-        // Validate that the bag has been updated (Happens once the draw is done)
+        // Validate that the bag has been updated (happens once the draw is done)
         if (Object.keys(this.props.bagItems).length === 0) {
             toast.info("Kindly wait until the host makes the draw.");
             return;

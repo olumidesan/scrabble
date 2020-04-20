@@ -42,7 +42,6 @@ class Board extends React.Component {
 
         // When a piece is initially moved, from rack or board
         document.addEventListener("dragstart", (event) => {
-            console.log(event);
             if (this.props.isTurn) {
                 // A piece having a classname with 'bp' is originated
                 // from the board itself, signifying a drag

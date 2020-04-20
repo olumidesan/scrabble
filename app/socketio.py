@@ -34,7 +34,6 @@ def on_join(data):
 
     # Add to the rooms if not already there
     rooms.append(room) if room not in rooms else None
-    
     emit('joinedRoom', data, room=room)
 
 @sio.on('fromHost')
@@ -70,6 +69,13 @@ def recall_event(data):
     """
     emit('recallPieces', data, room=data.get('roomID'))
 
+@sio.on('concreteEvent')
+def concretize_play(data):
+    """
+    Event handler for an actual valid play
+    """
+    emit('concretizePieces', room=data.get('roomID'))
+
 @sio.on('playEvent')
 def play_event(data):
     """
@@ -80,12 +86,6 @@ def play_event(data):
     data['bagLength'] = get_remaining_pieces()
 
     emit('validPlay', data, room=data.get('roomID'))
-
-@sio.on('concreteEvent')
-def concretize_play(data):
-    """
-    Event handler for an actual valid play
-    """
 
 @sio.on('drawEvent')
 def draw_event(data):
@@ -103,4 +103,3 @@ def draw_event(data):
     data['bagLength'] = get_remaining_pieces()
 
     emit('drawDone', data, room=room)
-    emit('concretizePieces', room=data.get('roomID'))

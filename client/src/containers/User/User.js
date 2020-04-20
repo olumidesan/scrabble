@@ -25,7 +25,8 @@ export default class GameUser extends Component {
             isHost: false,
             isTurn: false,
             gameStarted: false,
-            connectedPlayers: 0
+            connectedPlayers: 0,
+            bagLength: 100
         }
     }
 
@@ -157,7 +158,7 @@ export default class GameUser extends Component {
             let firsToPlayMessage, playOrderMessage = '';
 
             // Reorder the state's players to match the turn order
-            this.setState({ players: data.playOrder });
+            this.setState({ players: data.playOrder, bagLength: data.bagLength });
 
             if (firstToPlay === this.state.name) {
                 this.setState({ isTurn: true });
@@ -229,11 +230,11 @@ export default class GameUser extends Component {
 
             // Update local state
             if (data.playerToPlay === this.state.name) {
-                this.setState({ isTurn: true });
+                this.setState({ isTurn: true, bagLength: data.bagLength });
                 message = `${data.playerToPlay}, it's your turn to play.`;
             }
             else {
-                this.setState({ isTurn: false });
+                this.setState({ isTurn: false, bagLength: data.bagLength });
                 message = `${data.playerToPlay}'s turn to play.`;
             }
 
@@ -365,12 +366,15 @@ export default class GameUser extends Component {
                             name={this.state.name}
                             isTurn={this.state.isTurn}
                             players={this.state.players} />
+                            { this.state.gameStarted ?
                         <Rack socket={this.socket}
                             name={this.state.name}
                             roomID={this.state.roomID}
                             isHost={this.state.isHost}
                             isTurn={this.state.isTurn}
-                            players={this.state.players} />
+                            bagLength={this.state.bagLength}
+                            gameStarted={this.state.gameStarted}
+                            players={this.state.players} /> : null }
                     </div>
                 </div>
             </div>

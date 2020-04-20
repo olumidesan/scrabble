@@ -6,8 +6,7 @@ export class Rack extends Component {
         super(props);
 
         this.state = {
-            currentPieces: [],
-            noOfPieces: 0
+            currentPieces: []
         }
     }
 
@@ -25,12 +24,13 @@ export class Rack extends Component {
             // Validate words
 
             // After validating
-            // Make played pieces immovable
             // Update board with score
-            // Refill player's rack
+
+
+            // Make played pieces immovable
+
+
             // Pass turn
-
-
             let nextPlayerToPlay = makeServerRequest({
                 requestType: 'post',
                 url: '/turn',
@@ -42,6 +42,17 @@ export class Rack extends Component {
                     roomID: this.props.roomID
                 });
             });
+
+            // Refill player's rack
+            let remainingPieces = this.getPiecesOnRack();
+            let newPieces = this.getFromBag(7 - remainingPieces.length);
+            newPieces.then((data) => {
+                // Refill rack
+                data.pieces.forEach(piece => remainingPieces.push(piece));
+            }).then(() => {
+                this.setState({ currentPieces: remainingPieces });
+                this.populateRack(remainingPieces);
+            });
         }
     }
 
@@ -49,14 +60,8 @@ export class Rack extends Component {
         // tbd
     }
 
-    getRandom = (arr) => {
-        // https://stackoverflow.com/questions/4550505/getting-a-random-value-from-a-javascript-array
-        return arr[Math.floor(Math.random() * arr.length)];
-    }
-
     makeDraw = (e) => {
         // Select a random player to start from all the players
-        // Honestly don't know why JS doesn't have a `random.choice()` method
         e.preventDefault();
 
         // Shuffle all the players. The resulting order is the order
@@ -84,10 +89,7 @@ export class Rack extends Component {
                 url: '/bag',
                 payload: { amount: amount }
             });
-            pieces.then((data) => {
-                this.setState({ currentPieces: data.pieces },
-                    () => { this.populateRack(this.state.currentPieces) });
-            });
+            return pieces;
         }
     }
 
@@ -176,7 +178,11 @@ export class Rack extends Component {
                 this.clearPlayedPieces();
             }
         });
-        this.getFromBag(7);
+        let newPieces = this.getFromBag(7 - this.state.currentPieces.length);
+        newPieces.then((data) => {
+            this.setState({ currentPieces: data.pieces },
+                () => { this.populateRack(this.state.currentPieces) });
+        });
     }
 
     render() {
@@ -185,6 +191,10 @@ export class Rack extends Component {
                 <div className="rackPieces">
                 </div>
                 <div className='rackButtons'>
+                    <div className='bag'>
+                        <span><i className="fa fa-shopping-bag fa-2x"></i></span>
+                        <span className="bagLength">{this.props.bagLength}</span>
+                    </div>
                     <div className="buttons is-fullwidth has-addons">
                         <button title="Recall Pieces" onClick={this.recallPieces} className="button rackButton is-link"><i className="fas fa-undo"></i></button>
                         <button title="Shuffle Pieces" onClick={this.shufflePieces} className="button rackButton is-link"><i className="fas fa-random"></i></button>

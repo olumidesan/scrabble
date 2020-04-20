@@ -20,6 +20,9 @@ rooms = []
 players = defaultdict(list)
 
 
+from app.api.utils import get_remaining_pieces
+
+
 @sio.on('join')
 def on_join(data):
     """Event handler for room joins"""
@@ -79,6 +82,7 @@ def draw_event(data):
     for o_o in ordered_players: # Lol o_o
         players[room].append(o_o)
 
+    data['bagLength'] = get_remaining_pieces()
     emit('drawDone', data, room=room)
 
 @sio.on('playEvent')
@@ -87,4 +91,8 @@ def play_event(data):
     Event handler for an actual valid play
     """
 
+    data['bagLength'] = get_remaining_pieces()
     emit('validPlay', data, room=data.get('roomID'))
+
+  
+from app.api.utils import get_remaining_pieces

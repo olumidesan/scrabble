@@ -2,12 +2,12 @@
 from threading import Lock
 from itertools import cycle
 from flask import jsonify, request
+from app.socketio import rooms, players
 
 from . import api_bp as api
 from .auth import token_auth, error_response
 from .utils import get_pieces, get_remaining_pieces
 
-from app.socketio import rooms, players
 
 lock = Lock()
 turn_order = None
@@ -34,7 +34,7 @@ def player_turns():
 
     player_to_play = next(turn_order)
 
-    return jsonify(dict(playerToPlay=player_to_play))
+    return jsonify(dict(playerToPlay=player_to_play)) # Camel for JS, snake for Python
 
 @api.route('/bag', methods=['GET', 'POST'])
 def bag():

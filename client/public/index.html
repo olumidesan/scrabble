@@ -16,8 +16,9 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <script>
-      const WEBSITE_ENV = "{{ website_env }}";
-      if (WEBSITE_ENV === 'PROD') {
+      window.b2ctk = "{{ b2ctk }}";
+      const APP_ENV = "{{ app_env }}";
+      if (APP_ENV === 'PROD') {
           if (typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ === 'object') {
               __REACT_DEVTOOLS_GLOBAL_HOOK__.inject = function () { };
           }

@@ -35,7 +35,6 @@ export default class ScoreTable extends Component {
                         {players}
                     </tbody>
                 </table>
-
             </div>
         )
     }

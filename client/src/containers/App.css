@@ -94,7 +94,16 @@
 }
 
 .bag {
-    border: 2px red solid;
+    display: flex;
+    margin-top: 18px;
+    color: #8e3737
+}
+
+.bagLength {
+    display: flex;
+    align-items: flex-end;
+    font-size: 16px;
+    margin-left: 3px;
 }
 
 .imp {
@@ -213,6 +222,7 @@
 
 .rackButtons {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     width: 354px;
+    align-items: center;
 }

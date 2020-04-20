@@ -10,6 +10,8 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 
 sio = SocketIO()
+CLIENT_TOKEN = 'Scrabble'
+
 
 def create_app(config_class):
     app = Flask(__name__, 

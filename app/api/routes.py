@@ -36,17 +36,12 @@ def player_turns():
 
     return jsonify(dict(playerToPlay=player_to_play)) # Camel for JS, snake for Python
 
-@api.route('/bag', methods=['GET', 'POST'])
+@api.route('/bag', methods=['POST'])
 def bag():
-    if request.method == 'GET':
-        return jsonify(dict(pieces_left=get_remaining_pieces()))
-    
-    # Implicit POST
     payload = request.get_json(silent=True)
     amount = payload.get('amount')
 
-    with lock: # Not really needed, in truth. 
+    with lock: 
         new_pieces = get_pieces(amount)
 
     return jsonify(dict(pieces=new_pieces))
-

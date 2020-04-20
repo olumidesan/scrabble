@@ -99,6 +99,13 @@
     color: #8e3737
 }
 
+.connection {
+    display: flex;
+    align-self: flex-end;
+    margin-right: 15px;
+    margin-top: 5px;
+}
+
 .bagLength {
     display: flex;
     align-items: flex-end;

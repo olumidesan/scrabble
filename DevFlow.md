@@ -9,5 +9,6 @@
 - Save scores on server and query from there, instead of emitting immediately?
 - Reset config forms on Cancel. State has been reset but forms haven't. 
 - Play logs and connection status | config
-- Add connection status
 - Remove haphazard definition of axios requests | Check
+- Show modal of pieces on bag click
+- Refactor app to use proper React componentization

@@ -19,7 +19,7 @@ rooms = []
 # identified by their roomID and ordered by turn
 players = defaultdict(list)
 
-
+# Prevent Import error due to cyclic imports
 from app.api.utils import get_remaining_pieces
 
 
@@ -82,6 +82,7 @@ def draw_event(data):
     for o_o in ordered_players: # Lol o_o
         players[room].append(o_o)
 
+    # Add bag length to payload
     data['bagLength'] = get_remaining_pieces()
     emit('drawDone', data, room=room)
 
@@ -90,9 +91,6 @@ def play_event(data):
     """
     Event handler for an actual valid play
     """
-
+    # Add bag length to payload
     data['bagLength'] = get_remaining_pieces()
     emit('validPlay', data, room=data.get('roomID'))
-
-  
-from app.api.utils import get_remaining_pieces

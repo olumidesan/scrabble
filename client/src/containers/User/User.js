@@ -127,6 +127,20 @@ export default class GameUser extends Component {
         // Incase socket.io loses connection to the server
         this.socket.on('reconnect_attempt', () => {
             this.socket.io.opts.transports = ['polling', 'websocket'];
+            document.getElementById('connstatus').setAttribute('title', "Reconnecting...");
+            document.getElementById('connstatus').setAttribute('class', 'has-text-warning');
+        });
+
+        // On connect
+        this.socket.on('connect', () => {
+            document.getElementById('connstatus').setAttribute('title', "Connected");
+            document.getElementById('connstatus').setAttribute('class', 'has-text-success');
+        });
+
+        // On disconnect
+        this.socket.on('disconnect', () => {
+            document.getElementById('connstatus').setAttribute('title', "Connection Lost");
+            document.getElementById('connstatus').setAttribute('class', 'has-text-danger');
         });
 
         // When a new player joins (host or not)
@@ -250,7 +264,7 @@ export default class GameUser extends Component {
                     <div className="field">
                         <label className="label">Your Name: <span className="imp">*</span> </label>
                         <div className="control">
-                            <input className="input" type='text' onChange={this.saveUser} name='text' placeholder='e.g: Josiah' />
+                            <input className="input" type='text' onChange={this.saveUser} name='text' placeholder='e.g: Nagato' />
                         </div>
                     </div>
                     <div className="control">
@@ -276,7 +290,7 @@ export default class GameUser extends Component {
                     <div className="field">
                         <label className="label">Your Name: <span className="imp">*</span></label>
                         <div className="control">
-                            <input className="input" type='text' onChange={this.saveUser} name='name' placeholder='e.g. Olumidesan' />
+                            <input className="input" type='text' onChange={this.saveUser} name='name' placeholder='e.g. Gollum' />
                         </div>
                     </div>
 
@@ -362,19 +376,23 @@ export default class GameUser extends Component {
                 </div>
                 <div className="column is-one-third">
                     <div className="extras">
+                        <div className='connection'>
+                            <span id="connstatus" ><i className="fas fa-wifi"></i></span>&nbsp;
+                        </div>
                         <ScoreTable socket={this.socket}
                             name={this.state.name}
                             isTurn={this.state.isTurn}
                             players={this.state.players} />
-                            { this.state.gameStarted ?
-                        <Rack socket={this.socket}
-                            name={this.state.name}
-                            roomID={this.state.roomID}
-                            isHost={this.state.isHost}
-                            isTurn={this.state.isTurn}
-                            bagLength={this.state.bagLength}
-                            gameStarted={this.state.gameStarted}
-                            players={this.state.players} /> : null }
+                        {this.state.gameStarted ?
+                            <Rack socket={this.socket}
+                                name={this.state.name}
+                                roomID={this.state.roomID}
+                                isHost={this.state.isHost}
+                                isTurn={this.state.isTurn}
+                                bagLength={this.state.bagLength}
+                                gameStarted={this.state.gameStarted}
+                                players={this.state.players} /> :
+                            null}
                     </div>
                 </div>
             </div>

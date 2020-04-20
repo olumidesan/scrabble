@@ -42,6 +42,7 @@ class Board extends React.Component {
 
         // When a piece is initially moved, from rack or board
         document.addEventListener("dragstart", (event) => {
+            console.log(event);
             if (this.props.isTurn) {
                 // A piece having a classname with 'bp' is originated
                 // from the board itself, signifying a drag
@@ -51,7 +52,10 @@ class Board extends React.Component {
                 this.setState({ currentPiece: event.target });
             }
             else {
-                toast.error(`It's not your turn, ${this.props.name}. Wait your turn.`);
+                // If it's a drag that's associated with a scrabble piece. Warn to wait
+                if (event.target.getAttribute('draggable')) {
+                    toast.error(`It's not your turn, ${this.props.name}. Kindly wait your turn.`);
+                }
             }
         });
 

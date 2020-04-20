@@ -222,18 +222,28 @@ export default class GameUser extends Component {
         // Register for event to effect an actual valid play
         this.socket.on('validPlay', (data) => {
             let message;
+
+            // Update turn column on board
+            this.state.players.forEach(player => {
+                if (player === data.playerToPlay) {
+                    document.getElementById(`turn_${player}`).innerText = 'Yes';
+                }
+                else {
+                    document.getElementById(`turn_${player}`).innerText = 'No';
+                }
+            })
+
+            // Update local state
             if (data.playerToPlay === this.state.name) {
                 this.setState({ isTurn: true });
                 message = `${data.playerToPlay}, it's your turn to play.`;
-                document.getElementById(`turn_${data.playerToPlay}`).innerText = 'Yes';
             }
             else {
                 this.setState({ isTurn: false });
                 message = `${data.playerToPlay}'s turn to play.`;
-                document.getElementById(`turn_${this.state.name}`).innerText = 'No';
-                document.getElementById(`turn_${data.playerToPlay}`).innerText = 'Yes';
             }
-            // Show on the score table whose turn it is
+
+            // Tell player whose turn it is
             toast.info(message);
         });
     }

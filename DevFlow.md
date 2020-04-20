@@ -13,4 +13,5 @@
 - Show modal of pieces on bag click | check
 - Refactor app to use proper React componentization
 - Cater for shaky connections. Currently, if connection gets lost,
+- Add weights to bag view
   there are socketio errors

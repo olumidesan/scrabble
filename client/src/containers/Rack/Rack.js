@@ -1,17 +1,29 @@
 import React, { Component } from 'react';
 import makeServerRequest from '../../helpers/axios';
+import { toast } from 'react-toastify';
 
 export class Rack extends Component {
     constructor(props) {
         super(props);
 
+        this.maxPieces = 7;
         this.state = {
             currentPieces: []
         }
     }
 
-    skipTurn = () => {
-        // tbd
+    announceNextPlayer = () => {
+        let nextPlayerToPlay = makeServerRequest({
+            requestType: 'post',
+            url: '/turn',
+            payload: { roomID: this.props.roomID }
+        });
+        nextPlayerToPlay.then(data => {
+            this.props.socket.emit('playEvent', {
+                playerToPlay: data.playerToPlay,
+                roomID: this.props.roomID
+            });
+        });
     }
 
     playTurn = () => {
@@ -23,36 +35,41 @@ export class Rack extends Component {
             // Compute score
             // Validate words
 
-            // After validating
+            // After validating 
             // Update board with score
 
 
-            // Make played pieces permanent. Announce to everybody
-            this.props.socket.emit('concreteEvent', { roomID: this.props.roomID });
-
-            // Pass turn
-            let nextPlayerToPlay = makeServerRequest({
-                requestType: 'post',
-                url: '/turn',
-                payload: { roomID: this.props.roomID }
-            });
-            nextPlayerToPlay.then(data => {
-                this.props.socket.emit('playEvent', {
-                    playerToPlay: data.playerToPlay,
-                    roomID: this.props.roomID
-                });
-            });
-
-            // Refill player's rack
             let remainingPieces = this.getPiecesOnRack();
-            let newPieces = this.getFromBag(7 - remainingPieces.length);
-            newPieces.then((data) => {
-                // Refill rack
-                data.pieces.forEach(piece => remainingPieces.push(piece));
-            }).then(() => {
-                this.setState({ currentPieces: remainingPieces });
-                this.populateRack(remainingPieces);
-            });
+            if ((this.maxPieces - remainingPieces.length) > 0) {
+                // Make played pieces permanent. Reflect on everybody's, including yours
+                this.props.socket.emit('concreteEvent', { roomID: this.props.roomID });
+
+                // Announce next player
+                this.announceNextPlayer();
+
+                // Refill player's rack
+                let newPieces = this.getFromBag(this.maxPieces - remainingPieces.length);
+                newPieces.then((data) => {
+                    // Refill rack
+                    data.pieces.forEach(piece => remainingPieces.push(piece));
+                }).then(() => {
+                    this.setState({ currentPieces: remainingPieces });
+                    this.populateRack(remainingPieces);
+                });
+            }
+            else {
+                toast.error("Err...You haven't played anything. You can alternatively skip your turn.")
+            }
+        }
+    }
+
+    skipTurn = () => {
+        if (this.props.isTurn) {
+            let answer = window.confirm("Are you sure you want to skip your turn?");
+            if (answer) {
+                this.recallPieces();
+                this.announceNextPlayer();
+            }
         }
     }
 
@@ -83,18 +100,17 @@ export class Rack extends Component {
 
     getFromBag = (amount) => {
         // Get passed amount from bag
-        if (amount > 0) {
-            let pieces = makeServerRequest({
-                requestType: 'post',
-                url: '/bag',
-                payload: { amount: amount }
-            });
-            return pieces;
-        }
+        let pieces = makeServerRequest({
+            requestType: 'post',
+            url: '/bag',
+            payload: { amount: amount }
+        });
+        return pieces;
     }
 
     concretizePlayedPieces = () => {
-        // Make all the pieces permanent
+        // Make all the pieces permanent. Do this, essentially, 
+        // by removing their identifiable class
         let playedPieces = document.querySelectorAll('.bp');
         if (playedPieces.length > 0) {
             playedPieces.forEach((piece) => {
@@ -153,7 +169,7 @@ export class Rack extends Component {
         let pieces = [];
 
         // For each piece in the rack, get the letter and value and then
-        // store each one in the above array
+        // store each one in the above array.
         document.querySelectorAll('.pieceContainer').forEach((piece) => {
             pieces.push({
                 letter: piece.textContent.slice(0, 1),
@@ -197,11 +213,18 @@ export class Rack extends Component {
         });
 
         // Get new pieces, update the state and populate the rack
-        let newPieces = this.getFromBag(7 - this.state.currentPieces.length);
-        newPieces.then((data) => {
-            this.setState({ currentPieces: data.pieces },
-                () => { this.populateRack(this.state.currentPieces) });
-        });
+        let requiredPieces = this.maxPieces - this.state.currentPieces.length;
+        if (requiredPieces > 0) {
+            let newPieces = this.getFromBag(requiredPieces);
+            newPieces.then((data) => {
+                this.setState({ currentPieces: data.pieces },
+                    () => { this.populateRack(this.state.currentPieces) });
+            });
+        }
+        else {
+            // Validate Context: Bag isn't low. That kind of thing
+            toast.error("Err...You haven't played anything. You can alternatively skip your turn.")
+        }
     }
 
     render() {

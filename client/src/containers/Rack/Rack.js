@@ -221,7 +221,7 @@ export class Rack extends Component {
         piecesContainer.setAttribute('class', 'bagPieceContainer');
 
         // Create the pieces and eventually append to the parent
-        // container
+        // container. State/props has them as an array
         for (const letter of pieces) {
             let piece;
 
@@ -236,32 +236,6 @@ export class Rack extends Component {
         }
         return piecesContainer;
     }
-
-    // updateBag = (pieces) => {
-    //     // Create container element
-    //     let pieceContainer = document.createElement('div');
-    //     pieceContainer.setAttribute('class', 'bagPieceContainer');
-
-        
-    //     for (const letter of pieces) {
-    //         let piece, piecee;
-
-    //         let piece2 = document.createElement('div');
-    //         let pieceh = document.createElement('div');
-    //         pieceh.setAttribute('class', 'bagPieceItem');
-    //         let piece3 = document.createElement('div');
-    //         piece3.setAttribute('class', 'numberLeft');
-
-    //         piecee = `<span>${letter[1]} left</span>`;
-    //         piece = `<div class='piece'><span class="letter">${letter[0]}</span></div>`;
-    //         piece2.innerHTML = piece;
-    //         piece3.innerHTML = piecee;
-    //         pieceh.appendChild(piece2);
-    //         pieceh.appendChild(piece3);
-    //         pieceContainer.appendChild(pieceh);
-    //     }
-    //     return pieceContainer;
-    // }
 
     componentDidMount = () => {
         // Register for event to effect a recall when a player does 

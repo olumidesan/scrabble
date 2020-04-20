@@ -113,6 +113,29 @@
     margin-left: 3px;
 }
 
+.bagPieceContainer {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 30px;
+}
+
+.bagPieceItem {
+    margin: 10px;
+    width: 50px;
+    height: 50px;
+}
+
+.numberLeft {
+    font-size: 12px;
+    text-align: center;
+}
+
+.bagItems {
+    width: 860px;
+    height: 385px;
+    padding: 30px;
+}
+
 .imp {
     color: red;
 }

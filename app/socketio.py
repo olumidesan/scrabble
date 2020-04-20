@@ -16,11 +16,13 @@ from flask_socketio import join_room, leave_room, emit
 rooms = []
 
 # For all players associated with rooms
-# identified by their roomID and ordered by turn
+# identified by their roomID and ordered 
+# by turn
 players = defaultdict(list)
+# -------------------------------------
 
 # Prevent Import error due to cyclic imports
-from app.api.utils import get_remaining_pieces
+from app.api.utils import get_all_pieces, get_remaining_pieces
 
 
 @sio.on('join')
@@ -35,7 +37,6 @@ def on_join(data):
     
     emit('joinedRoom', data, room=room)
 
-# Re-broadcast events for player to other players
 @sio.on('fromHost')
 def from_host(data):
     """
@@ -60,7 +61,6 @@ def board_drag(data):
     """
     Event handler for board drag plays
     """
-
     emit('boardDrag', data, room=data.get('roomID'))
 
 @sio.on('recallEvent')
@@ -68,8 +68,24 @@ def recall_event(data):
     """
     Event handler for recall pieces plays
     """
-
     emit('recallPieces', data, room=data.get('roomID'))
+
+@sio.on('playEvent')
+def play_event(data):
+    """
+    Event handler for an actual valid play
+    """
+    # Add bag and its length to payload
+    data['bagItems'] = get_all_pieces()
+    data['bagLength'] = get_remaining_pieces()
+
+    emit('validPlay', data, room=data.get('roomID'))
+
+@sio.on('concreteEvent')
+def concretize_play(data):
+    """
+    Event handler for an actual valid play
+    """
 
 @sio.on('drawEvent')
 def draw_event(data):
@@ -82,22 +98,9 @@ def draw_event(data):
     for o_o in ordered_players: # Lol o_o
         players[room].append(o_o)
 
-    # Add bag length to payload
+    # Add bag and its length to payload
+    data['bagItems'] = get_all_pieces()
     data['bagLength'] = get_remaining_pieces()
+
     emit('drawDone', data, room=room)
-
-@sio.on('playEvent')
-def play_event(data):
-    """
-    Event handler for an actual valid play
-    """
-    # Add bag length to payload
-    data['bagLength'] = get_remaining_pieces()
-    emit('validPlay', data, room=data.get('roomID'))
-
-@sio.on('concreteEvent')
-def concretize_play(data):
-    """
-    Event handler for an actual valid play
-    """
     emit('concretizePieces', room=data.get('roomID'))

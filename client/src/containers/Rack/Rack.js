@@ -197,6 +197,72 @@ export class Rack extends Component {
         }
     }
 
+    toggleBag = () => {
+        // Validate that the bag has been updated (Happens once the draw is done)
+        if (Object.keys(this.props.bagItems).length === 0) {
+            toast.info("Kindly wait until the host makes the draw.");
+            return;
+        }
+
+        // Get the modal section and populate it with the bag items 
+        // from the props
+        let bagHome = document.getElementById('bagHome');
+        // Reset the bag
+        bagHome.innerHTML = ""
+        bagHome.appendChild(this.updateBag(this.props.bagItems));
+
+        // Actually show (toggle) modal
+        document.getElementById('bagModal').classList.toggle('is-active');
+    }
+
+    updateBag = (pieces) => {
+        // Create container element
+        let piecesContainer = document.createElement('div');
+        piecesContainer.setAttribute('class', 'bagPieceContainer');
+
+        // Create the pieces and eventually append to the parent
+        // container
+        for (const letter of pieces) {
+            let piece;
+
+            let pieceCont = document.createElement('div');
+            pieceCont.setAttribute('class', 'bagPieceItem');
+
+            piece = `<div><div class='piece'><span class="letter">${letter[0]}</span></div></div>
+                     <div class="numberLeft"><span>${letter[1]} left</span></div>`;
+
+            pieceCont.innerHTML = piece;
+            piecesContainer.appendChild(pieceCont);
+        }
+        return piecesContainer;
+    }
+
+    // updateBag = (pieces) => {
+    //     // Create container element
+    //     let pieceContainer = document.createElement('div');
+    //     pieceContainer.setAttribute('class', 'bagPieceContainer');
+
+        
+    //     for (const letter of pieces) {
+    //         let piece, piecee;
+
+    //         let piece2 = document.createElement('div');
+    //         let pieceh = document.createElement('div');
+    //         pieceh.setAttribute('class', 'bagPieceItem');
+    //         let piece3 = document.createElement('div');
+    //         piece3.setAttribute('class', 'numberLeft');
+
+    //         piecee = `<span>${letter[1]} left</span>`;
+    //         piece = `<div class='piece'><span class="letter">${letter[0]}</span></div>`;
+    //         piece2.innerHTML = piece;
+    //         piece3.innerHTML = piecee;
+    //         pieceh.appendChild(piece2);
+    //         pieceh.appendChild(piece3);
+    //         pieceContainer.appendChild(pieceh);
+    //     }
+    //     return pieceContainer;
+    // }
+
     componentDidMount = () => {
         // Register for event to effect a recall when a player does 
         // that. Effects reflection among all players
@@ -230,10 +296,17 @@ export class Rack extends Component {
     render() {
         return (
             <div className="rack">
+                <div id="bagModal" className="modal">
+                    <div onClick={this.toggleBag} className="modal-background"></div>
+                    <div className="modal-card bagItems">
+                        <section id="bagHome" className="modal-card-body">
+                        </section>
+                    </div>
+                </div>
                 <div className="rackPieces">
                 </div>
                 <div className='rackButtons'>
-                    <div className='bag'>
+                    <div onClick={this.toggleBag} className='bag'>
                         <span><i className="fa fa-shopping-bag fa-2x"></i></span>
                         <span className="bagLength">{this.props.bagLength}</span>
                     </div>

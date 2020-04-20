@@ -74,6 +74,14 @@ def get_remaining_pieces():
 
     return sum(pieces_number.values()) 
 
+def get_all_pieces(): 
+    """
+    Returns all the pieces left in the 
+    bag, sorted.
+    """
+    # Return sorted pieces
+    return sorted(pieces_number.items(), key=lambda x: x[0])
+
 
 def get_pieces(amount):
     """

@@ -18,6 +18,20 @@ def sio_rooms():
     """Returns the list of socketIO rooms"""
     return jsonify(dict(rooms=rooms))
 
+@api.route('/bag', methods=['POST'])
+def bag():
+    """
+    Returns the requested number of pieces
+    from the bag
+    """
+    payload = request.get_json(silent=True)
+    amount = payload.get('amount')
+
+    with lock: 
+        new_pieces = get_pieces(amount)
+
+    return jsonify(dict(pieces=new_pieces))
+
 # Should be a GET request, but I need the roomID 
 # for each request. Should re-factor later
 @api.route('/turn', methods=['POST'])
@@ -34,14 +48,5 @@ def player_turns():
 
     player_to_play = next(turn_order)
 
-    return jsonify(dict(playerToPlay=player_to_play)) # Camel for JS, snake for Python
-
-@api.route('/bag', methods=['POST'])
-def bag():
-    payload = request.get_json(silent=True)
-    amount = payload.get('amount')
-
-    with lock: 
-        new_pieces = get_pieces(amount)
-
-    return jsonify(dict(pieces=new_pieces))
+    # Camel for JS, snake for Python
+    return jsonify(dict(playerToPlay=player_to_play)) 

@@ -26,7 +26,8 @@ export default class GameUser extends Component {
             isTurn: false,
             gameStarted: false,
             connectedPlayers: 0,
-            bagLength: 100
+            bagLength: 100,
+            bagItems: {}
         }
     }
 
@@ -171,8 +172,13 @@ export default class GameUser extends Component {
             let firstToPlay = data.playOrder[0];
             let firsToPlayMessage, playOrderMessage = '';
 
-            // Reorder the state's players to match the turn order
-            this.setState({ players: data.playOrder, bagLength: data.bagLength });
+            // Reorder the state's players to match the turn order.
+            // Also note the length of pieces in the bag
+            this.setState({
+                players: data.playOrder,
+                bagLength: data.bagLength,
+                bagItems: data.bagItems
+            });
 
             if (firstToPlay === this.state.name) {
                 this.setState({ isTurn: true });
@@ -242,13 +248,21 @@ export default class GameUser extends Component {
                 }
             })
 
-            // Update local state
+            // Update local state upon each play
             if (data.playerToPlay === this.state.name) {
-                this.setState({ isTurn: true, bagLength: data.bagLength });
+                this.setState({
+                    isTurn: true,
+                    bagLength: data.bagLength,
+                    bagItems: data.bagItems
+                });
                 message = `${data.playerToPlay}, it's your turn to play.`;
             }
             else {
-                this.setState({ isTurn: false, bagLength: data.bagLength });
+                this.setState({
+                    isTurn: false,
+                    bagLength: data.bagLength,
+                    bagItems: data.bagItems
+                });
                 message = `${data.playerToPlay}'s turn to play.`;
             }
 
@@ -390,6 +404,7 @@ export default class GameUser extends Component {
                                 isHost={this.state.isHost}
                                 isTurn={this.state.isTurn}
                                 bagLength={this.state.bagLength}
+                                bagItems={this.state.bagItems}
                                 gameStarted={this.state.gameStarted}
                                 players={this.state.players} /> :
                             null}

@@ -22,12 +22,13 @@ export default class GameUser extends Component {
             name: '',
             roomID: '',
             players: [],
-            isHost: false,
+            bagItems: {},
             isTurn: false,
-            gameStarted: false,
-            connectedPlayers: 0,
+            isHost: false,
             bagLength: 100,
-            bagItems: {}
+            gameStarted: false,
+            firstToPlay: false,
+            connectedPlayers: 0,
         }
     }
 
@@ -181,7 +182,7 @@ export default class GameUser extends Component {
             });
 
             if (firstToPlay === this.state.name) {
-                this.setState({ isTurn: true });
+                this.setState({ isTurn: true, firstToPlay: true });
                 firsToPlayMessage = `${firstToPlay} (You) get to play first`;
             }
             else {
@@ -238,16 +239,6 @@ export default class GameUser extends Component {
         this.socket.on('validPlay', (data) => {
             let message;
 
-            // Update turn column on board
-            this.state.players.forEach(player => {
-                if (player === data.playerToPlay) {
-                    document.getElementById(`turn_${player}`).innerText = 'Yes';
-                }
-                else {
-                    document.getElementById(`turn_${player}`).innerText = 'No';
-                }
-            })
-
             // Update local state upon each play
             if (data.playerToPlay === this.state.name) {
                 this.setState({
@@ -265,6 +256,16 @@ export default class GameUser extends Component {
                 });
                 message = `${data.playerToPlay}'s turn to play.`;
             }
+
+            // Update turn column on board
+            this.state.players.forEach(player => {
+                if (player === data.playerToPlay) {
+                    document.getElementById(`turn_${player}`).innerText = 'Yes';
+                }
+                else {
+                    document.getElementById(`turn_${player}`).innerText = 'No';
+                }
+            })
 
             // Tell player whose turn it is
             toast.info(message);
@@ -403,8 +404,9 @@ export default class GameUser extends Component {
                                 roomID={this.state.roomID}
                                 isHost={this.state.isHost}
                                 isTurn={this.state.isTurn}
-                                bagLength={this.state.bagLength}
                                 bagItems={this.state.bagItems}
+                                bagLength={this.state.bagLength}
+                                firstToPlay={this.state.firstToPlay}
                                 gameStarted={this.state.gameStarted}
                                 players={this.state.players} /> :
                             null}

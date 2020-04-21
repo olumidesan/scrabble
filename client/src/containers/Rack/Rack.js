@@ -7,6 +7,8 @@ export class Rack extends Component {
         super(props);
 
         this.maxPieces = 7;
+        this.boardTiles = null;
+
         this.state = {
             currentPieces: []
         }
@@ -27,30 +29,44 @@ export class Rack extends Component {
     }
 
     playTurn = () => {
-        // You can, of course, only play when it's
-        // your turn
+        // You can, of course, only play when it's your turn
         if (this.props.isTurn) {
             // Before scoring
-            // Validate board play
-            // Validate words
-            // Compute score
 
             // After validating 
-            // Update board with score
 
-            // Get remaining pieces on rack
-            let remainingPieces = this.getPiecesOnRack();
+
+            // Get pieces that were played
+            let playedPieces = this.getPlayedPieces();
 
             // Check if the player has played anything
-            if ((this.maxPieces - remainingPieces.length) > 0) {
+            if ((playedPieces.length) > 0) {
+
+                // Validate board play
+                if (!this.validateBoardPlay(playedPieces)) {
+                    toast.error("Sorry, that's an invalid move.");
+                    return;
+                }
+                // Compute score
+
+                // Validate words
+
+
+                // If validated, then get what's on the rack. This
+                // will need to be refilled
+                let remainingPieces = this.getPiecesOnRack();
+
                 // Make played pieces permanent. Reflect on everybody's, including yours
                 this.props.socket.emit('concreteEvent', { roomID: this.props.roomID });
 
-                // Announce next player
-                this.announceNextPlayer();
+                // Concretize then announce, given some time
+                setTimeout(() => {
+                    // Announce next player
+                    this.announceNextPlayer();
+                }, 500);
 
                 // Refill player's rack
-                let newPieces = this.getFromBag(this.maxPieces - remainingPieces.length);
+                let newPieces = this.getFromBag(playedPieces.length);
                 newPieces.then((data) => {
                     // Refill rack
                     data.pieces.forEach(piece => remainingPieces.push(piece));
@@ -60,8 +76,11 @@ export class Rack extends Component {
                 });
             }
             else {
-                toast.error("Err...You haven't played anything. You can alternatively skip your turn.")
+                toast.error("Err...You haven't played anything. You can alternatively skip your turn.");
+                return;
             }
+            // Update board with score
+
         }
     }
 
@@ -77,6 +96,190 @@ export class Rack extends Component {
 
     swapPieces = () => {
         // tbd
+    }
+
+    getPlayDirection = (playedPieces) => {
+        let playDirection = 'down';
+        let topmost = [].indexOf.call(this.boardTiles, playedPieces[0].parentNode);
+
+        // Essentially, since each row on the board has a length of 15
+        // go round the board 15 times, effectively making your destination
+        // just one tile away from the current tile. If during that journey,
+        // a tile is found with a child having the identifiable class of a 
+        // just-played piece ('bp'), the surely, the play direction was right
+        for (let i = 1; i < 15; i++) {
+            let index = topmost + 1;
+            // End of the board. If play direction hasn't been detected as right,
+            // then it's implicitly down
+            if (index > 224) { 
+                break;
+            }
+            let piece = this.boardTiles[index].firstChild;
+            if (piece === null) {
+                continue; // Skip
+            }
+            if ([...piece.classList].includes('bp')) {
+                playDirection = 'right';
+                break;
+            }
+        }
+
+        return playDirection;
+    }
+
+    validateBoardPlay = (playedPieces) => {
+        let playDirection; 
+        let loopLength = 15;
+        let isValidPlay = false;
+        let boardIsEmpty = document.querySelectorAll('.vP').length === 0;
+
+        // If only one piece was played
+        if (playedPieces.length === 1) {
+            // If the player was first to play (and played just one)
+            // Confirm that that played piece was at the center.
+            if (boardIsEmpty) {
+                isValidPlay = this.checkIfPlayWasCentered(playedPieces);
+            }
+            else {
+                isValidPlay = this.validateNearestNeighbours(playedPieces) >= 1; 
+            }
+        }
+        else { // 2 or more pieces were played
+            playDirection = this.getPlayDirection(playedPieces);
+
+            if (playDirection === 'right') {
+                loopLength = 1;
+            }
+
+            // The first to play doesn't meet any valid plays
+            // when [s]he plays.  The consequent players do
+            if (!boardIsEmpty) {
+
+                if (this.validateNearestNeighbours(playedPieces) < 1) {
+                    return false;
+                }
+
+                let validCount = this.getValidPlayCount(playedPieces, loopLength, boardIsEmpty);
+                if (validCount < (playedPieces.length - 1)) {
+                    return false;
+                }
+
+                isValidPlay = true;
+            }
+            else {
+                // All of them should be valid
+                let validCount = this.getValidPlayCount(playedPieces, loopLength, boardIsEmpty);
+                if (validCount < (playedPieces.length - 1)) {
+                    return false;
+                }
+
+                // Check all the played pieces' positions. At least one 
+                // must be on the center tile
+                isValidPlay = this.checkIfPlayWasCentered(playedPieces);
+            }
+        }
+        // Return validation result
+        return isValidPlay;
+    }
+
+    validateNearestNeighbours = (playedPieces) => {
+        let validCount = 0;
+
+        playedPieces.forEach(piece => {
+            let tilesToCheck = [];
+            let indexLeft, indexUp, indexDown, indexRight;
+            let pieceTilePosition = [].indexOf.call(this.boardTiles, piece.parentNode);
+
+            // Get the indices of the tiles at the top, left, right,
+            // and bottom of the played piece. Eventually, at least
+            // one of them must point to a validated play piece
+            indexUp = pieceTilePosition - 15;
+            indexLeft = pieceTilePosition - 1;
+            indexDown = pieceTilePosition + 15;
+            indexRight = pieceTilePosition + 1;
+
+            // See DevFlow for explanation as to why
+            if (indexUp >= 0) {
+                tilesToCheck.push(this.boardTiles[indexUp]);
+            }
+            if (indexLeft >= 0) {
+                tilesToCheck.push(this.boardTiles[indexLeft]);
+            }
+            if (indexDown <= 224) {
+                tilesToCheck.push(this.boardTiles[indexDown]);
+            }
+            if (indexRight <= 224) {
+                tilesToCheck.push(this.boardTiles[indexRight]);
+            }
+
+            // Check all the played pieces' positions. At least one must be 
+            // linked (top, left, bottom, right) to a previously-played 
+            // piece. That's how Scrabble works
+            tilesToCheck.forEach((tile) => {
+                if (tile.firstChild !== null) {
+                    if ([...tile.firstChild.classList].includes('vP')) {
+                        validCount += 1;
+                    }
+                }
+            });
+        });
+
+        return validCount;
+    }
+
+    getValidPlayCount = (playedPieces, loopLength, boardIsEmpty) => {
+        let checkCondition, validCount = 0;
+
+        playedPieces.forEach((piece, index) => {
+            if ((index + 1) !== playedPieces.length) {
+                // Get the tile for the piece by the playDirection
+                let tile = this.boardTiles[[].indexOf.call(this.boardTiles, piece.parentNode) + loopLength];
+
+                // If it doesn't have a first child, then no new piece was appended to it
+                // Invalidate the play
+                if (tile.firstChild === null) {
+                    return false;
+                }
+                // Get the classlist of the piece by the playDirection
+                let pieceClasses = [...tile.firstChild.classList];
+
+                if (boardIsEmpty) {
+                    checkCondition = pieceClasses.includes('bp');
+                }
+                else {
+                    checkCondition = pieceClasses.includes('bp') || pieceClasses.includes('vp');
+                }
+
+                // Includes one of his/her recently played
+                if (checkCondition) {
+                    validCount += 1;
+                }
+            }
+        });
+
+        return validCount;
+    }
+
+    checkIfPlayWasCentered = (playedPieces) => {
+        let confirmed = false;
+
+        playedPieces.forEach(piece => {
+            // Get the tile for the piece
+            let tile = this.boardTiles[[].indexOf.call(this.boardTiles, piece.parentNode)];
+            if ([...tile.classList].includes('cT')) {
+                confirmed = true;
+            }
+        });
+
+        return confirmed;
+    }
+
+    getTilePositionOnBoard = (tile) => {
+        // All the tiles on the board
+
+        // For each tile on the board, get the one that matches
+        // the passed tile
+        return [].indexOf.call(this.boardTiles, tile);
     }
 
     makeDraw = (e) => {
@@ -110,14 +313,21 @@ export class Rack extends Component {
         return pieces;
     }
 
+    getPlayedPieces = () => {
+        return document.querySelectorAll('.bp');
+    }
+
     concretizePlayedPieces = () => {
         // Make all the pieces permanent. Do this, essentially, 
         // by removing their identifiable class
-        let playedPieces = document.querySelectorAll('.bp');
+        let playedPieces = this.getPlayedPieces();
         if (playedPieces.length > 0) {
             playedPieces.forEach((piece) => {
+                // Remove previously identifiable attrs.
                 piece.removeAttribute('class');
                 piece.removeAttribute('id');
+                // Add class of validated play (vP)
+                piece.setAttribute('class', 'vP');
             });
         }
     }
@@ -125,7 +335,7 @@ export class Rack extends Component {
     clearPlayedPieces = () => {
         // Clear the board of all played pieces.
         // Defined separately to allow for `recallPieces()` reuse
-        let playedPieces = document.querySelectorAll('.bp');
+        let playedPieces = this.getPlayedPieces();
         if (playedPieces.length > 0) {
             playedPieces.forEach((piece) => piece.remove())
         }
@@ -240,6 +450,9 @@ export class Rack extends Component {
     }
 
     componentDidMount = () => {
+
+        this.boardTiles = document.querySelectorAll('.tile');
+ 
         // Register for event to effect a recall when a player does 
         // that. Effects reflection among all players
         this.props.socket.on('recallPieces', (data) => {

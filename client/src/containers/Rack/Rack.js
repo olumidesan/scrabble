@@ -102,7 +102,7 @@ export class Rack extends Component {
         let playDirection = 'down';
         let topmost = [].indexOf.call(this.boardTiles, playedPieces[0].parentNode);
 
-        // Essentially, since each row on the board has a length of 15
+        // Essentially, since each row on the board has a length of 15,
         // go round the board 15 times, effectively making your destination
         // just one tile away from the current tile. If during that journey,
         // a tile is found with a child having the identifiable class of a 
@@ -198,7 +198,14 @@ export class Rack extends Component {
             indexDown = pieceTilePosition + 15;
             indexRight = pieceTilePosition + 1;
 
-            // See DevFlow for explanation as to why
+            // The rules of Scrabble are such that after the very first play, every subsequent
+            // play must be linked either through the top, left, bottom or right, with a previously 
+            // played tile. 
+            // At the top of the board (top left), the pieces play on the very first row do not have any 
+            // indexes up (they themselves are the very least indices). Conversely, at the bottom of the 
+            // board, (bottom right), the pieces played on the very bottom row do not have any indexes at
+            // the bottom because they themselves are the most indices. The below blocks checks these and
+            // ensures only the right tiles are eventually checked
             if (indexUp >= 0) {
                 tilesToCheck.push(this.boardTiles[indexUp]);
             }

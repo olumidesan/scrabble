@@ -38,8 +38,10 @@ export class Rack extends Component {
             // After validating 
             // Update board with score
 
-
+            // Get remaining pieces on rack
             let remainingPieces = this.getPiecesOnRack();
+
+            // Check if the player has played anything
             if ((this.maxPieces - remainingPieces.length) > 0) {
                 // Make played pieces permanent. Reflect on everybody's, including yours
                 this.props.socket.emit('concreteEvent', { roomID: this.props.roomID });

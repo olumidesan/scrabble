@@ -27,7 +27,6 @@ export default class GameUser extends Component {
             isHost: false,
             bagLength: 100,
             gameStarted: false,
-            firstToPlay: false,
             connectedPlayers: 0,
         }
     }
@@ -182,7 +181,7 @@ export default class GameUser extends Component {
             });
 
             if (firstToPlay === this.state.name) {
-                this.setState({ isTurn: true, firstToPlay: true });
+                this.setState({ isTurn: true });
                 firsToPlayMessage = `${firstToPlay} (You) get to play first`;
             }
             else {
@@ -406,7 +405,6 @@ export default class GameUser extends Component {
                                 isTurn={this.state.isTurn}
                                 bagItems={this.state.bagItems}
                                 bagLength={this.state.bagLength}
-                                firstToPlay={this.state.firstToPlay}
                                 gameStarted={this.state.gameStarted}
                                 players={this.state.players} /> :
                             null}

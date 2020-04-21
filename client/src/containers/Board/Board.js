@@ -86,9 +86,6 @@ class Board extends React.Component {
         document.addEventListener("drop", (event) => {
             event.preventDefault();
             if (this.props.isTurn) {
-                // `Play()` implementation would turn these newly created elements into fixed ones,
-                // impossible to modify (recall())
-
                 if (event.target.className.includes('droppable')) {
                     event.target.removeAttribute('style'); //  Reset the border
 

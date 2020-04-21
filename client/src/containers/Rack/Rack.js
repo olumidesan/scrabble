@@ -129,9 +129,12 @@ export class Rack extends Component {
 
     validateBoardPlay = (playedPieces) => {
         let playDirection; 
-        let loopLength = 15;
         let isValidPlay = false;
         let boardIsEmpty = document.querySelectorAll('.vP').length === 0;
+        
+        // Implicit down playDirection. 
+        // Looping 15 times takes you to the tile directly below
+        let loopLength = 15; 
 
         // If only one piece was played
         if (playedPieces.length === 1) {

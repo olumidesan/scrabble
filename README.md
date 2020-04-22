@@ -7,7 +7,7 @@ Play scrabble with friends on your local network
 **You'll need to checkout the `uat` branch to test. Please note that the gameplay itself is still in develoment**
 
 ## UAT Testing
--- Checkout the `uat` branch: `git checkout uat`
+- Checkout the `uat` branch: `git checkout uat`
 - To test, You'll need Python3.6+ installed on your computer, along with [Redis](https://redis.io/).
 - Ensure the Redis service is running. The default configuration is fine.  
 - Create a virtual environment, activate it, and install the requirements: `pip3 install -r requirements.txt`. 

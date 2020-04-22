@@ -136,6 +136,10 @@
     padding: 30px;
 }
 
+.has-text-warning {
+    color: #dabd49;
+}
+
 .imp {
     color: red;
 }

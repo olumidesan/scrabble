@@ -163,7 +163,7 @@ export class Rack extends Component {
                 }
 
                 let validCount = this.getValidPlayCount(playedPieces, loopLength, boardIsEmpty);
-                if (validCount < (playedPieces.length - 1)) { // Bug
+                if (validCount < (playedPieces.length - 1)) { 
                     return false;
                 }
 

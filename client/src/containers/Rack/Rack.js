@@ -31,15 +31,63 @@ export class Rack extends Component {
     /* Should return the valid words played. These will eventually be weighted
     amounting to the final play score */
     getValidWords = (playedPieces) => {
+        let loopLength;
+        let firstPiece = playedPieces[0];
+        this.getPlayDirection.cachedDirection === 'right' ?
+            loopLength = 1 :
+            loopLength = 15;
+        let validCount = 0;
 
+        playedPieces.forEach(piece => {
+            let tilesToCheck = [];
+            let indexLeft, indexUp, indexDown, indexRight;
+            let pieceTilePosition = [].indexOf.call(this.boardTiles, piece.parentNode);
+
+            // Get the indices of the tiles at the top, left, right,
+            // and bottom of the played piece. Eventually, at least
+            // one of them must point to a validated play piece
+            indexUp = pieceTilePosition - 15;
+            indexLeft = pieceTilePosition - 1;
+            indexDown = pieceTilePosition + 15;
+            indexRight = pieceTilePosition + 1;
+
+            // The rules of Scrabble are such that after the very first play, every subsequent
+            // play must be linked either through the top, left, bottom or right, with a previously 
+            // played tile. 
+            // At the top of the board (top left), the pieces play on the very first row do not have any 
+            // indexes up (they themselves are the very least indices). Conversely, at the bottom of the 
+            // board, (bottom right), the pieces played on the very bottom row do not have any indexes at
+            // the bottom because they themselves are the most indices. The below blocks checks these and
+            // ensures only the right tiles are eventually checked
+            if (indexUp >= 0) {
+                tilesToCheck.push(this.boardTiles[indexUp]);
+            }
+            if (indexLeft >= 0) {
+                tilesToCheck.push(this.boardTiles[indexLeft]);
+            }
+            if (indexDown <= 224) {
+                tilesToCheck.push(this.boardTiles[indexDown]);
+            }
+            if (indexRight <= 224) {
+                tilesToCheck.push(this.boardTiles[indexRight]);
+            }
+
+            tilesToCheck.forEach(tile => {
+                if (tile.firstChild !== null) {
+                    if ([...tile.firstChild.classList.includes('vP')]) {
+                    }
+                }
+            })
+
+        });    
+            
     }
-
     takeBoardSnapshot = () => { // to be tested
-        let playedPieces = [];
+        let boardState = [];
         this.boardTiles.forEach((piece, index) => {
             if (piece.firstChild !== null) {
                 if ([...piece.firstChild.classList].includes('vP')) {
-                    playedPieces.push({
+                    boardState.push({
                         letter: piece.firstchild.textContent.slice(0, 1),
                         value: parseInt(piece.firstchild.textContent.slice(1)),
                         index: index
@@ -48,7 +96,7 @@ export class Rack extends Component {
             }
         });
 
-        return playedPieces;
+        return boardState;
     }
 
     playTurn = () => {

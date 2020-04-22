@@ -2,12 +2,13 @@
 Play scrabble with friends on your local network
 
 * Still in dev.
-* Please see the (DevFlow.md) file for issues I'm fixing.
+* Please see the [DevFlow](DevFlow.md) file for issues I'm fixing.
 
 **You'll need to checkout the `uat` branch to test. Please note that the gameplay itself is still in develoment**
 
 ## UAT Testing
-- To test, You'll need Python3.6+ installed on your computer, along with [https://redis.io/](Redis).  
+- To test, You'll need Python3.6+ installed on your computer, along with [Redis](https://redis.io/).
+- Ensure the Redis service is running. The default configuration is fine.  
 - Install the requirements: `pip3 install -r requirements.txt` 
 - At the root folder, simply run `python3 wsgi.py`
 - `Navigate to your local IP address (192.168...:5005) to view the app. 

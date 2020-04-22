@@ -16,9 +16,9 @@ export class Rack extends Component {
 
     announceNextPlayer = () => {
         let nextPlayerToPlay = makeServerRequest({
-            requestType: 'post',
-            url: '/turn',
-            payload: { roomID: this.props.roomID }
+            payload: {},
+            requestType: 'get',
+            url: `/turn/${this.props.roomID}`
         });
         nextPlayerToPlay.then(data => {
             this.props.socket.emit('playEvent', {
@@ -101,40 +101,40 @@ export class Rack extends Component {
     getPlayDirection = (playedPieces) => {
         let playDirection = 'down';
         let topmost = [].indexOf.call(this.boardTiles, playedPieces[0].parentNode);
-
         // Essentially, since each row on the board has a length of 15,
         // go round the board 15 times, effectively making your destination
         // just one tile away from the current tile. If during that journey,
         // a tile is found with a child having the identifiable class of a 
         // just-played piece ('bp'), the surely, the play direction was right
         for (let i = 1; i < 15; i++) {
-            let index = topmost + 1;
+            let index = topmost + i;
             // End of the board. If play direction hasn't been detected as right,
             // then it's implicitly down
-            if (index > 224) { 
+            if (index > 224) {
                 break;
             }
             let piece = this.boardTiles[index].firstChild;
             if (piece === null) {
                 continue; // Skip
             }
-            if ([...piece.classList].includes('bp')) {
-                playDirection = 'right';
-                break;
+            else {
+                if ([...piece.classList].includes('bp')) {
+                    playDirection = 'right';
+                    break;
+                }
             }
         }
-
         return playDirection;
     }
 
     validateBoardPlay = (playedPieces) => {
-        let playDirection; 
+        let playDirection;
         let isValidPlay = false;
         let boardIsEmpty = document.querySelectorAll('.vP').length === 0;
-        
+
         // Implicit down playDirection. 
         // Looping 15 times takes you to the tile directly below
-        let loopLength = 15; 
+        let loopLength = 15;
 
         // If only one piece was played
         if (playedPieces.length === 1) {
@@ -144,7 +144,7 @@ export class Rack extends Component {
                 isValidPlay = this.checkIfPlayWasCentered(playedPieces);
             }
             else {
-                isValidPlay = this.validateNearestNeighbours(playedPieces) >= 1; 
+                isValidPlay = this.validateNearestNeighbours(playedPieces) >= 1;
             }
         }
         else { // 2 or more pieces were played
@@ -163,7 +163,7 @@ export class Rack extends Component {
                 }
 
                 let validCount = this.getValidPlayCount(playedPieces, loopLength, boardIsEmpty);
-                if (validCount < (playedPieces.length - 1)) {
+                if (validCount < (playedPieces.length - 1)) { // Bug
                     return false;
                 }
 
@@ -238,12 +238,14 @@ export class Rack extends Component {
     }
 
     getValidPlayCount = (playedPieces, loopLength, boardIsEmpty) => {
-        let checkCondition, validCount = 0;
+        let checkCondition;
+        let validCount = 0;
 
         playedPieces.forEach((piece, index) => {
             if ((index + 1) !== playedPieces.length) {
                 // Get the tile for the piece by the playDirection
-                let tile = this.boardTiles[[].indexOf.call(this.boardTiles, piece.parentNode) + loopLength];
+                let tileIndex = [].indexOf.call(this.boardTiles, piece.parentNode);
+                let tile = this.boardTiles[tileIndex + loopLength];
 
                 // If it doesn't have a first child, then no new piece was appended to it
                 // Invalidate the play
@@ -257,7 +259,7 @@ export class Rack extends Component {
                     checkCondition = pieceClasses.includes('bp');
                 }
                 else {
-                    checkCondition = pieceClasses.includes('bp') || pieceClasses.includes('vp');
+                    checkCondition = pieceClasses.includes('bp') || pieceClasses.includes('vP');
                 }
 
                 // Includes one of his/her recently played
@@ -316,9 +318,9 @@ export class Rack extends Component {
     getFromBag = (amount) => {
         // Get passed amount from bag
         let pieces = makeServerRequest({
-            requestType: 'post',
-            url: '/bag',
-            payload: { amount: amount }
+            payload: {},
+            requestType: 'get',
+            url: `/bag/${amount}`
         });
         return pieces;
     }
@@ -462,7 +464,7 @@ export class Rack extends Component {
     componentDidMount = () => {
 
         this.boardTiles = document.querySelectorAll('.tile');
- 
+
         // Register for event to effect a recall when a player does 
         // that. Effects reflection among all players
         this.props.socket.on('recallPieces', (data) => {

@@ -8,8 +8,10 @@ eventlet.monkey_patch()
 from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from flask_sqlalchemy import SQLAlchemy
 
 sio = SocketIO()
+db = SQLAlchemy()
 CLIENT_TOKEN = 'Scrabble'
 
 
@@ -20,14 +22,15 @@ def create_app(config_class):
 
     app.config.from_object(config_class)    
     
-    from . import socketio
     from .api import api_bp
     from .main import main_bp
+    from . import socketio, models
 
     app.register_blueprint(api_bp)
     app.register_blueprint(main_bp)
     
     CORS(app)
+    db.init_app(app)
     sio.init_app(app, 
                  async_mode=app.config['ASYNC_MODE'], 
                  channel=app.config['REDIS_CHANNEL_NAME'], 

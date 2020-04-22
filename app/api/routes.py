@@ -2,6 +2,9 @@
 from threading import Lock
 from itertools import cycle
 from flask import jsonify, request
+
+from app import db
+from app.models import Word
 from app.socketio import rooms, players
 
 from . import api_bp as api
@@ -18,30 +21,25 @@ def sio_rooms():
     """Returns the list of socketIO rooms"""
     return jsonify(dict(rooms=rooms))
 
-@api.route('/bag', methods=['POST'])
-def bag():
+@api.route('/bag/<int:amount>')
+def bag(amount):
     """
     Returns the requested number of pieces
     from the bag
     """
-    payload = request.get_json(silent=True)
-    amount = payload.get('amount')
 
     with lock: 
         new_pieces = get_pieces(amount)
 
     return jsonify(dict(pieces=new_pieces))
 
-# Should be a GET request, but I need the roomID 
-# for each request. Should re-factor later
-@api.route('/turn', methods=['POST'])
-def player_turns():
+@api.route('/turn/<room_id>')
+def player_turns(room_id):
     """Returns the next player to play"""
     
     global turn_order
     player_to_play = ''
 
-    room_id = request.get_json(silent=True).get('roomID')
     if turn_order == None:
         turn_order = cycle(players.get(room_id))
         next(turn_order) # Client knows already, initially.

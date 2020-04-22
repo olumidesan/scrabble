@@ -15,3 +15,4 @@
 - Cater for shaky connections. Currently, if connection gets lost,
   there are socketio errors
 - Add weights to bag view
+- Fix shaky connection issue that causes turns not to be updated on both score and state/props

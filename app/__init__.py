@@ -1,6 +1,6 @@
 
 import os
-env = os.getenv('WEBSITE_ENV')
+env = os.getenv('CODE_ENV')
 
 import eventlet
 eventlet.monkey_patch()

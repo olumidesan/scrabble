@@ -28,6 +28,75 @@ export class Rack extends Component {
         });
     }
 
+    getValidWords = (playedPieces) => {
+        let loopLength;
+        let firstPiece = playedPieces[0];
+        this.getPlayDirection.cachedDirection === 'right' ?
+            loopLength = 1 :
+            loopLength = 15;
+        let validCount = 0;
+
+        playedPieces.forEach(piece => {
+            let tilesToCheck = [];
+            let indexLeft, indexUp, indexDown, indexRight;
+            let pieceTilePosition = [].indexOf.call(this.boardTiles, piece.parentNode);
+
+            // Get the indices of the tiles at the top, left, right,
+            // and bottom of the played piece. Eventually, at least
+            // one of them must point to a validated play piece
+            indexUp = pieceTilePosition - 15;
+            indexLeft = pieceTilePosition - 1;
+            indexDown = pieceTilePosition + 15;
+            indexRight = pieceTilePosition + 1;
+
+            // The rules of Scrabble are such that after the very first play, every subsequent
+            // play must be linked either through the top, left, bottom or right, with a previously 
+            // played tile. 
+            // At the top of the board (top left), the pieces play on the very first row do not have any 
+            // indexes up (they themselves are the very least indices). Conversely, at the bottom of the 
+            // board, (bottom right), the pieces played on the very bottom row do not have any indexes at
+            // the bottom because they themselves are the most indices. The below blocks checks these and
+            // ensures only the right tiles are eventually checked
+            if (indexUp >= 0) {
+                tilesToCheck.push(this.boardTiles[indexUp]);
+            }
+            if (indexLeft >= 0) {
+                tilesToCheck.push(this.boardTiles[indexLeft]);
+            }
+            if (indexDown <= 224) {
+                tilesToCheck.push(this.boardTiles[indexDown]);
+            }
+            if (indexRight <= 224) {
+                tilesToCheck.push(this.boardTiles[indexRight]);
+            }
+
+            // tilesToCheck.forEach(tile => {
+            //     if (tile.firstChild !== null) {
+            //         if ([...tile.firstChild.classList.includes('vP')])
+            //     }
+            // })
+
+        });    
+            
+    }
+
+    takeBoardSnapshot = () => { // to be tested
+        let playedPieces = [];
+        this.boardTiles.forEach((piece, index) => {
+            if (piece.firstChild !== null) {
+                if ([...piece.firstChild.classList].includes('vP')) {
+                    playedPieces.push({
+                        letter: piece.firstchild.textContent.slice(0, 1),
+                        value: parseInt(piece.firstchild.textContent.slice(1)),
+                        index: index
+                    });
+                }
+            }
+        });
+
+        return playedPieces;
+    }
+
     playTurn = () => {
         // You can, of course, only play when it's your turn
         if (this.props.isTurn) {
@@ -50,6 +119,8 @@ export class Rack extends Component {
                 // Compute score
 
                 // Validate words
+                // let validWords = this.getValidWords(playedPieces);
+                // console.log(validWords);
 
 
                 // If validated, then get what's on the rack. This
@@ -114,10 +185,7 @@ export class Rack extends Component {
                 break;
             }
             let piece = this.boardTiles[index].firstChild;
-            if (piece === null) {
-                continue; // Skip
-            }
-            else {
+            if (piece !== null) {
                 if ([...piece.classList].includes('bp')) {
                     playDirection = 'right';
                     break;
@@ -128,7 +196,6 @@ export class Rack extends Component {
     }
 
     validateBoardPlay = (playedPieces) => {
-        let playDirection;
         let isValidPlay = false;
         let boardIsEmpty = document.querySelectorAll('.vP').length === 0;
 
@@ -140,15 +207,14 @@ export class Rack extends Component {
         if (playedPieces.length === 1) {
             // If the player was first to play (and played just one)
             // Confirm that that played piece was at the center.
-            if (boardIsEmpty) {
-                isValidPlay = this.checkIfPlayWasCentered(playedPieces);
-            }
-            else {
-                isValidPlay = this.validateNearestNeighbours(playedPieces) >= 1;
-            }
+            isValidPlay = boardIsEmpty ?
+                this.checkIfPlayWasCentered(playedPieces) :
+                this.validateNearestNeighbours(playedPieces) >= 1;
         }
         else { // 2 or more pieces were played
-            playDirection = this.getPlayDirection(playedPieces);
+            let playDirection = this.getPlayDirection(playedPieces);
+            // Cache for reuse
+            this.getPlayDirection.cachedDirection = playDirection;
 
             if (playDirection === 'right') {
                 loopLength = 1;
@@ -163,7 +229,7 @@ export class Rack extends Component {
                 }
 
                 let validCount = this.getValidPlayCount(playedPieces, loopLength, boardIsEmpty);
-                if (validCount < (playedPieces.length - 1)) { 
+                if (validCount < (playedPieces.length - 1)) {
                     return false;
                 }
 
@@ -238,7 +304,7 @@ export class Rack extends Component {
     }
 
     getValidPlayCount = (playedPieces, loopLength, boardIsEmpty) => {
-        let checkCondition;
+        let condition;
         let validCount = 0;
 
         playedPieces.forEach((piece, index) => {
@@ -255,15 +321,12 @@ export class Rack extends Component {
                 // Get the classlist of the piece by the playDirection
                 let pieceClasses = [...tile.firstChild.classList];
 
-                if (boardIsEmpty) {
-                    checkCondition = pieceClasses.includes('bp');
-                }
-                else {
-                    checkCondition = pieceClasses.includes('bp') || pieceClasses.includes('vP');
-                }
+                condition = boardIsEmpty ?
+                    pieceClasses.includes('bp') :
+                    condition = pieceClasses.includes('bp') || pieceClasses.includes('vP');
 
-                // Includes one of his/her recently played
-                if (checkCondition) {
+                // Includes either
+                if (condition) {
                     validCount += 1;
                 }
             }
@@ -461,9 +524,28 @@ export class Rack extends Component {
         return piecesContainer;
     }
 
+    // beforeUnload = () => {
+    //     let rack = this.getPiecesOnRack();
+    //     let snapshot = this.takeBoardSnapshot();
+    //     makeServerRequest({
+    //         requestType: 'post',
+    //         url: `/snapshot/${this.props.roomID}`,
+    //         payload = {
+    //             rack: rack,
+    //             boardshot: boardshot,
+    //             name: this.props.name
+    //         },
+    //     });
+    // }
+
+    // componentWillUnmount = () => {
+    //     window.removeEventListener('beforeunload', this.beforeUnload);
+    // }
+
     componentDidMount = () => {
 
         this.boardTiles = document.querySelectorAll('.tile');
+        // window.addEventListener('beforeunload', this.beforeUnload);
 
         // Register for event to effect a recall when a player does 
         // that. Effects reflection among all players

@@ -278,7 +278,7 @@ export default class GameUser extends Component {
                     <div className="field">
                         <label className="label">Your Name: <span className="imp">*</span> </label>
                         <div className="control">
-                            <input className="input" type='text' onChange={this.saveUser} name='text' placeholder='e.g: Nagato' />
+                            <input className="input" type='text' onChange={this.saveUser} name='text' placeholder='e.g: Orihime' />
                         </div>
                     </div>
                     <div className="control">
@@ -304,7 +304,7 @@ export default class GameUser extends Component {
                     <div className="field">
                         <label className="label">Your Name: <span className="imp">*</span></label>
                         <div className="control">
-                            <input className="input" type='text' onChange={this.saveUser} name='name' placeholder='e.g. Gollum' />
+                            <input className="input" type='text' onChange={this.saveUser} name='name' placeholder='e.g. Smeagol' />
                         </div>
                     </div>
 

@@ -1,29 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>Scrabble</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <script>
-      window.b2ctk = "{{ b2ctk }}";
-      const APP_ENV = "{{ app_env }}";
-      if (APP_ENV === 'PROD') {
-          if (typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ === 'object') {
-              __REACT_DEVTOOLS_GLOBAL_HOOK__.inject = function () { };
-          }
-      }
-    </script>
-    <div id="root"></div>
-  </body>
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Web site created using create-react-app" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <title>Scrabble</title>
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <script>
+    window.b2ctk = "{{ b2ctk }}";
+    window.serverIP = "{{ ip }}"
+    if (typeof window.__REACT_DEVTOOLS_GLOBAL_HOOK__ === 'object') {
+      __REACT_DEVTOOLS_GLOBAL_HOOK__.inject = function () { };
+    }
+  </script>
+  <div id="root"></div>
+</body>
+
 </html>

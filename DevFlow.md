@@ -1,3 +1,4 @@
+### Future fixes/features
 - Play implementation must mark played pieces as a different class | check
 - Prevent others from interacting with pieces on the board not played by them | check
 - Audio implementation where players can talk to each other
@@ -16,3 +17,5 @@
   there are socketio errors
 - Add weights to bag view
 - Fix shaky connection issue that causes turns not to be updated on both score and state/props
+- Game save feature (save board state and player rack, everything)
+- Ask for letter to use when a blank piece is played (modal)

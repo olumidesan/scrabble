@@ -10,9 +10,12 @@ from flask_cors import CORS
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 
+from .utils import token_generator
+
+
 sio = SocketIO()
 db = SQLAlchemy()
-CLIENT_TOKEN = 'Scrabble'
+CLIENT_TOKEN = token_generator()
 
 
 def create_app(config_class):
@@ -28,7 +31,7 @@ def create_app(config_class):
 
     app.register_blueprint(api_bp)
     app.register_blueprint(main_bp)
-    
+
     CORS(app)
     db.init_app(app)
     sio.init_app(app, 

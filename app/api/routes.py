@@ -2,6 +2,7 @@
 from threading import Lock
 from itertools import cycle
 from flask import jsonify, request
+from collections import defaultdict
 
 from app import db
 from app.models import Word
@@ -10,11 +11,11 @@ from app.socketio import rooms, players
 from . import api_bp as api
 from .auth import token_auth, error_response
 from .utils import get_pieces, get_remaining_pieces
-
+from time import time
 
 lock = Lock()
 turn_order = None
-
+snapshots = defaultdict(list)
 
 @api.route('/rooms')
 def sio_rooms():
@@ -33,9 +34,24 @@ def bag(amount):
 
     return jsonify(dict(pieces=new_pieces))
 
+@api.route('/word-check')
+def word_check(word):
+    """
+    Returns if the passed in word is valid
+    """
+
+    # now = time()
+
+    # valid = Word.query.filter_by(word=word).first()
+
+    # return jsonify(dict(valid=valid != None, seconds=f"{round((time()-now), 2)} secs"))
+
 @api.route('/turn/<room_id>')
 def player_turns(room_id):
-    """Returns the next player to play"""
+    """
+    Returns the next player to play
+    in room_id      
+    """
     
     player_to_play = ''
     room = players.get(room_id)
@@ -56,3 +72,18 @@ def player_turns(room_id):
 
     # Camel for JS, snake for Python
     return jsonify(dict(playerToPlay=player_to_play)) 
+
+
+# For game save feature/page refresh.Tbd
+@api.route('/snapshot/<room_id>', methods=['GET', 'POST'])
+def snapshot(room_id):
+    """Saves/Returns room board states"""
+    
+    if request.method == 'GET':
+        snapshot = snapshots.get(room_id)
+        return jsonify(dict(snapshot=snapshot))
+    
+    # Implicit POST
+    snapshots[room_id].append(request.get_json(silent=True))
+
+    return jsonify(dict(message="Saved successfully"))

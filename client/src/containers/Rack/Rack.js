@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import makeServerRequest from '../../helpers/axios';
 import { toast } from 'react-toastify';
+import makeServerRequest from '../../helpers/axios';
 
 export class Rack extends Component {
     constructor(props) {
@@ -28,56 +28,10 @@ export class Rack extends Component {
         });
     }
 
+    /* Should return the valid words played. These will eventually be weighted
+    amounting to the final play score */
     getValidWords = (playedPieces) => {
-        let loopLength;
-        let firstPiece = playedPieces[0];
-        this.getPlayDirection.cachedDirection === 'right' ?
-            loopLength = 1 :
-            loopLength = 15;
-        let validCount = 0;
 
-        playedPieces.forEach(piece => {
-            let tilesToCheck = [];
-            let indexLeft, indexUp, indexDown, indexRight;
-            let pieceTilePosition = [].indexOf.call(this.boardTiles, piece.parentNode);
-
-            // Get the indices of the tiles at the top, left, right,
-            // and bottom of the played piece. Eventually, at least
-            // one of them must point to a validated play piece
-            indexUp = pieceTilePosition - 15;
-            indexLeft = pieceTilePosition - 1;
-            indexDown = pieceTilePosition + 15;
-            indexRight = pieceTilePosition + 1;
-
-            // The rules of Scrabble are such that after the very first play, every subsequent
-            // play must be linked either through the top, left, bottom or right, with a previously 
-            // played tile. 
-            // At the top of the board (top left), the pieces play on the very first row do not have any 
-            // indexes up (they themselves are the very least indices). Conversely, at the bottom of the 
-            // board, (bottom right), the pieces played on the very bottom row do not have any indexes at
-            // the bottom because they themselves are the most indices. The below blocks checks these and
-            // ensures only the right tiles are eventually checked
-            if (indexUp >= 0) {
-                tilesToCheck.push(this.boardTiles[indexUp]);
-            }
-            if (indexLeft >= 0) {
-                tilesToCheck.push(this.boardTiles[indexLeft]);
-            }
-            if (indexDown <= 224) {
-                tilesToCheck.push(this.boardTiles[indexDown]);
-            }
-            if (indexRight <= 224) {
-                tilesToCheck.push(this.boardTiles[indexRight]);
-            }
-
-            // tilesToCheck.forEach(tile => {
-            //     if (tile.firstChild !== null) {
-            //         if ([...tile.firstChild.classList.includes('vP')])
-            //     }
-            // })
-
-        });    
-            
     }
 
     takeBoardSnapshot = () => { // to be tested
@@ -100,11 +54,6 @@ export class Rack extends Component {
     playTurn = () => {
         // You can, of course, only play when it's your turn
         if (this.props.isTurn) {
-            // Before scoring
-
-            // After validating 
-
-
             // Get pieces that were played
             let playedPieces = this.getPlayedPieces();
 
@@ -116,12 +65,14 @@ export class Rack extends Component {
                     toast.error("Sorry, that's an invalid move.");
                     return;
                 }
+
+                /* Word Validation and score computing
                 // Compute score
+                // Tbd
 
                 // Validate words
-                // let validWords = this.getValidWords(playedPieces);
-                // console.log(validWords);
-
+                // Tbd
+                */
 
                 // If validated, then get what's on the rack. This
                 // will need to be refilled
@@ -150,8 +101,6 @@ export class Rack extends Component {
                 toast.error("Err...You haven't played anything. You can alternatively skip your turn.");
                 return;
             }
-            // Update board with score
-
         }
     }
 
@@ -524,23 +473,25 @@ export class Rack extends Component {
         return piecesContainer;
     }
 
-    // beforeUnload = () => {
-    //     let rack = this.getPiecesOnRack();
-    //     let snapshot = this.takeBoardSnapshot();
-    //     makeServerRequest({
-    //         requestType: 'post',
-    //         url: `/snapshot/${this.props.roomID}`,
-    //         payload = {
-    //             rack: rack,
-    //             boardshot: boardshot,
-    //             name: this.props.name
-    //         },
-    //     });
-    // }
+    /* Features for Game save. Tbd
+    beforeUnload = () => {
+        let rack = this.getPiecesOnRack();
+        let snapshot = this.takeBoardSnapshot();
+        makeServerRequest({
+            requestType: 'post',
+            url: `/snapshot/${this.props.roomID}`,
+            payload = {
+                rack: rack,
+                boardshot: boardshot,
+                name: this.props.name
+            },
+        });
+    }
 
-    // componentWillUnmount = () => {
-    //     window.removeEventListener('beforeunload', this.beforeUnload);
-    // }
+    componentWillUnmount = () => {
+        window.removeEventListener('beforeunload', this.beforeUnload);
+    }
+    */
 
     componentDidMount = () => {
 

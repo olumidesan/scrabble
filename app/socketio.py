@@ -95,6 +95,10 @@ def draw_event(data):
     room = data.get('roomID')
     ordered_players = data.get('playOrder')
 
+    # Add a turn order variable as the first
+    # item for each room
+    players[room].append(None)
+
     for o_o in ordered_players: # Lol o_o
         players[room].append(o_o)
 

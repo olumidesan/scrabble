@@ -406,7 +406,7 @@ class Board extends React.Component {
                         </div>
                         <div className="droppable tile">
                         </div>
-                        <div className="droppable tile tW cT">
+                        <div className="droppable tile dW cT">
                         </div>
                         <div className="droppable tile">
                         </div>

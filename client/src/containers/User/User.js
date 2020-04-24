@@ -131,16 +131,22 @@ export default class GameUser extends Component {
             this.socket.io.opts.transports = ['polling', 'websocket'];
             document.getElementById('connstatus').setAttribute('title', "Reconnecting...");
             document.getElementById('connstatus').setAttribute('class', 'has-text-warning');
+            if (this.state.gameStarted) {
+                this.socket.emit('reconn', { roomID: this.roomID });
+            }
         });
 
         // On connect
         this.socket.on('connect', () => {
-            document.getElementById('connstatus').setAttribute('title', "Connected");
+            document.getElementById('connstatus').setAttribute('title', "Server Connection: Good");
             document.getElementById('connstatus').setAttribute('class', 'has-text-success');
         });
 
         // On disconnect
         this.socket.on('disconnect', () => {
+            if (this.state.gameStarted) {
+                toast.error("Lost connection to the game server. Trying to reconnect...");
+            }
             document.getElementById('connstatus').setAttribute('title', "Connection Lost");
             document.getElementById('connstatus').setAttribute('class', 'has-text-danger');
         });

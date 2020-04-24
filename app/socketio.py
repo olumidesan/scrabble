@@ -36,6 +36,16 @@ def on_join(data):
     rooms.append(room) if room not in rooms else None
     emit('joinedRoom', data, room=room)
 
+@sio.on('reconn')
+def on_reconn(data):
+    """Event handler for reconnections"""
+
+    room = data['roomID']
+    join_room(room)
+
+    # Add to the rooms if not already there
+    rooms.append(room) if room not in rooms else None
+
 @sio.on('fromHost')
 def from_host(data):
     """

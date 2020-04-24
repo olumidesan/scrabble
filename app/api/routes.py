@@ -36,11 +36,24 @@ def bag(amount):
 
     return jsonify(dict(pieces=new_pieces))
 
+@api.route('/words-check', methods=['POST'])
+def words_check():
+    """
+    Validates that all the posted words are valid
+    """
+
+    words = request.get_json().get('words')
+    for word in words:
+        valid = Word.query.filter_by(word=word).first()
+        if not valid:
+            return jsonify(dict(error=f"'{word}' is not a valid Scrabble word"))
+
+    return jsonify(dict(valid="true"))
+
 @api.route('/turn/<room_id>')
 def player_turns(room_id):
     """
-    Returns the next player to play
-    in room_id      
+    Returns the next player to play in `room_id`      
     """
     
     player_to_play = ''

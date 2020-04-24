@@ -152,19 +152,6 @@
     flex-direction: column;
     align-items: center;
     position: relative;
-
-    /* margin: 0 2px; */
-    /* border: 2px solid #666666;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    -o-border-radius: 10px;
-    -ms-border-radius: 10px;
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 3px #000;
-    -moz-box-shadow: inset 0 0 3px #000;
-    -ms-box-shadow: inset 0 0 3px #000;
-    -o-box-shadow: inset 0 0 3px #000;
-    box-shadow: inset 0 0 3px #000; */
     cursor: move;
 }
 
@@ -213,6 +200,10 @@
 
 .tW {
     background-color: brown;
+}
+
+.cT {
+    background-color: #928787;
 }
 
 .dL {

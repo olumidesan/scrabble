@@ -20,3 +20,5 @@
 - Game save feature (save board state and player rack, everything)
 - Ask for letter to use when a blank piece is played (modal)
 - Score single-word plays
+- Cummulate multiple emits within the same function into one
+- Improve scoring algorithm

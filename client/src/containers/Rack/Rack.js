@@ -126,6 +126,8 @@ export class Rack extends Component {
         return words
     }
 
+    // Saves the current play's weight. Essentially means to record whether
+    // the play had stuff like dL, tW, etc.
     updatePlayWeight = (tileClasses, pieceClasses, word) => {
         if (pieceClasses.includes('bp') && tileClasses.includes('dL')) {
             this.playWeights.push([word, 'dL'])
@@ -288,14 +290,21 @@ export class Rack extends Component {
         return boardState;
     }
 
-    computeScore = (validWords) => { // Can do better than O(n)
+    computeScore = (validWords) => { // Can do better than O(n) cubed
         let score = 0;
+        // For each word
         validWords.forEach(word => {
-            let mul = 1;
+            let mul = 1; // Assign a default multiplier
+            // For each string in each word
             [...word].forEach(s => {
+                // Get the associated weight with the string
                 let weight = this.pieces_weight[s];
+                // For each weighted play, previously identified
                 this.playWeights.forEach(a => {
+                    // If the strings are equal
                     if (s === a[0]) {
+                        // Confirm the type of weighted play and 
+                        // update accordingly
                         if (['dL', 'tL'].includes(a[1])) {
                             weight *= this.letterMapping[a[1]];
                         }
@@ -341,12 +350,15 @@ export class Rack extends Component {
                     }
                     // Compute score
                     let score = this.computeScore(validWords);
+
+                    // Publish score
                     this.props.socket.emit('scoreEvent', {
                         roomID: this.props.roomID,
                         name: this.props.name,
                         score: score,
                         word: validWords[0]
                     });
+
                     // If validated, then get what's on the rack. This
                     // will need to be refilled
                     let remainingPieces = this.getPiecesOnRack();

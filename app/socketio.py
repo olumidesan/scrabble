@@ -97,6 +97,13 @@ def play_event(data):
 
     emit('validPlay', data, room=data.get('roomID'))
 
+@sio.on('scoreEvent')
+def score_event(data):
+    """
+    Event handler for updating scores
+    """
+    emit('scoreUpdate', data, room=data.get('roomID'))
+
 @sio.on('drawEvent')
 def draw_event(data):
     """

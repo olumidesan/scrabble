@@ -36,8 +36,6 @@ def create_app(config_class):
     db.init_app(app)
     sio.init_app(app, 
                  async_mode=app.config['ASYNC_MODE'], 
-                 channel=app.config['REDIS_CHANNEL_NAME'], 
-                 message_queue=app.config['REDIS_BROKER_PATH'],
                  cors_allowed_origins=['http://localhost:3000', 'http://localhost:5005', 
                                         'http://localhost:5000', 'http://192.168.0.165:5005', 'http://192.168.0.165:3000']) 
 

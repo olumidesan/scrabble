@@ -12,8 +12,7 @@ Here's a sneak-peak, nonetheless
 
 ## UAT Testing
 - Checkout the `uat` branch: `git checkout uat`
-- To test, You'll need Python3.6+ installed on your computer, along with [Redis](https://redis.io/).
-- Ensure the Redis service is running. The default configuration is fine.  
+- To test, You'll need Python3.6+ installed on your computer.
 - Create a virtual environment, activate it, and install the requirements: `pip3 install -r requirements.txt`. 
 - At the root folder, in the virtual environment, simply run `python3 wsgi.py`.
 - `Navigate to your local IP address (192.168...:5005) to view the app. 

@@ -19,3 +19,4 @@
 - Fix shaky connection issue that causes turns not to be updated on both score and state/props
 - Game save feature (save board state and player rack, everything)
 - Ask for letter to use when a blank piece is played (modal)
+- Score single-word plays

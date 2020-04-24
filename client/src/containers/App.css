@@ -202,9 +202,6 @@
     background-color: brown;
 }
 
-.cT {
-    background-color: #928787;
-}
 
 .dL {
     margin: auto;
@@ -219,6 +216,9 @@
     background-color: rgb(237, 143, 100);
 }
 
+.cT {
+    background-color: #928787;
+}
 
 .tileOptions {
     display: flex;

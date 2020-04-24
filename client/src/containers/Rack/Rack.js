@@ -7,6 +7,42 @@ export class Rack extends Component {
         super(props);
 
         this.maxPieces = 7;
+        this.pieces_weight = {
+            ' ': 0,
+            'A': 1,
+            'E': 1,
+            'I': 1,
+            'O': 1,
+            'U': 1,
+            'N': 1,
+            'R': 1,
+            'T': 1,
+            'L': 1,
+            'S': 1,
+            'D': 2,
+            'G': 2,
+            'B': 3,
+            'C': 3,
+            'M': 3,
+            'P': 3,
+            'F': 4,
+            'H': 4,
+            'V': 4,
+            'W': 4,
+            'Y': 4,
+            'K': 5,
+            'J': 8,
+            'X': 8,
+            'Z': 10,
+            'Q': 10
+        };
+        this.letterMapping = {
+            'dL': 2,
+            'tL': 3,
+            'dW': 2,
+            'tW': 3
+        };
+        this.playWeights = [];
         this.boardTiles = null;
 
         this.state = {
@@ -88,6 +124,21 @@ export class Rack extends Component {
 
         }
         return words
+    }
+
+    updatePlayWeight = (tileClasses, pieceClasses, word) => {
+        if (pieceClasses.includes('bp') && tileClasses.includes('dL')) {
+            this.playWeights.push([word, 'dL'])
+        }
+        else if (pieceClasses.includes('bp') && tileClasses.includes('tL')) {
+            this.playWeights.push([word, 'tL'])
+        }
+        else if (pieceClasses.includes('bp') && tileClasses.includes('dW')) {
+            this.playWeights.push([word, 'dW'])
+        }
+        else if (pieceClasses.includes('bp') && tileClasses.includes('tW')) {
+            this.playWeights.push([word, 'tW'])
+        }
     }
 
     // Returns the pieces on the left of the piece at index
@@ -181,19 +232,22 @@ export class Rack extends Component {
         let wrdV, wrdH, playDirection = this.getPlayDirection.cachedDirection;
 
         playedPieces.forEach((piece, index) => {
-            let pieceTilePosition = this.getTilePositionOnBoard(piece.parentNode);
-            let letter = this.getWordFromPiece(this.boardTiles[pieceTilePosition]);
+            let tile = this.getTilePositionOnBoard(piece.parentNode);
+            let letter = this.getWordFromPiece(this.boardTiles[tile]);
+            let tileClasses = [...this.boardTiles[tile].classList];
+            let pieceClasses = [...piece.classList];
+            this.updatePlayWeight(tileClasses, pieceClasses, letter);
 
             // The first piece that's played, in the playing direction, would have all the words
             // played in that direction. So, for the very first piece, get the pieces played in all
             // directions
             if (index === 0) {
-                wrdH = this.getPiecesLeft(pieceTilePosition) + letter + this.getPiecesRight(pieceTilePosition);
+                wrdH = this.getPiecesLeft(tile) + letter + this.getPiecesRight(tile);
                 // Validate only words with at least two characters
                 if (wrdH.length > 1) {
                     allwords.push(wrdH);
                 }
-                wrdV = this.getPiecesAbove(pieceTilePosition) + letter + this.getPiecesDown(pieceTilePosition);
+                wrdV = this.getPiecesAbove(tile) + letter + this.getPiecesDown(tile);
                 if (wrdV.length > 1) {
                     allwords.push(wrdV);
                 }
@@ -201,13 +255,13 @@ export class Rack extends Component {
             // While for the others, get only those opposite the playing direction
             else {
                 if (playDirection === 'right') {
-                    wrdV = this.getPiecesAbove(pieceTilePosition) + letter + this.getPiecesDown(pieceTilePosition);
+                    wrdV = this.getPiecesAbove(tile) + letter + this.getPiecesDown(tile);
                     if (wrdV.length > 1) {
                         allwords.push(wrdV);
                     }
                 }
                 else {
-                    wrdH = this.getPiecesLeft(pieceTilePosition) + letter + this.getPiecesRight(pieceTilePosition);
+                    wrdH = this.getPiecesLeft(tile) + letter + this.getPiecesRight(tile);
                     if (wrdH.length > 1) {
                         allwords.push(wrdH);
                     }
@@ -234,9 +288,33 @@ export class Rack extends Component {
         return boardState;
     }
 
+    computeScore = (validWords) => { // Can do better than O(n)
+        let score = 0;
+        validWords.forEach(word => {
+            let mul = 1;
+            [...word].forEach(s => {
+                let weight = this.pieces_weight[s];
+                this.playWeights.forEach(a => {
+                    if (s === a[0]) {
+                        if (['dL', 'tL'].includes(a[1])) {
+                            weight *= this.letterMapping[a[1]];
+                        }
+                        else if (['tW', 'dW'].includes(a[1])) {
+                            mul = this.letterMapping[a[1]];
+                        }
+                    }
+                });
+                score = score + weight;
+            });
+            score = score * mul;
+        });
+        return score;
+    }
+
     playTurn = () => {
         // You can, of course, only play when it's your turn
         if (this.props.isTurn) {
+            this.playWeights = [];
             // Get pieces that were played
             let playedPieces = this.getPlayedPieces();
 
@@ -262,8 +340,13 @@ export class Rack extends Component {
                         return;
                     }
                     // Compute score
-                    // Tbd
-                    console.log("I am in here")
+                    let score = this.computeScore(validWords);
+                    this.props.socket.emit('scoreEvent', {
+                        roomID: this.props.roomID,
+                        name: this.props.name,
+                        score: score,
+                        word: validWords[0]
+                    });
                     // If validated, then get what's on the rack. This
                     // will need to be refilled
                     let remainingPieces = this.getPiecesOnRack();

@@ -300,8 +300,8 @@ export default class GameUser extends Component {
                     </div>
                     <br />
                     <div className='centralize field is-grouped is-grouped-centered'>
-                        <button style={{ marginRight: '5px' }} className="button optionButton is-fullwidth is-light" onClick={this.showHome}>Cancel</button>
-                        <button style={{ marginLeft: '5px' }} className="button optionButton is-fullwidth is-link" onClick={this.startGame}>Start</button>
+                        <button style={{ marginRight: '5px' }} className="button optionButton is-fullwidth is-link" onClick={this.startGame}>Start</button>
+                        <button style={{ marginLeft: '5px' }} className="button optionButton is-fullwidth is-light" onClick={this.showHome}>Cancel</button>
                     </div>
                 </form>
             </div>;
@@ -332,8 +332,8 @@ export default class GameUser extends Component {
 
                     </div>
                     <div className='centralize field is-grouped is-grouped-centered'>
-                        <button style={{ marginRight: '5px' }} className="button optionButton is-fullwidth is-light" onClick={this.showHome}>Cancel</button>
-                        <button style={{ marginLeft: '5px' }} className="button optionButton is-fullwidth is-link" onClick={this.joinRoom}>Join</button>
+                        <button style={{ marginRight: '5px' }} className="button optionButton is-fullwidth is-link" onClick={this.joinRoom}>Join</button>
+                        <button style={{ marginLeft: '5px' }} className="button optionButton is-fullwidth is-light" onClick={this.showHome}>Cancel</button>
                     </div>
                 </form>
             </div>

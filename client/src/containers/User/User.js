@@ -5,6 +5,10 @@ import Board from '../Board/Board';
 import Rack from '../Rack/Rack';
 import ScoreTable from '../ScoreTable/ScoreTable';
 import makeServerRequest from '../../helpers/axios';
+import WaitingRoom from '../../components/WaitingRoom/WaitingRoom';
+import LandingPage from '../../components/LandingPage/LandingPage';
+import JoinGameForm from '../../components/JoinGameForm/JoinGameForm';
+import CreateGameForm from '../../components/CreateGameForm/CreateGameForm';
 
 
 export default class GameUser extends Component {
@@ -12,6 +16,10 @@ export default class GameUser extends Component {
         super(props);
 
         this.numOfPlayers = 0;
+        this.lp=true;
+        this.cg=false;
+        this.jf=false;
+        this.wr=false;
         this.socket = io('http://192.168.0.165:5005', { transports: ['websocket'] });
         // this.socket = io(`http://${window.serverIP}:5005`, { transports: ['websocket'] });
 
@@ -41,6 +49,7 @@ export default class GameUser extends Component {
         if (!this.state.isHost) {
             this.setState({ isHost: true, roomID: this.roomID });
         }
+
         document.querySelector('.landing').style.display = 'none';
         document.querySelector('.configForm').style.display = 'block';
     }
@@ -279,108 +288,23 @@ export default class GameUser extends Component {
     }
 
     render() {
-        let formInput =
-            <div className='configForm'>
-                <form>
-                    <div className="field">
-                        <label className="label">Your Name: <span className="imp">*</span> </label>
-                        <div className="control">
-                            <input className="input" type='text' onChange={this.saveUser} name='text' placeholder='e.g: Orihime' />
-                        </div>
-                    </div>
-                    <div className="control">
-                        <div className="select is-fullwidth">
-                            <select onChange={this.savePlayers} value={this.state.numOfPlayers}>
-                                <option value='' defaultValue>Choose the number of players</option>
-                                <option value='2'>2</option>
-                                <option value='3'>3</option>
-                                <option value='4'>4</option>
-                            </select>
-                        </div>
-                    </div>
-                    <br />
-                    <div className='centralize field is-grouped is-grouped-centered'>
-                        <button style={{ marginRight: '5px' }} className="button optionButton is-fullwidth is-link" onClick={this.startGame}>Start</button>
-                        <button style={{ marginLeft: '5px' }} className="button optionButton is-fullwidth is-light" onClick={this.showHome}>Cancel</button>
-                    </div>
-                </form>
-            </div>;
-        let joinForm =
-            <div className='joinForm'>
-                <form>
-                    <div className="field">
-                        <label className="label">Your Name: <span className="imp">*</span></label>
-                        <div className="control">
-                            <input className="input" type='text' onChange={this.saveUser} name='name' placeholder='e.g. Smeagol' />
-                        </div>
-                    </div>
 
-                    <div className="field">
-                        <div className="field is-expanded">
-                            <label className="label">Game ID: <span className="imp">*</span></label>
-                            <div className="field has-addons">
-                                <p className="control">
-                                    <span className="button is-static">
-                                        SC-
-                                        </span>
-                                </p>
-                                <div className="control">
-                                    <input className="input" type='text' onChange={this.saveID} name='gameID' placeholder='e.g. 903318' />
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div className='centralize field is-grouped is-grouped-centered'>
-                        <button style={{ marginRight: '5px' }} className="button optionButton is-fullwidth is-link" onClick={this.joinRoom}>Join</button>
-                        <button style={{ marginLeft: '5px' }} className="button optionButton is-fullwidth is-light" onClick={this.showHome}>Cancel</button>
-                    </div>
-                </form>
-            </div>
-        let landingPage =
-            <div className='landing'>
-                <div className="title centralize">
-                    SCRABBLE
-                </div>
-                <div className="field is-grouped">
-                    <div className="control">
-                        <button onClick={this.registerHost} className="button mainButton is-success">Host Game</button>
-                    </div>
-                    <div className="control">
-                        <button onClick={this.showJoin} className="button mainButton is-link">Join Game</button>
-                    </div>
-                </div>
-            </div>;
-        let hostWaitingRoom =
-            <div className="waitingMessage">
-                <div className="centralize title is-5">
-                    <span>Waiting for all players to join...</span>
-                </div>
-                <hr />
-                <div>Your name: <b>{this.state.name}</b></div>
-                <div>Game ID: <b>{this.state.roomID}</b></div>
-                <div>Connected players: <b>{this.state.connectedPlayers}/{this.numOfPlayers}</b></div>
-                <hr />
-                <div className="subtitle is-7">
-                    <span role='img' aria-label="info">⚠️</span> Don't forget to share your Game ID with the other players you want to join your game session.
-                </div>
-            </div>
-        let playerWaitingRoom =
-            <div className="waitingMessage">
-                <div className="centralize title is-5">
-                    <span>Waiting for all players to join...</span>
-                </div>
-                <hr />
-                <div>Your name: <b>{this.state.name}</b></div>
-                <div>Game ID: <b>{this.state.roomID}</b></div>
-                <div>You're in the waiting room. The game will start once all players like you have joined the host's session.</div>
-            </div>
         let gameConfig =
             <div className="configElements">
-                {landingPage}
-                {formInput}
-                {joinForm}
-                {this.state.isHost ? hostWaitingRoom : playerWaitingRoom}
+                <LandingPage registerHost={this.registerHost} showJoinForm={this.showJoin} />
+                <CreateGameForm savePlayers={this.savePlayers}
+                    saveUser={this.saveUser}
+                    showHome={this.showHome}
+                    startGame={this.startGame} />
+                <JoinGameForm saveID={this.saveID}
+                    saveUser={this.saveUser}
+                    joinRoom={this.joinRoom}
+                    showHome={this.showHome} />
+                <WaitingRoom name={this.state.name}
+                    roomID={this.state.roomID}
+                    isHost={this.state.isHost}
+                    numOfPlayers={this.numOfPlayers}
+                    connectedPlayers={this.state.connectedPlayers} />
             </div>
         let gameComponents =
             <div className="entry columns is-vcentered">

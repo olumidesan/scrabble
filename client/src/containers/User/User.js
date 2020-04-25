@@ -16,10 +16,6 @@ export default class GameUser extends Component {
         super(props);
 
         this.numOfPlayers = 0;
-        this.lp=true;
-        this.cg=false;
-        this.jf=false;
-        this.wr=false;
         this.socket = io('http://192.168.0.165:5005', { transports: ['websocket'] });
         // this.socket = io(`http://${window.serverIP}:5005`, { transports: ['websocket'] });
 

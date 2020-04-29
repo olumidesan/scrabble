@@ -3,8 +3,8 @@ import { toast } from 'react-toastify';
 import io from 'socket.io-client';
 import Board from '../Board/Board';
 import Rack from '../Rack/Rack';
-import ScoreTable from '../ScoreTable/ScoreTable';
 import makeServerRequest from '../../helpers/axios';
+import ScoreTable from '../../components/ScoreTable/ScoreTable';
 import WaitingRoom from '../../components/WaitingRoom/WaitingRoom';
 import LandingPage from '../../components/LandingPage/LandingPage';
 import JoinGameForm from '../../components/JoinGameForm/JoinGameForm';
@@ -33,6 +33,27 @@ export default class GameUser extends Component {
             bagLength: 100,
             gameStarted: false,
             connectedPlayers: 0,
+        }
+    }
+
+    getPlayedPieces = () => {
+        return document.querySelectorAll('.bp');
+    }
+
+    concretizePlayedPieces = () => {
+        // Make all the pieces permanent. Do this, essentially, 
+        // by removing their identifiable class
+        let playedPieces = this.getPlayedPieces();
+        if (playedPieces.length > 0) {
+            playedPieces.forEach((piece) => {
+                // Remove previously identifiable attrs.
+                piece.removeAttribute('class');
+                piece.removeAttribute('id');
+                // Add class of validated play (vP)
+                piece.setAttribute('class', 'vP');
+                piece.setAttribute('draggable', false);
+                piece.parentNode.setAttribute('draggable', false);
+            });
         }
     }
 
@@ -136,15 +157,15 @@ export default class GameUser extends Component {
             this.socket.io.opts.transports = ['polling', 'websocket'];
             document.getElementById('connstatus').setAttribute('title', "Reconnecting...");
             document.getElementById('connstatus').setAttribute('class', 'has-text-warning');
-            if (this.state.gameStarted) {
-                this.socket.emit('reconn', { roomID: this.roomID });
-            }
         });
 
         // On connect
         this.socket.on('connect', () => {
             document.getElementById('connstatus').setAttribute('title', "Server Connection: Good");
             document.getElementById('connstatus').setAttribute('class', 'has-text-success');
+            if (this.state.gameStarted) {
+                this.socket.emit('join', { roomID: this.roomID, isReconnection: true });
+            }
         });
 
         // On disconnect
@@ -228,8 +249,8 @@ export default class GameUser extends Component {
                 // The remainder of the clients don't however. This does the actual update
                 this.setState({
                     gameStarted: true,
+                    players: !this.state.isHost ? [...data.allPlayers] : [...this.state.players],
                     connectedPlayers: !this.state.isHost ? data.allPlayers.length : this.state.connectedPlayers,
-                    players: !this.state.isHost ? [...data.allPlayers] : [...this.state.players]
                 });
 
                 // Unhide main game space and remove the config divs
@@ -248,24 +269,25 @@ export default class GameUser extends Component {
 
         // Register for event to effect an actual valid play
         this.socket.on('validPlay', (data) => {
-            let message;
+            let turnMessage, message;
+            
+            // Make played pieces permanent for everybody
+            this.concretizePlayedPieces();
 
             // Update local state upon each play
             if (data.playerToPlay === this.state.name) {
                 this.setState({
                     isTurn: true,
+                    bagItems: data.bagItems,
                     bagLength: data.bagLength,
-                    bagItems: data.bagItems
-                });
-                message = `${data.playerToPlay}, it's your turn to play.`;
+                }, () => turnMessage = `${data.playerToPlay}, it's your turn to play.`);
             }
             else {
                 this.setState({
                     isTurn: false,
+                    bagItems: data.bagItems,
                     bagLength: data.bagLength,
-                    bagItems: data.bagItems
-                });
-                message = `${data.playerToPlay}'s turn to play.`;
+                }, () => turnMessage = `${data.playerToPlay}'s turn to play.`);
             }
 
             // Update turn column on board
@@ -276,10 +298,33 @@ export default class GameUser extends Component {
                 else {
                     document.getElementById(`turn_${player}`).innerText = 'No';
                 }
-            })
+            });
 
-            // Tell player whose turn it is
-            toast.info(message);
+            // If a turn is skipped, then there's no score associated with that 
+            // turn. Use this as a conditional to render score or turn skipped
+            // message
+            if (data.isTurnSkipped) {
+                message = data.name === this.state.name ?
+                    "You skipped your turn" :
+                    message = `Turn skipped by ${data.name}.`;
+            }
+            else {
+                // Construct score message
+                message = data.name === this.state.name ?
+                    `You played "${data.word}" worth ${data.score} points` :
+                    `${data.name} played "${data.word}" worth ${data.score} points`;
+
+                // Update the score board with the score
+                let scoreDiv = document.getElementById(`score_${data.name}`);
+                let score = parseInt(scoreDiv.innerText);
+                scoreDiv.innerText = score + data.score
+            }
+
+            // Announce appropriate message
+            toast.success(message);
+
+            // Announce whose turn it is
+            toast.info(turnMessage);
         });
     }
 
@@ -322,7 +367,6 @@ export default class GameUser extends Component {
                         </div>
                         <ScoreTable socket={this.socket}
                             name={this.state.name}
-                            isTurn={this.state.isTurn}
                             players={this.state.players} />
                         {this.state.gameStarted ?
                             <Rack socket={this.socket}
@@ -330,10 +374,11 @@ export default class GameUser extends Component {
                                 roomID={this.state.roomID}
                                 isHost={this.state.isHost}
                                 isTurn={this.state.isTurn}
+                                players={this.state.players}
                                 bagItems={this.state.bagItems}
                                 bagLength={this.state.bagLength}
                                 gameStarted={this.state.gameStarted}
-                                players={this.state.players} /> :
+                                getPlayedPieces={this.getPlayedPieces} /> :
                             null}
                     </div>
                 </div>

@@ -10,10 +10,9 @@
 - Refactor app to use proper React componentization
 - Cater for shaky connections. Currently, if connection gets lost,
   there are socketio errors
-- Add weights to bag view
 - Fix shaky connection issue that causes turns not to be updated on both score and state/props
 - Game save feature (save board state and player rack, everything)
 - Ask for letter to use when a blank piece is played (modal)
 - Score single-word plays
-- Cummulate multiple emits within the same function into one
+- Cummulate multiple emits within the same function into one | check
 - Improve scoring algorithm

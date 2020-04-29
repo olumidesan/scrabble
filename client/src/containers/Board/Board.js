@@ -128,7 +128,8 @@ class Board extends React.Component {
                     // Implicit movement of tile from rack to board
                     else {
                         // The rack pieces can be deleted, as they have been duplicated on the board
-                        document.getElementById(this.state.currentPiece.id).remove();
+                        let prevPiece = document.getElementById(this.state.currentPiece.id);
+                        if (prevPiece) { prevPiece.remove() };
                     }
 
                     // Reflect on other players' boards that a rack-event

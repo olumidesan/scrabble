@@ -6,7 +6,6 @@ export class Rack extends Component {
     constructor(props) {
         super(props);
 
-        this.maxPieces = 7;
         this.pieces_weight = {
             ' ': 0,
             'A': 1,
@@ -52,16 +51,10 @@ export class Rack extends Component {
 
     // Emit to every player who's turn it is
     announceNextPlayer = () => {
-        let nextPlayerToPlay = makeServerRequest({
-            payload: {},
-            requestType: 'get',
-            url: `/turn/${this.props.roomID}`
-        });
-        nextPlayerToPlay.then(data => {
-            this.props.socket.emit('playEvent', {
-                playerToPlay: data.playerToPlay,
-                roomID: this.props.roomID
-            });
+        this.props.socket.emit('playEvent', {
+            isTurnSkipped: true,
+            name: this.props.name,
+            roomID: this.props.roomID,
         });
     }
 
@@ -273,23 +266,6 @@ export class Rack extends Component {
         return allwords;
     }
 
-    takeBoardSnapshot = () => { // to be tested
-        let boardState = [];
-        this.boardTiles.forEach((piece, index) => {
-            if (piece.firstChild !== null) {
-                if ([...piece.firstChild.classList].includes('vP')) {
-                    boardState.push({
-                        letter: piece.firstchild.textContent.slice(0, 1),
-                        value: parseInt(piece.firstchild.textContent.slice(1)),
-                        index: index
-                    });
-                }
-            }
-        });
-
-        return boardState;
-    }
-
     computeScore = (validWords) => { // Can do better than O(n) cubed
         let score = 0;
         // For each word
@@ -323,62 +299,65 @@ export class Rack extends Component {
     playTurn = () => {
         // You can, of course, only play when it's your turn
         if (this.props.isTurn) {
+            // Reset the played weights per turn
             this.playWeights = [];
+
             // Get pieces that were played
-            let playedPieces = this.getPlayedPieces();
+            let playedPieces = this.props.getPlayedPieces();
 
             // Check if the player has played anything
             if ((playedPieces.length) > 0) {
 
-                // Validate board play
+                // Validate board play based on Scrabble's rules
                 if (!this.validateBoardPlay(playedPieces)) {
                     toast.error("Sorry, that's an invalid move.");
                     return;
                 }
 
-                // Validate words
+                // Validate words, compute score, and announce to everybody
                 let validWords = this.getPlayedWords(playedPieces);
                 let wordValidation = makeServerRequest({
                     requestType: 'post',
                     url: '/words-check',
                     payload: { words: validWords }
                 });
+
                 wordValidation.then(resp => {
+                    // Invalid word is contained in the response payload
+                    // Announce invalid word and exit
                     if (resp.error) {
                         toast.error(resp.error);
                         return;
                     }
-                    // Compute score
-                    let score = this.computeScore(validWords);
 
-                    // Publish score
-                    this.props.socket.emit('scoreEvent', {
-                        roomID: this.props.roomID,
-                        name: this.props.name,
-                        score: score,
-                        word: validWords[0]
-                    });
+                    // Implicit that all words are valid
 
                     // If validated, then get what's on the rack. This
                     // will need to be refilled
                     let remainingPieces = this.getPiecesOnRack();
 
-                    // Make played pieces permanent. Reflect on everybody's, including yours
-                    this.props.socket.emit('concreteEvent', { roomID: this.props.roomID });
+                    // Compute score
+                    let score = this.computeScore(validWords);
 
-                    // Announce next player
-                    this.announceNextPlayer();
-
-                    // Refill player's rack
+                    // Get new pieces and Refill player's rack
                     let newPieces = this.getFromBag(playedPieces.length);
+
+                    // Refill rack
                     newPieces.then((data) => {
-                        // Refill rack
                         data.pieces.forEach(piece => remainingPieces.push(piece));
                     }).then(() => {
                         this.setState({ currentPieces: remainingPieces });
                         this.populateRack(remainingPieces);
+                        // Publish score [among other things] to everyone
+                        this.props.socket.emit('playEvent', {
+                            roomID: this.props.roomID,
+                            name: this.props.name,
+                            score: score,
+                            word: validWords[0]
+                        });
                     });
                 });
+
             }
             else {
                 toast.error("Err...You haven't played anything. You can alternatively skip your turn.");
@@ -647,29 +626,10 @@ export class Rack extends Component {
         return pieces;
     }
 
-    getPlayedPieces = () => {
-        return document.querySelectorAll('.bp');
-    }
-
-    concretizePlayedPieces = () => {
-        // Make all the pieces permanent. Do this, essentially, 
-        // by removing their identifiable class
-        let playedPieces = this.getPlayedPieces();
-        if (playedPieces.length > 0) {
-            playedPieces.forEach((piece) => {
-                // Remove previously identifiable attrs.
-                piece.removeAttribute('class');
-                piece.removeAttribute('id');
-                // Add class of validated play (vP)
-                piece.setAttribute('class', 'vP');
-            });
-        }
-    }
-
     clearPlayedPieces = () => {
         // Clear the board of all played pieces.
         // Defined separately to allow for `recallPieces()` reuse
-        let playedPieces = this.getPlayedPieces();
+        let playedPieces = this.props.getPlayedPieces();
         if (playedPieces.length > 0) {
             playedPieces.forEach((piece) => piece.remove())
         }
@@ -775,7 +735,7 @@ export class Rack extends Component {
             pieceCont.setAttribute('class', 'bagPieceItem');
 
             piece = `<div><div class='piece'><span class="letter">${letter[0]}</span></div></div>
-                     <div class="numberLeft"><span>${letter[1]} left</span></div>`;
+            <div class="numberLeft"><span>${letter[1]} left</span></div>`;
 
             pieceCont.innerHTML = piece;
             piecesContainer.appendChild(pieceCont);
@@ -797,6 +757,25 @@ export class Rack extends Component {
             },
         });
     }
+    
+    takeBoardSnapshot = () => { // to be tested
+        let boardState = [];
+        this.boardTiles.forEach((piece, index) => {
+            if (piece.firstChild !== null) {
+                if ([...piece.firstChild.classList].includes('vP')) {
+                    boardState.push({
+                        letter: piece.firstchild.textContent.slice(0, 1),
+                        value: parseInt(piece.firstchild.textContent.slice(1)),
+                        index: index
+                    });
+                }
+            }
+        });
+
+        return boardState;
+    }
+    
+    // window.addEventListener('beforeunload', this.beforeUnload);
 
     componentWillUnmount = () => {
         window.removeEventListener('beforeunload', this.beforeUnload);
@@ -804,9 +783,8 @@ export class Rack extends Component {
     */
 
     componentDidMount = () => {
-
+        // Assign global variable
         this.boardTiles = document.querySelectorAll('.tile');
-        // window.addEventListener('beforeunload', this.beforeUnload);
 
         // Register for event to effect a recall when a player does 
         // that. Effects reflection among all players
@@ -816,21 +794,12 @@ export class Rack extends Component {
             }
         });
 
-        // Register for event to effect a recall when a player does 
-        // that. Effects reflection among all players
-        this.props.socket.on('concretizePieces', () => {
-            this.concretizePlayedPieces();
-        });
-
         // Get new pieces, update the state and populate the rack
-        let requiredPieces = this.maxPieces - this.state.currentPieces.length;
-        if (requiredPieces > 0) {
-            let newPieces = this.getFromBag(requiredPieces);
-            newPieces.then((data) => {
-                this.setState({ currentPieces: data.pieces },
-                    () => { this.populateRack(this.state.currentPieces) });
-            });
-        }
+        let newPieces = this.getFromBag(7 - this.state.currentPieces.length);
+        newPieces.then((data) => {
+            this.setState({ currentPieces: data.pieces },
+                () => { this.populateRack(this.state.currentPieces) });
+        });
     }
 
     render() {

@@ -14,14 +14,9 @@ from flask_socketio import join_room, leave_room, emit
 # For all socketio rooms, aliased
 # as game IDs
 rooms = []
-
-# For all players associated with rooms
-# identified by their roomID and ordered 
-# by turn
-players = defaultdict(list)
 # -------------------------------------
 
-# Prevent Import error due to cyclic imports
+from .utils import players, get_player_to_play
 from app.api.utils import get_all_pieces, get_remaining_pieces
 
 
@@ -34,17 +29,10 @@ def on_join(data):
 
     # Add to the rooms if not already there
     rooms.append(room) if room not in rooms else None
-    emit('joinedRoom', data, room=room)
 
-@sio.on('reconn')
-def on_reconn(data):
-    """Event handler for reconnections"""
-
-    room = data['roomID']
-    join_room(room)
-
-    # Add to the rooms if not already there
-    rooms.append(room) if room not in rooms else None
+    # If it's not a reconnection event
+    if not data.get('isReconnection'):
+        emit('joinedRoom', data, room=room)
 
 @sio.on('fromHost')
 def from_host(data):
@@ -79,30 +67,20 @@ def recall_event(data):
     """
     emit('recallPieces', data, room=data.get('roomID'))
 
-@sio.on('concreteEvent')
-def concretize_play(data):
-    """
-    Event handler for an actual valid play
-    """
-    emit('concretizePieces', room=data.get('roomID'))
-
 @sio.on('playEvent')
 def play_event(data):
     """
     Event handler for an actual valid play
     """
-    # Add bag and its length to payload
+
+    room_id = data.get('roomID')
+
+    # Update payload
     data['bagItems'] = get_all_pieces()
     data['bagLength'] = get_remaining_pieces()
-
-    emit('validPlay', data, room=data.get('roomID'))
-
-@sio.on('scoreEvent')
-def score_event(data):
-    """
-    Event handler for updating scores
-    """
-    emit('scoreUpdate', data, room=data.get('roomID'))
+    data['playerToPlay'] = get_player_to_play(room_id)
+    
+    emit('validPlay', data, room=room_id)
 
 @sio.on('drawEvent')
 def draw_event(data):

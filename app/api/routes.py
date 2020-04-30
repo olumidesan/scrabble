@@ -50,15 +50,15 @@ def words_check():
     return jsonify(dict(valid="true"))
 
 # For game save feature/page refresh.Tbd
-@api.route('/snapshot/<room_id>', methods=['GET', 'POST'])
-def snapshot(room_id):
-    """Saves/Returns room board states"""
+# @api.route('/snapshot/<room_id>', methods=['GET', 'POST'])
+# def snapshot(room_id):
+#     """Saves/Returns room board states"""
     
-    if request.method == 'GET':
-        snapshot = snapshots.get(room_id)
-        return jsonify(dict(snapshot=snapshot))
+#     if request.method == 'GET':
+#         snapshot = snapshots.get(room_id)
+#         return jsonify(dict(snapshot=snapshot))
     
-    # Implicit POST
-    snapshots[room_id].append(request.get_json(silent=True))
+#     # Implicit POST
+#     snapshots[room_id].append(request.get_json(silent=True))
 
-    return jsonify(dict(message="Saved successfully"))
+#     return jsonify(dict(message="Saved successfully"))

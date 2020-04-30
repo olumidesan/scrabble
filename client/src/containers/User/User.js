@@ -215,10 +215,10 @@ export default class GameUser extends Component {
 
             if (firstToPlay === this.state.name) {
                 this.setState({ isTurn: true });
-                firsToPlayMessage = `${firstToPlay} (You) get to play first`;
+                firsToPlayMessage = `You get to play first`;
             }
             else {
-                firsToPlayMessage = `${firstToPlay} gets to play first.`;
+                firsToPlayMessage = `${firstToPlay} gets to play first`;
             }
 
             // Show on the score table whose turn it is
@@ -237,8 +237,7 @@ export default class GameUser extends Component {
                 }
             });
 
-            toast.info(firsToPlayMessage);
-            toast.warn(`Heads up: The turn order is, ${playOrderMessage}.`)
+            toast.warn(`${firsToPlayMessage}. Also note that the turn order is, ${playOrderMessage}.`)
         });
 
         // If the game has started, remove the configuration
@@ -280,14 +279,14 @@ export default class GameUser extends Component {
                     isTurn: true,
                     bagItems: data.bagItems,
                     bagLength: data.bagLength,
-                }, () => turnMessage = `${data.playerToPlay}, it's your turn to play.`);
+                }, () => turnMessage = `your turn to play`);
             }
             else {
                 this.setState({
                     isTurn: false,
                     bagItems: data.bagItems,
                     bagLength: data.bagLength,
-                }, () => turnMessage = `${data.playerToPlay}'s turn to play.`);
+                }, () => turnMessage = `${data.playerToPlay}'s turn to play`);
             }
 
             // Update turn column on board
@@ -306,7 +305,7 @@ export default class GameUser extends Component {
             if (data.isTurnSkipped) {
                 message = data.name === this.state.name ?
                     "You skipped your turn" :
-                    message = `Turn skipped by ${data.name}.`;
+                    message = `Turn skipped by ${data.name}`;
             }
             else {
                 // Construct score message
@@ -320,16 +319,12 @@ export default class GameUser extends Component {
                 scoreDiv.innerText = score + data.score
             }
 
-            // Announce appropriate message
-            toast.success(message);
-
-            // Announce whose turn it is
-            toast.info(turnMessage);
+            // Announce to everybody
+            toast.info(`${message}. It's ${turnMessage}.`);
         });
     }
 
     render() {
-
         let gameConfig =
             <div className="configElements">
                 <LandingPage registerHost={this.registerHost} showJoinForm={this.showJoin} />

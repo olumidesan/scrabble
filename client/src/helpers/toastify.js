@@ -4,7 +4,7 @@ import React from 'react';
 
 const Toastify = () => {
     return (<ToastContainer
-        autoClose={12000} // 12 seconds
+        autoClose={8000} // 8 seconds
         hideProgressBar
         newestOnTop={true}
         closeOnClick={false}

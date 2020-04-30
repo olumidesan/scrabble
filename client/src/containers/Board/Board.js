@@ -8,7 +8,6 @@ class Board extends React.Component {
 
         this.state = {
             currentPiece: null,
-            destination: null,
             isBoardDrag: false
         }
     }
@@ -43,12 +42,15 @@ class Board extends React.Component {
         // When a piece is initially moved, from rack or board
         document.addEventListener("dragstart", (event) => {
             if (this.props.isTurn) {
-                // A piece having a classname with 'bp' is originated
-                // from the board itself, signifying a drag
-                if (event.target.className.includes('bp')) {
-                    this.setState({ isBoardDrag: true });
+                let cL = [...event.target.classList]
+                if (cL.includes('pieceContainer') || cL.includes('bp')) {
+                    // A piece having a classname with 'bp' is originated
+                    // from the board itself, signifying a drag
+                    if (cL.includes('bp')) {
+                        this.setState({ isBoardDrag: true });
+                    }
+                    this.setState({ currentPiece: event.target });
                 }
-                this.setState({ currentPiece: event.target });
             }
             else {
                 // If it's a drag that's associated with a scrabble piece. Warn to wait
@@ -86,61 +88,65 @@ class Board extends React.Component {
         document.addEventListener("drop", (event) => {
             event.preventDefault();
             if (this.props.isTurn) {
-                if (event.target.className.includes('droppable')) {
-                    event.target.removeAttribute('style'); //  Reset the border
+                event.target.removeAttribute('style'); //  Reset the border
+                if (event.target.className.includes('droppable') && this.state.currentPiece !== null) {
+                    let cL = [...this.state.currentPiece.classList]
+                    // Register only for valid movements. Avoid stuff like
+                    // a mistakenly-made drag or a bare tile drag
+                    if (cL.includes('pieceContainer') || cL.includes('bp')) {
+                        // Get the position of the tile the piece was dropped in
+                        let piecePosition = this.getTilePositionOnBoard(event.target);
 
-                    // Get the position of the tile the piece was dropped in
-                    let piecePosition = this.getTilePositionOnBoard(event.target);
+                        // Make a new parent element with a custom class and duplicate the
+                        // contents of the current piece to it, and then add it as a child 
+                        // to the tile where it is placed
+                        let bp = document.createElement('div');
+                        bp.setAttribute('draggable', 'true');
+                        bp.setAttribute('id', `jp_${piecePosition}`);
+                        bp.setAttribute('class', 'bp');
+                        bp.innerHTML = this.state.currentPiece.innerHTML;
+                        // Make piece appear on board
+                        event.target.appendChild(bp);
 
-                    // Make a new parent element with a custom class and duplicate the
-                    // contents of the current piece to it, and then add it as a child 
-                    // to the tile where it is placed
-                    let bp = document.createElement('div');
-                    bp.setAttribute('draggable', 'true');
-                    bp.setAttribute('id', `jp_${piecePosition}`);
-                    bp.setAttribute('class', 'bp');
-                    bp.innerHTML = this.state.currentPiece.innerHTML;
-                    // Make piece appear on board
-                    event.target.appendChild(bp);
+                        // If it's a board drag i.e the user is shifting the position of the
+                        // piece whilst still playing on the board
+                        if (this.state.isBoardDrag) {
+                            let children = this.state.currentPiece.parentNode.children; // Get all the children of the source tile
+                            // Special tiles (dL, tW, etc) will have more than one children (one for the actual message and
+                            // the other for the piece that was previously on it). Normal tiles will have just one child.
+                            // We want to remove the just the piece from the tile. So, get an index based on the length of the children.
+                            let index = children.length === 1 ? 0 : 1;
+                            // Remove appropriately
+                            this.state.currentPiece.parentNode.removeChild(children[index]);
 
-                    // If it's a board drag i.e the user is shifting the position of the
-                    // piece whilst still playing on the board
-                    if (this.state.isBoardDrag) {
-                        let children = this.state.currentPiece.parentNode.children; // Get all the children of the source tile
-                        // Special tiles (dL, tW, etc) will have more than one children (one for the actual message and
-                        // the other for the piece that was previously on it). Normal tiles will have just one child.
-                        // We want to remove the just the piece from the tile. So, get an index based on the length of the children.
-                        let index = children.length === 1 ? 0 : 1;
-                        // Remove appropriately
-                        this.state.currentPiece.parentNode.removeChild(children[index]);
+                            // Reset state
+                            this.setState({ isBoardDrag: false });
 
-                        // Reset state
-                        this.setState({ isBoardDrag: false });
-
-                        // Reflect on other players' boards 
-                        // that a board-drag happened
-                        this.props.socket.emit('boardEvent', {
+                            // Reflect on other players' boards 
+                            // that a board-drag happened
+                            this.props.socket.emit('boardEvent', {
+                                name: this.props.name,
+                                roomID: this.props.roomID,
+                                id: this.state.currentPiece.id
+                            });
+                        }
+                        // Implicit movement of tile from rack to board
+                        else {
+                            // The rack pieces can be deleted, as they have been duplicated on the board
+                            let prevPiece = document.getElementById(this.state.currentPiece.id);
+                            if (prevPiece) { prevPiece.remove() };
+                        }
+                        // Reflect on other players' boards that a rack-event
+                        // happened
+                        this.props.socket.emit('rackEvent', {
                             name: this.props.name,
                             roomID: this.props.roomID,
-                            id: this.state.currentPiece.id
+                            elementString: bp.innerHTML,
+                            elementPosition: piecePosition
                         });
+                        // Reset
+                        this.setState({ currentPiece: null });
                     }
-                    // Implicit movement of tile from rack to board
-                    else {
-                        // The rack pieces can be deleted, as they have been duplicated on the board
-                        let prevPiece = document.getElementById(this.state.currentPiece.id);
-                        if (prevPiece) { prevPiece.remove() };
-                    }
-
-                    // Reflect on other players' boards that a rack-event
-                    // happened
-                    this.props.socket.emit('rackEvent', {
-                        name: this.props.name,
-                        roomID: this.props.roomID,
-                        elementString: bp.innerHTML,
-                        elementPosition: piecePosition
-                    });
-
                 }
             }
         });

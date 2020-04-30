@@ -49,15 +49,6 @@ export class Rack extends Component {
         }
     }
 
-    // Emit to every player who's turn it is
-    announceNextPlayer = () => {
-        this.props.socket.emit('playEvent', {
-            isTurnSkipped: true,
-            name: this.props.name,
-            roomID: this.props.roomID,
-        });
-    }
-
     // Returns the pieces above the piece at index
     getPiecesAbove = (index) => {
         let words = "";
@@ -371,7 +362,11 @@ export class Rack extends Component {
             let confirmed = window.confirm("Are you sure you want to skip your turn?");
             if (confirmed) {
                 this.recallPieces();
-                this.announceNextPlayer();
+                this.props.socket.emit('playEvent', {
+                    isTurnSkipped: true,
+                    name: this.props.name,
+                    roomID: this.props.roomID,
+                });
             }
         }
     }
@@ -697,7 +692,7 @@ export class Rack extends Component {
             pieceContainer.setAttribute('id', `userPiece${index}`);
             pieceContainer.setAttribute('class', 'pieceContainer');
             pieceContainer.setAttribute('draggable', 'true');
-            piece = `<div class='piece'><span class="letter">${alphabet.letter}</span><span class="value">${alphabet.value}</span></div>`;
+            piece = `<div draggable="false" class='piece'><span draggable="false" class="letter">${alphabet.letter}</span><span draggable="false" class="value">${alphabet.value}</span></div>`;
             pieceContainer.innerHTML = piece;
             rack.appendChild(pieceContainer);
         }

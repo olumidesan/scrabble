@@ -17,7 +17,7 @@ export class Rack extends Component {
 
     // Returns the pieces above the piece at index
     getPiecesAbove = (index) => {
-        let words = "";
+        let words = [];
         let loopLength = 15;
         let position = 'top';
 
@@ -29,7 +29,10 @@ export class Rack extends Component {
             let ind = index - loopLength;
             let tile = this.boardTiles[ind];
             if (tile.firstChild !== null) {
-                words += this.getWordFromPiece(tile.firstChild);
+                words.unshift({
+                    letter: this.getWordFromPiece(tile.firstChild),
+                    value: this.getValueFromPiece(tile.firstChild)
+                });
                 loopLength += 15;
                 // After getting the letter, check if the piece is at
                 // the edge of the board. If it is, then exit, as there'll
@@ -42,12 +45,14 @@ export class Rack extends Component {
                 break;
             }
         }
-        return words.split("").reverse().join("");
+        console.log(words, 'up')
+        words.reduce((obj, item) => (obj[item.key] = item.value, obj), {});
+        // return words.split("").reverse().join("");
     }
 
     // Returns the pieces below the piece at index
     getPiecesDown = (index) => {
-        let words = "";
+        let words = [];
         let loopLength = 15;
         let position = 'down';
 
@@ -59,7 +64,10 @@ export class Rack extends Component {
             let ind = index + loopLength;
             let tile = this.boardTiles[ind];
             if (tile.firstChild !== null) {
-                words += this.getWordFromPiece(tile.firstChild);
+                words.push({
+                    letter: this.getWordFromPiece(tile.firstChild),
+                    value: this.getValueFromPiece(tile.firstChild)
+                });
                 loopLength += 15;
                 // After getting the letter, check if the piece is at
                 // the edge of the board. If it is, then exit, as there'll
@@ -72,7 +80,9 @@ export class Rack extends Component {
                 break;
             }
         }
-        return words
+        console.log(words, 'down')
+        return words.reduce((obj, item) => (obj[item.key] = item.value, obj), {});
+        // return words
     }
 
     // Saves the current play's weight. Essentially means to record whether
@@ -94,7 +104,7 @@ export class Rack extends Component {
 
     // Returns the pieces on the left of the piece at index
     getPiecesLeft = (index) => {
-        let words = "";
+        let words = [];
         let loopLength = 1;
         let position = 'left';
 
@@ -106,7 +116,10 @@ export class Rack extends Component {
             let ind = index - loopLength;
             let tile = this.boardTiles[ind];
             if (tile.firstChild !== null) {
-                words += this.getWordFromPiece(tile.firstChild);
+                words.unshift({
+                    letter: this.getWordFromPiece(tile.firstChild),
+                    value: this.getValueFromPiece(tile.firstChild)
+                });
                 loopLength += 1;
                 // After getting the letter, check if the piece is at
                 // the edge of the board. If it is, then exit, as there'll
@@ -119,12 +132,14 @@ export class Rack extends Component {
                 break
             }
         }
-        return words.split("").reverse().join("");
+        console.log(words, 'left')
+        return words.reduce((obj, item) => (obj[item.key] = item.value, obj), {});
+        // return words.split("").reverse().join("");
     }
 
     // Returns the pieces on the right of the piece at index
     getPiecesRight = (index) => {
-        let words = "";
+        let words = [];
         let loopLength = 1;
         let position = 'right';
 
@@ -136,7 +151,10 @@ export class Rack extends Component {
             let ind = index + loopLength;
             let tile = this.boardTiles[ind];
             if (tile.firstChild !== null) {
-                words += this.getWordFromPiece(tile.firstChild);
+                words.push({
+                    letter: this.getWordFromPiece(tile.firstChild),
+                    value: this.getValueFromPiece(tile.firstChild)
+                });
                 loopLength += 1;
                 // After getting the letter, check if the piece is at
                 // the edge of the board. If it is, then exit, as there'''
@@ -150,7 +168,9 @@ export class Rack extends Component {
             }
 
         }
-        return words
+        console.log(words, 'right')
+        return words.reduce((obj, item) => (obj[item.key] = item.value, obj), {});
+        // return words
     }
 
     // Returns the character (letter), given a piece 
@@ -181,6 +201,26 @@ export class Rack extends Component {
         }
     }
 
+    splitWords = (allwords) => {
+        console.log(allwords, "ALl words")
+        let validWords = [];
+        let countableWords = [];
+        for (let wordObj of allwords) {
+            let fullword = '';
+            let countableWord = '';
+            if (wordObj.value !== 0) {
+                countableWord += wordObj.letter;
+            }
+            fullword += wordObj.letter;
+            validWords.push(fullword);
+            countableWords.push(countableWord);
+        }
+        console.log(validWords)
+        console.log(countableWords)
+
+        return [validWords, countableWords];
+    }
+
     /* Should return the valid words played. These will eventually be weighted
     amounting to the final play score */
     getPlayedWords = (playedPieces) => {
@@ -190,48 +230,63 @@ export class Rack extends Component {
         playedPieces.forEach((piece, index) => {
             let tile = this.getTilePositionOnBoard(piece.parentNode);
             let letter = this.getWordFromPiece(this.boardTiles[tile]);
+            let value = this.getValueFromPiece(this.boardTiles[tile]);
             let tileClasses = [...this.boardTiles[tile].classList];
             let pieceClasses = [...piece.classList];
 
             this.updatePlayWeight(tileClasses, pieceClasses, letter);
+            let veryFirst = { letter: letter, value: value };
 
             // The first piece that's played, in the playing direction, would have all the words
             // played in that direction. So, for the very first piece, get the pieces played in all
             // directions
             if (index === 0) {
-                wrdH = `${this.getPiecesLeft(tile)}${letter}${this.getPiecesRight(tile)}`;
+                // If it's the first play and only one piece
+                // was played. No need for serere. Break
+                if (playedPieces.length === 1) {
+                    allwords.push(veryFirst);
+                    return this.splitWords(allwords);
+                }
+
+                wrdH = { ...this.getPiecesLeft(tile), ...veryFirst, ...this.getPiecesRight(tile) };
+                console.log(wrdH, 'wrdh')
                 // Validate only words with at least two characters
-                if (wrdH.length > 1) {
+                if (Object.keys(wrdH).length > 2) {
                     allwords.push(wrdH);
                 }
-                wrdV = `${this.getPiecesAbove(tile)}${letter}${this.getPiecesDown(tile)}`;
-                if (wrdV.length > 1) {
+
+                wrdV = { ...this.getPiecesAbove(tile), ...veryFirst, ...this.getPiecesDown(tile) };
+                console.log(wrdV, 'wrdv')
+                if (Object.keys(wrdV).length > 2) {
                     allwords.push(wrdV);
                 }
             }
             // While for the others, get only those opposite the playing direction
             else {
                 if (playDirection === 'right') {
-                    wrdV = `${this.getPiecesAbove(tile)}${letter}${this.getPiecesDown(tile)}`;
-                    if (wrdV.length > 1) {
+                    wrdV = { ...this.getPiecesAbove(tile), ...veryFirst, ...this.getPiecesDown(tile) };
+                    console.log(wrdV, 'wrdvv')
+                    if (Object.keys(wrdV).length > 2) {
                         allwords.push(wrdV);
                     }
                 }
                 else {
-                    wrdH = `${this.getPiecesLeft(tile)}${letter}${this.getPiecesRight(tile)}`;
-                    if (wrdH.length > 1) {
+                    wrdH = { ...this.getPiecesLeft(tile), ...veryFirst, ...this.getPiecesRight(tile) };
+                    console.log(wrdH, 'wrdhh')
+                    if (Object.keys(wrdH).length > 2) {
                         allwords.push(wrdH);
                     }
                 }
             }
         });
-        return allwords;
+
+        return this.splitWords(allwords);
     }
 
-    computeScore = (validWords) => { // Can do better than O(n)3
+    computeScore = (countableWords) => { // Can do better than O(n)3
         let score = 0;
         // For each word
-        validWords.forEach(word => {
+        countableWords.forEach(word => {
             let mul = 1; // Assign a default multiplier
             // For each string in each word
             [...word].forEach(s => {
@@ -269,6 +324,7 @@ export class Rack extends Component {
 
             // Check if the player has played anything
             if ((playedPieces.length) > 0) {
+
                 // Validate board play based on Scrabble's rules
                 if (!this.validateBoardPlay(playedPieces)) {
                     toast.error("Sorry, that's an invalid move.");
@@ -276,7 +332,7 @@ export class Rack extends Component {
                 }
 
                 // Validate words, compute score, and announce to everybody
-                let validWords = this.getPlayedWords(playedPieces);
+                let [validWords, countableWords] = this.getPlayedWords(playedPieces);
 
                 let wordValidation = makeServerRequest({
                     requestType: 'post',
@@ -299,7 +355,7 @@ export class Rack extends Component {
                     let remainingPieces = this.getPiecesOnRack();
 
                     // Compute score
-                    let score = this.computeScore(validWords);
+                    let score = this.computeScore(countableWords);
 
                     // Get new pieces and Refill player's rack
                     let newPieces = this.getFromBag(playedPieces.length);
@@ -404,15 +460,10 @@ export class Rack extends Component {
         // If only one piece was played
         if (playedPieces.length === 1) {
             // If the player was first to play (and played just one)
-            // Invalidate it. [S]he has to play at least two letters,
-            // according to the official Scrabble rules
-            if (boardIsEmpty) {
-                return false;
-            }
-            // If the game had been ongoing, ensure there's a neighbour
-            else {
-                isValidPlay = this.validateNearestNeighbours(playedPieces) >= 1;
-            }
+            // Confirm that that played piece was at the center.
+            isValidPlay = boardIsEmpty ?
+                this.checkIfPlayWasCentered(playedPieces) :
+                this.validateNearestNeighbours(playedPieces) >= 1;
         }
         else { // 2 or more pieces were played
             let playDirection = this.getPlayDirection(playedPieces);

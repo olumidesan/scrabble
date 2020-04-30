@@ -1,4 +1,4 @@
-from random import choice
+from random import choice, seed
 
 # The weight each scrabble piece carries
 pieces_weight = {
@@ -88,6 +88,9 @@ def get_pieces(amount):
     Gets pieces from the bag 
     and updates the bag, of course
     """
+    
+    # Yeah, plant!
+    seed()
 
     # Storage for the requested new pieces
     new_pieces = [] 

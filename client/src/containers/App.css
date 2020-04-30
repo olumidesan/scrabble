@@ -115,8 +115,9 @@
 
 .bagPieceContainer {
     display: flex;
+    justify-content: center;
     flex-wrap: wrap;
-    margin: 30px;
+    margin: 10px;
 }
 
 .bagPieceItem {
@@ -170,6 +171,11 @@
 .piece > .letter {
     font-weight: bold;
     font-size: 30px;
+}
+
+#bagHome {
+    padding: 30px;
+    display: flex;
 }
 
 .board {

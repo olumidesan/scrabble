@@ -1,46 +1,12 @@
 import React, { Component } from 'react';
 import { toast } from 'react-toastify';
 import makeServerRequest from '../../helpers/axios';
+import { letterMapping, piecesWeight } from '../../helpers/definitions';
 
 export class Rack extends Component {
     constructor(props) {
         super(props);
 
-        this.pieces_weight = {
-            ' ': 0,
-            'A': 1,
-            'E': 1,
-            'I': 1,
-            'O': 1,
-            'U': 1,
-            'N': 1,
-            'R': 1,
-            'T': 1,
-            'L': 1,
-            'S': 1,
-            'D': 2,
-            'G': 2,
-            'B': 3,
-            'C': 3,
-            'M': 3,
-            'P': 3,
-            'F': 4,
-            'H': 4,
-            'V': 4,
-            'W': 4,
-            'Y': 4,
-            'K': 5,
-            'J': 8,
-            'X': 8,
-            'Z': 10,
-            'Q': 10
-        };
-        this.letterMapping = {
-            'dL': 2,
-            'tL': 3,
-            'dW': 2,
-            'tW': 3
-        };
         this.playWeights = [];
         this.boardTiles = null;
 
@@ -105,7 +71,6 @@ export class Rack extends Component {
             else {
                 break;
             }
-
         }
         return words
     }
@@ -257,7 +222,7 @@ export class Rack extends Component {
         return allwords;
     }
 
-    computeScore = (validWords) => { // Can do better than O(n) cubed
+    computeScore = (validWords) => { // Can do better than O(n)3
         let score = 0;
         // For each word
         validWords.forEach(word => {
@@ -265,7 +230,7 @@ export class Rack extends Component {
             // For each string in each word
             [...word].forEach(s => {
                 // Get the associated weight with the string
-                let weight = this.pieces_weight[s];
+                let weight = piecesWeight[s];
                 // For each weighted play, previously identified
                 this.playWeights.forEach(a => {
                     // If the strings are equal
@@ -273,10 +238,10 @@ export class Rack extends Component {
                         // Confirm the type of weighted play and 
                         // update accordingly
                         if (['dL', 'tL'].includes(a[1])) {
-                            weight *= this.letterMapping[a[1]];
+                            weight *= letterMapping[a[1]];
                         }
                         else if (['tW', 'dW'].includes(a[1])) {
-                            mul = this.letterMapping[a[1]];
+                            mul = letterMapping[a[1]];
                         }
                     }
                 });

@@ -42,23 +42,13 @@ def from_host(data):
     room = data.get('roomID')
     emit('gameChannel', data, room=room)
 
-@sio.on('rackEvent')
-def rack_to_board(data):
-    """
-    Event handler for rack-to-board plays
-    """
-    
-    # Simulate delay to allow previous piece to be 
-    # removed from board
-    sleep(0.2)
-    emit('rackToBoard', data, room=data.get('roomID'))
 
-@sio.on('boardEvent')
-def board_drag(data):
+@sio.on('inPlayEvent')
+def in_play_event(data):
     """
-    Event handler for board drag plays
+    Event handler for in play happenings
     """
-    emit('boardDrag', data, room=data.get('roomID'))
+    emit('inPlay', data, room=data.get('roomID'))
 
 @sio.on('recallEvent')
 def recall_event(data):

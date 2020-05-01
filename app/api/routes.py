@@ -19,11 +19,13 @@ snapshots = defaultdict(list)
 
 
 @api.route('/rooms')
+@token_auth.login_required
 def sio_rooms():
     """Returns the list of socketIO rooms"""
     return jsonify(dict(rooms=rooms))
 
 @api.route('/bag/<int:amount>')
+@token_auth.login_required
 def bag(amount):
     """
     Returns the requested number of pieces
@@ -36,6 +38,7 @@ def bag(amount):
     return jsonify(dict(pieces=new_pieces))
 
 @api.route('/words-check', methods=['POST'])
+@token_auth.login_required
 def words_check():
     """
     Validates that all the posted words are valid

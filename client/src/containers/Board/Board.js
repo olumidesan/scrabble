@@ -254,9 +254,6 @@ class Board extends React.Component {
                     <div className="modal-background"></div>
                     <div className="modal-card bagItems">
                         <section id="selectionHome" className="modal-card-body">
-                            <div className="title is-4">
-                                <p className="centralize">Transform into?</p>
-                            </div>
                         </section>
                     </div>
                 </div>

@@ -33,10 +33,10 @@ def words_check():
     """
 
     words = request.get_json().get('words')
-    # for word in words:
-    #     valid = Word.query.filter_by(word=word).first()
-    #     if not valid:
-    #         return jsonify(dict(error=f"'{word}' is not a valid Scrabble word"))
+    for word in words:
+        valid = Word.query.filter_by(word=word).first()
+        if not valid:
+            return jsonify(dict(error=f"'{word}' is not a valid Scrabble word"))
 
     return jsonify(dict(valid="true"))
 

@@ -3,15 +3,15 @@ from app import sio
 from time import sleep
 from collections import defaultdict
 
-from flask import session, request
-from flask_socketio import join_room, leave_room, emit
-
 from app.api.utils import (rooms, 
                            players, 
                            make_bag, 
                            get_all_pieces, 
                            get_player_to_play, 
                            get_remaining_pieces)
+
+from flask import request
+from flask_socketio import join_room, leave_room, emit
 
 
 @sio.on('join')

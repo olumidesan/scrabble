@@ -104,7 +104,6 @@ def get_all_pieces(room_id):
     """
     return sorted(rooms[room_id].items(), key=lambda x: x[0])
 
-
 def get_pieces(amount, room_id):
     """
     Gets pieces from the bag 
@@ -141,7 +140,6 @@ def get_pieces(amount, room_id):
             session_bag[piece] -= 1   
 
     return new_pieces
-
 
 def get_player_to_play(room_id):
     """Returns the player to play next in a given room"""

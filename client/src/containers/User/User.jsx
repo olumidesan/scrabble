@@ -353,14 +353,26 @@ export default class GameUser extends Component {
                 document.getElementById('winner').innerText = finalMessage;
             }
             else {
+                let emptyMessage = '';
                 // Announce to everybody
                 toast.info(`${message}. It's ${turnMessage}.`);
+
+                if (data.bagLength === 0) {
+                    emptyMessage = "No pieces are left in the bag";
+                }
+                else if (data.bagLength === 1) {
+                    emptyMessage = "Only one piece is left in the bag";
+                }
+                else {
+                    emptyMessage = `Only ${data.bagLength} are left in the bag.`;
+                }
+
                 if (data.bagLength <= 7) {
                     this.socket.emit('inPlayEvent',
                         {
                             roomID: this.state.roomID,
                             eventType: 'bagNearEmpty',
-                            message: `Heads up: Only ${data.bagLength} ${data.bagLength > 1 ? ' pieces are' : ' piece is'} left in the bag`
+                            message: `Heads up: ${emptyMessage}`
                         });
                 }
             }

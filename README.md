@@ -8,7 +8,7 @@ Play scrabble with friends on your local network
 
 ## Sneak-Peak
 Here's a sneak-peak, nonetheless
-![](sc.png)
+![](screenshot.png)
 
 ## UAT Testing
 - Checkout the `uat` branch: `git checkout uat`

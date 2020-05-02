@@ -6,8 +6,12 @@ from collections import defaultdict
 from flask import session, request
 from flask_socketio import join_room, leave_room, emit
 
-from .utils import players, get_player_to_play
-from app.api.utils import rooms, make_bag, get_all_pieces, get_remaining_pieces
+from app.api.utils import (rooms, 
+                           players, 
+                           make_bag, 
+                           get_all_pieces, 
+                           get_player_to_play, 
+                           get_remaining_pieces)
 
 
 @sio.on('join')
@@ -30,12 +34,14 @@ def on_join(data):
 def on_leave(data):
     """Event handler for room exits"""
 
-    room = data['roomID']
-    
-    # Do stuff
+    # Tbd
+
     # rooms.pop(room)
     # leave_room(room)
     # players.pop(room)
+    # room = data['roomID']
+
+    pass
 
 @sio.on('gameStartEvent')
 def from_host(data):

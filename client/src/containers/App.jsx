@@ -1,6 +1,6 @@
 import React from 'react';
 import ToastContainer from '../helpers/toastify';
-import GameUser from '../containers/User/User';
+import GameUser from './User/User';
 import './App.css';
 
 class App extends React.Component {

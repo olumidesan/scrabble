@@ -360,7 +360,7 @@ export default class GameUser extends Component {
                         {
                             roomID: this.state.roomID,
                             eventType: 'bagNearEmpty',
-                            message: `Heads up: Only ${data.bagLength} pieces left in the bag`
+                            message: `Heads up: Only ${data.bagLength} ${data.bagLength > 1 ? ' pieces are' : ' piece is'} left in the bag`
                         });
                 }
             }

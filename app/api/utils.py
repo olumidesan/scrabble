@@ -2,6 +2,9 @@
 from copy import deepcopy
 from random import choice, seed
 
+from itertools import cycle
+from collections import defaultdict
+
 # ----------- Persistence ------------
 # Don't want to use a database. 
 # Currently relying on Python's 
@@ -10,6 +13,11 @@ from random import choice, seed
 # For all socketio rooms, aliased
 # as game IDs
 rooms = dict()
+
+# For all players associated with rooms
+# identified by their roomID and ordered 
+# by turn
+players = defaultdict(list)
 # -------------------------------------
 
 # The weight each scrabble piece carries
@@ -133,3 +141,30 @@ def get_pieces(amount, room_id):
             session_bag[piece] -= 1   
 
     return new_pieces
+
+
+def get_player_to_play(room_id):
+    """Returns the player to play next in a given room"""
+   
+    player_to_play = ''
+    room = players.get(room_id)
+
+    try:         
+        # If the first item is still None i.e
+        # it's still a mere list
+        if room[0] == None:
+            # Pop out the None
+            room.pop(0)
+            # Change the room to a round-robin list
+            players[room_id] = cycle(room)
+            next(players[room_id]) # Client knows already, initially.
+            player_to_play = next(players[room_id]) # Who's next to play?
+
+    # It's already a round-robin. 
+    # Get the next player
+    except TypeError:
+        player_to_play = next(room)
+    
+    return player_to_play
+
+    

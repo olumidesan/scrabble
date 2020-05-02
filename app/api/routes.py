@@ -5,11 +5,8 @@ from app import db
 from app.models import Word
 
 from . import api_bp as api
-from .auth import token_auth, error_response
+from .auth import token_auth
 from .utils import rooms, get_pieces, get_remaining_pieces
-
-
-turn_order = None
 
 
 @api.route('/rooms')

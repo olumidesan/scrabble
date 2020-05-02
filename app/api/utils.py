@@ -1,4 +1,16 @@
+
+from copy import deepcopy
 from random import choice, seed
+
+# ----------- Persistence ------------
+# Don't want to use a database. 
+# Currently relying on Python's 
+# thread-safe built-in data-types 
+
+# For all socketio rooms, aliased
+# as game IDs
+rooms = dict()
+# -------------------------------------
 
 # The weight each scrabble piece carries
 pieces_weight = {
@@ -66,24 +78,26 @@ pieces_number = {
 pieces = list(pieces_number.keys())
 
 
-def get_remaining_pieces(): 
+def make_bag():
+    """Creates a scrabble bag for a game session"""
+    return deepcopy(pieces_number)
+
+def get_remaining_pieces(room_id): 
     """
     Returns the number of pieces left 
     in the bag
     """
+    return sum(rooms[room_id].values()) 
 
-    return sum(pieces_number.values()) 
-
-def get_all_pieces(): 
+def get_all_pieces(room_id): 
     """
     Returns all the pieces left in the 
     bag, sorted.
     """
-    # Return sorted pieces
-    return sorted(pieces_number.items(), key=lambda x: x[0])
+    return sorted(rooms[room_id].items(), key=lambda x: x[0])
 
 
-def get_pieces(amount):
+def get_pieces(amount, room_id):
     """
     Gets pieces from the bag 
     and updates the bag, of course
@@ -96,7 +110,7 @@ def get_pieces(amount):
     new_pieces = [] 
 
     # Get the number of the remaining tiles
-    bag_length = get_remaining_pieces()
+    bag_length = get_remaining_pieces(room_id)
 
     # If the requested amount is less than the number of
     # pieces in the bag, re-assign the amount to the remainder
@@ -106,14 +120,16 @@ def get_pieces(amount):
     while len(new_pieces) != amount:
         # Get a random piece
         piece = choice(pieces)
+        # Get items from the bag
+        session_bag = rooms[room_id]
 
         # If the piece hasn't been exhausted
-        if pieces_number.get(piece) > 0:
+        if session_bag.get(piece) > 0:
 
             # Add it to the result array
             new_pieces.append(dict(letter=piece, value=pieces_weight[piece]))
             
             # Decrease the number of said piece
-            pieces_number[piece] -= 1   
+            session_bag[piece] -= 1   
 
     return new_pieces

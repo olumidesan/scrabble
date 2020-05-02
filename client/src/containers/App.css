@@ -41,6 +41,19 @@
     border: 8px black solid;
 }
 
+.endMessage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+.trophy {
+    font-size: 5rem;
+    margin-bottom: 15px;
+}
+
 .mainButton {
     width: 115px;
     height: 40px;

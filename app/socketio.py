@@ -6,18 +6,8 @@ from collections import defaultdict
 from flask import session, request
 from flask_socketio import join_room, leave_room, emit
 
-# ----------- Persistence ------------
-# Don't want to use a database. 
-# Currently relying on Python's 
-# thread-safe built-in data-types 
-
-# For all socketio rooms, aliased
-# as game IDs
-rooms = []
-# -------------------------------------
-
 from .utils import players, get_player_to_play
-from app.api.utils import get_all_pieces, get_remaining_pieces
+from app.api.utils import rooms, make_bag, get_all_pieces, get_remaining_pieces
 
 
 @sio.on('join')
@@ -27,21 +17,38 @@ def on_join(data):
     room = data['roomID']
     join_room(room)
 
-    # Add to the rooms if not already there
-    rooms.append(room) if room not in rooms else None
+    # Mock a bag for the very first
+    # connection (host) to the room
+    if room not in rooms:
+        rooms[room] = []
 
     # If it's not a reconnection event
     if not data.get('isReconnection'):
         emit('joinedRoom', data, room=room)
 
-@sio.on('fromHost')
+@sio.on('leave')
+def on_leave(data):
+    """Event handler for room exits"""
+
+    room = data['roomID']
+    
+    # Do stuff
+    # rooms.pop(room)
+    # leave_room(room)
+    # players.pop(room)
+
+@sio.on('gameStartEvent')
 def from_host(data):
     """
     Event handler for host messages
     """
     room = data.get('roomID')
-    emit('gameChannel', data, room=room)
 
+    # Once the game has started, create a 
+    # bag for that game session
+    rooms[room] = make_bag()
+
+    emit('gameStart', data, room=room)
 
 @sio.on('inPlayEvent')
 def in_play_event(data):
@@ -63,14 +70,14 @@ def play_event(data):
     Event handler for an actual valid play
     """
 
-    room_id = data.get('roomID')
+    room = data.get('roomID')
 
     # Update payload
-    data['bagItems'] = get_all_pieces()
-    data['bagLength'] = get_remaining_pieces()
-    data['playerToPlay'] = get_player_to_play(room_id)
+    data['bagItems'] = get_all_pieces(room)
+    data['bagLength'] = get_remaining_pieces(room)
+    data['playerToPlay'] = get_player_to_play(room)
     
-    emit('validPlay', data, room=room_id)
+    emit('validPlay', data, room=room)
 
 @sio.on('drawEvent')
 def draw_event(data):
@@ -88,7 +95,7 @@ def draw_event(data):
         players[room].append(o_o)
 
     # Add bag and its length to payload
-    data['bagItems'] = get_all_pieces()
-    data['bagLength'] = get_remaining_pieces()
+    data['bagItems'] = get_all_pieces(room)
+    data['bagLength'] = get_remaining_pieces(room)
 
     emit('drawDone', data, room=room)

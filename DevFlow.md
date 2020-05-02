@@ -6,10 +6,7 @@
 - Refactor app to use proper React componentization
 - Cater for shaky connections. Currently, if connection gets lost,
   there are socketio errors
-- Fix shaky connection issue that causes turns not to be updated on both score and state/props
-- Game save feature (save board state and player rack, everything)
-- Ask for letter to use when a blank piece is played (modal) | check
-- Cummulate multiple emits within the same function into one | check
+- Game save feature (save board state and player rack, everything). Currently, if player refreshes his/her browser, the whole game has to be restarted
 - Improve scoring algorithm
 - Fix blank piece recording other than zero bug
 - Implement piece swapping

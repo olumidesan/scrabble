@@ -31,6 +31,7 @@ export default class GameUser extends Component {
             isTurn: false,
             isHost: false,
             bagLength: 100,
+            gameEnded: false,
             gameStarted: false,
             connectedPlayers: 0,
         }
@@ -152,6 +153,8 @@ export default class GameUser extends Component {
 
         /* Register event listeners */
 
+        // window.addEventListener('beforeunload', this.beforeUnload);
+
         // Incase socket.io loses connection to the server
         this.socket.on('reconnect_attempt', () => {
             this.socket.io.opts.transports = ['polling', 'websocket'];
@@ -179,25 +182,28 @@ export default class GameUser extends Component {
 
         // When a new player joins (host or not)
         this.socket.on('joinedRoom', (data) => {
-            // Save the player's name and update the number of
-            // connected players. For the host, this happens 
-            // immediately the game starts
-            this.setState({
-                players: [...this.state.players, data.name],
-                connectedPlayers: this.state.connectedPlayers + 1,
-            }, () => {
-                // If the client is the host and the number of connected players
-                // is the same as the number of required players, then announce
-                // that the game has started. Also send all the registered players
-                // to everybody so they can update their state
-                if (this.state.isHost && (this.state.connectedPlayers === this.numOfPlayers)) {
-                    this.socket.emit('fromHost', {
-                        allPlayers: this.state.players,
-                        roomID: this.state.roomID,
-                        gameStarted: true
-                    });
-                }
-            });
+            // The room is closed once the game has started
+            if (!this.state.gameStarted) {
+                // Save the player's name and update the number of
+                // connected players. For the host, this happens 
+                // immediately the game starts
+                this.setState({
+                    players: [...this.state.players, data.name],
+                    connectedPlayers: this.state.connectedPlayers + 1,
+                }, () => {
+                    // If the client is the host and the number of connected players
+                    // is the same as the number of required players, then announce
+                    // that the game has started. Also send all the registered players
+                    // to everybody so they can update their state
+                    if (this.state.isHost && (this.state.connectedPlayers === this.numOfPlayers)) {
+                        this.socket.emit('gameStartEvent', {
+                            allPlayers: this.state.players,
+                            roomID: this.state.roomID,
+                            gameStarted: true
+                        });
+                    }
+                });
+            }
         });
 
         // When a draw has been made. Announce who goes first.
@@ -242,22 +248,20 @@ export default class GameUser extends Component {
 
         // If the game has started, remove the configuration
         // elements. Then update the state of the connected clients.
-        this.socket.on('gameChannel', (data) => {
-            if (data.gameStarted === true) {
-                // The host already has its name and connected players state up to date
-                // The remainder of the clients don't however. This does the actual update
-                this.setState({
-                    gameStarted: true,
-                    players: !this.state.isHost ? [...data.allPlayers] : [...this.state.players],
-                    connectedPlayers: !this.state.isHost ? data.allPlayers.length : this.state.connectedPlayers,
-                });
+        this.socket.on('gameStart', (data) => {
+            // The host already has its name and connected players state up to date
+            // The remainder of the clients don't however. This does the actual update
+            this.setState({
+                gameStarted: true,
+                players: !this.state.isHost ? [...data.allPlayers] : [...this.state.players],
+                connectedPlayers: !this.state.isHost ? data.allPlayers.length : this.state.connectedPlayers,
+            });
 
-                // Unhide main game space and remove the config divs
-                document.querySelector('.entry').removeAttribute('style');
-                document.querySelectorAll('.configElements').forEach((node) => {
-                    node.remove();
-                });
-            }
+            // Unhide main game space and remove the config divs
+            document.querySelector('.entry').removeAttribute('style');
+            document.querySelectorAll('.configElements').forEach((node) => {
+                node.remove();
+            });
 
             let welcomeMessage = this.state.isHost ?
                 "All players have joined. Make a draw using the yellow button on your button rack. You'll"
@@ -269,7 +273,7 @@ export default class GameUser extends Component {
         // Register for event to effect an actual valid play
         this.socket.on('validPlay', (data) => {
             let turnMessage, message;
-            
+
             // Make played pieces permanent for everybody
             this.concretizePlayedPieces();
 
@@ -315,14 +319,65 @@ export default class GameUser extends Component {
 
                 // Update the score board with the score
                 let scoreDiv = document.getElementById(`score_${data.name}`);
-                let score = parseInt(scoreDiv.innerText);
-                scoreDiv.innerText = score + data.score
+                scoreDiv.innerText = parseInt(scoreDiv.innerText) + data.score
             }
 
-            // Announce to everybody
-            toast.info(`${message}. It's ${turnMessage}.`);
+
+            // If the player's rack is empty and the bag is also 
+            // empty, the game has ended
+            if (data.numOfRem === 0 && data.bagLength === 0) {
+                let finalMessage = '';
+                let winner = { name: '', score: 0 };
+
+                // Announce to everybody
+                toast.info(`${message}.`);
+                this.setState({ gameEnded: true })
+
+                // Get winner
+                this.state.players.forEach(player => {
+                    let score = parseInt(document.getElementById(`score_${player}`).innerText);
+                    if (score > winner.score) {
+                        winner.name = player;
+                        winner.score = score;
+                    }
+                });
+
+                if (this.state.name === winner.name) {
+                    finalMessage = `Congratulations, ${winner.name}! You are the winner with ${winner.score} points.`;
+                }
+                else {
+                    finalMessage = `${winner.name} is the winner with ${winner.score} points. Good game, ${this.state.name}.`;
+                }
+                // Show modal with final message
+                this.toggleModal();
+                document.getElementById('winner').innerText = finalMessage;
+            }
+            else {
+                // Announce to everybody
+                toast.info(`${message}. It's ${turnMessage}.`);
+                if (data.bagLength <= 7) {
+                    this.socket.emit('inPlayEvent',
+                        {
+                            roomID: this.state.roomID,
+                            eventType: 'bagNearEmpty',
+                            message: `Heads up: Only ${data.bagLength} pieces left in the bag`
+                        });
+                }
+            }
         });
     }
+
+    toggleModal = () => {
+        document.getElementById('endModal').classList.toggle('is-active');
+    }
+
+    // beforeUnload = () => {
+    //     this.socket.emit('leave', { roomID: this.state.roomID })
+    // }
+
+    // componentWillUnmount = () => {
+    //     window.removeEventListener('beforeunload', this.beforeUnload);
+    // }
 
     render() {
         let gameConfig =
@@ -349,7 +404,8 @@ export default class GameUser extends Component {
                         roomID={this.state.roomID}
                         socket={this.socket}
                         name={this.state.name}
-                        isTurn={this.state.isTurn} />
+                        isTurn={this.state.isTurn}
+                        gameEnded={this.state.gameEnded} />
                 </div>
                 <div className="column">
                 </div>
@@ -360,9 +416,11 @@ export default class GameUser extends Component {
                         <div className='connection'>
                             <span id="connstatus" ><i className="fas fa-wifi"></i></span>&nbsp;
                         </div>
-                        <ScoreTable socket={this.socket}
+                        <ScoreTable
+                            socket={this.socket}
                             name={this.state.name}
                             players={this.state.players} />
+
                         {this.state.gameStarted ?
                             <Rack socket={this.socket}
                                 name={this.state.name}
@@ -370,6 +428,7 @@ export default class GameUser extends Component {
                                 isHost={this.state.isHost}
                                 isTurn={this.state.isTurn}
                                 players={this.state.players}
+                                gameEnded={this.state.gameEnded}
                                 bagItems={this.state.bagItems}
                                 bagLength={this.state.bagLength}
                                 gameStarted={this.state.gameStarted}
@@ -380,6 +439,17 @@ export default class GameUser extends Component {
             </div>
         return (
             <div className='gameSpace'>
+                <div id="endModal" className="modal">
+                    <div onClick={this.toggleModal} className="modal-background"></div>
+                    <div className="modal-card bagItems">
+                        <section className="modal-card-body">
+                            <div className='endMessage'>
+                                <div className="centralize trophy"><span role="img" aria-label="trophy">🏆</span></div>
+                                <div id="winner" className="subtitle is-5"></div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
                 {gameComponents}
                 {gameConfig}
             </div>

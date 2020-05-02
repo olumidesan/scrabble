@@ -167,10 +167,10 @@ export class Rack extends Component {
     // Returns if a passed in tile and position is at
     // the edge of the board in said position
     isBoardEdge = (position, index) => {
-        if (position === 'down') {
+        if (position === 'top') {
             return index >= 0 && index < 15;
         }
-        else if (position === 'top') {
+        else if (position === 'down') {
             return index > 209 && index < 225;
         }
         else if (position === 'left') {
@@ -228,10 +228,11 @@ export class Rack extends Component {
         return allwords;
     }
 
-    computeScore = (validWords) => { // Can do better than O(n)3
-        let score = 0;
+    computeScore = (args) => { // Can do better than O(n)3
+        // If bingo, add 50 points
+        let score = args.isBingo ? 50 : 0;
         // For each word
-        validWords.forEach(word => {
+        args.words.forEach(word => {
             let mul = 1; // Assign a default multiplier
             // For each string in each word
             [...word].forEach(s => {
@@ -260,7 +261,7 @@ export class Rack extends Component {
 
     playTurn = () => {
         // You can, of course, only play when it's your turn
-        if (this.props.isTurn) {
+        if (this.props.isTurn && !this.props.gameEnded) {
             // Reset the played weights per turn
             this.playWeights = [];
 
@@ -299,27 +300,32 @@ export class Rack extends Component {
                     let remainingPieces = this.getPiecesOnRack();
 
                     // Compute score
-                    let score = this.computeScore(validWords);
+                    let score = this.computeScore({
+                        words: validWords,
+                        isBingo: playedPieces.length === 7
+                    });
 
                     // Get new pieces and Refill player's rack
                     let newPieces = this.getFromBag(playedPieces.length);
 
                     // Refill rack
-                    newPieces.then((data) => {
-                        data.pieces.forEach(piece => remainingPieces.push(piece));
-                    }).then(() => {
-                        this.setState({ currentPieces: remainingPieces });
-                        this.populateRack(remainingPieces);
-                        // Publish score [among other things] to everyone
-                        this.props.socket.emit('playEvent', {
-                            roomID: this.props.roomID,
-                            name: this.props.name,
-                            score: score,
-                            word: validWords[0]
+                    newPieces
+                        .then((data) => {
+                            data.pieces.forEach(piece => remainingPieces.push(piece));
+                        })
+                        .then(() => {
+                            this.setState({ currentPieces: remainingPieces });
+                            this.populateRack(remainingPieces);
+                            // Publish score [among other things] to everyone
+                            this.props.socket.emit('playEvent', {
+                                numOfRem: remainingPieces.length,
+                                roomID: this.props.roomID,
+                                name: this.props.name,
+                                word: validWords[0],
+                                score: score,
+                            });
                         });
-                    });
                 });
-
             }
             else {
                 toast.error("Err...You haven't played anything. You can alternatively skip your turn.");
@@ -329,7 +335,7 @@ export class Rack extends Component {
     }
 
     skipTurn = () => {
-        if (this.props.isTurn) {
+        if (this.props.isTurn && !this.props.gameEnded) {
             let confirmed = window.confirm("Are you sure you want to skip your turn?");
             if (confirmed) {
                 this.recallPieces();
@@ -592,7 +598,7 @@ export class Rack extends Component {
         let pieces = makeServerRequest({
             payload: {},
             requestType: 'get',
-            url: `/bag/${amount}`
+            url: `/bag/${amount}?roomID=${this.props.roomID}`,
         });
         return pieces;
     }
@@ -619,7 +625,7 @@ export class Rack extends Component {
         // and then re-create the initial rack pieces.
 
         // It has to be your turn for this function to work
-        if (this.props.isTurn) {
+        if (this.props.isTurn && !this.props.gameEnded) {
             this.props.socket.emit('recallEvent', {
                 name: this.props.name,
                 roomID: this.props.roomID
@@ -714,44 +720,37 @@ export class Rack extends Component {
         return piecesContainer;
     }
 
-    /* Features for Game save. Tbd
-    beforeUnload = () => {
-        let rack = this.getPiecesOnRack();
-        let snapshot = this.takeBoardSnapshot();
-        makeServerRequest({
-            requestType: 'post',
-            url: `/snapshot/${this.props.roomID}`,
-            payload = {
-                rack: rack,
-                boardshot: boardshot,
-                name: this.props.name
-            },
-        });
-    }
-    
-    takeBoardSnapshot = () => { // to be tested
-        let boardState = [];
-        this.boardTiles.forEach((piece, index) => {
-            if (piece.firstChild !== null) {
-                if ([...piece.firstChild.classList].includes('vP')) {
-                    boardState.push({
-                        letter: piece.firstchild.textContent.slice(0, 1),
-                        value: parseInt(piece.firstchild.textContent.slice(1)),
-                        index: index
-                    });
-                }
-            }
-        });
+    // Features for Game save. Tbd
+    // beforeUnload = () => {
+    //     let rack = this.getPiecesOnRack();
+    //     let boardshot = this.takeBoardSnapshot();
+    //     makeServerRequest({
+    //         requestType: 'post',
+    //         url: `/snapshot/${this.props.roomID}`,
+    //         payload = {
+    //             rack: rack,
+    //             boardshot: boardshot,
+    //             name: this.props.name
+    //         },
+    //     });
+    // }  
+    // takeBoardSnapshot = () => { // to be tested
+    //     let boardState = [];
+    //     this.boardTiles.forEach((piece, index) => {
+    //         if (piece.firstChild !== null) {
+    //             if ([...piece.firstChild.classList].includes('vP')) {
+    //                 boardState.push({
+    //                     letter: piece.firstchild.textContent.slice(0, 1),
+    //                     value: parseInt(piece.firstchild.textContent.slice(1)),
+    //                     index: index
+    //                 });
+    //             }
+    //         }
+    //     });
 
-        return boardState;
-    }
-    
-    // window.addEventListener('beforeunload', this.beforeUnload);
+    //     return boardState;
+    // }
 
-    componentWillUnmount = () => {
-        window.removeEventListener('beforeunload', this.beforeUnload);
-    }
-    */
 
     componentDidMount = () => {
         // Assign global variable

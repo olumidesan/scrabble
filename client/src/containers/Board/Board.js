@@ -9,8 +9,9 @@ class Board extends React.Component {
 
         this.state = {
             blankPiece: '',
+            swappable: true,
             currentPiece: null,
-            isBoardDrag: false
+            isBoardDrag: false,
         }
     }
 
@@ -81,6 +82,13 @@ class Board extends React.Component {
                 this.populateBoard(data.elementString, data.elementPosition);
             }
         }
+        else if (data.eventType === 'bagNearEmpty') {
+            // Announce only once
+            if (this.state.swappable) {
+                this.setState({ swappable: false });
+                toast.warn(data.message);
+            }
+        }
         // Implicit updateBlank. Expand as needed
         else {
             document.getElementById(data.id).firstChild.firstChild.innerText = data.pieceLetter;
@@ -114,7 +122,7 @@ class Board extends React.Component {
 
         // When a piece is initially moved, from rack or board
         document.addEventListener("dragstart", (event) => {
-            if (this.props.isTurn) {
+            if (this.props.isTurn && !this.props.gameEnded) {
                 try {
                     let cL = [...event.target.classList]
                     if (cL.includes('pieceContainer') || cL.includes('bp')) {
@@ -130,10 +138,15 @@ class Board extends React.Component {
                 }
             }
             else {
+                if (this.props.gameEnded) {
+                    toast.error("The game has ended. No moves are valid.");
+                    return;
+                }
                 // If it's a drag that's associated with a scrabble piece. Warn to wait
                 if (event.target.getAttribute('draggable')) {
                     toast.error(`It's not your turn, ${this.props.name}. Kindly wait your turn.`);
                 }
+                
             }
         });
 
@@ -142,7 +155,7 @@ class Board extends React.Component {
         // When the draggable element enters the droptarget, change the border style
         document.addEventListener("dragenter", (event) => {
             event.preventDefault();
-            if (this.props.isTurn) {
+            if (this.props.isTurn && !this.props.gameEnded) {
                 if (event.target.className.includes('droppable')) {
                     event.target.style.border = "0.4px solid yellow";
                 }
@@ -157,14 +170,14 @@ class Board extends React.Component {
 
         // When the draggable element leaves the droptarget, reset the style
         document.addEventListener("dragleave", (event) => {
-            if (this.props.isTurn) {
+            if (this.props.isTurn && !this.props.gameEnded) {
                 event.target.removeAttribute('style');
             }
         });
 
         document.addEventListener("drop", (event) => {
             event.preventDefault();
-            if (this.props.isTurn) {
+            if (this.props.isTurn && !this.props.gameEnded) {
                 event.target.removeAttribute('style'); //  Reset the border
                 let piece = this.state.currentPiece;
                 if (event.target.className.includes('droppable') && piece !== null) {
@@ -254,6 +267,7 @@ class Board extends React.Component {
                     <div className="modal-background"></div>
                     <div className="modal-card bagItems">
                         <section id="selectionHome" className="modal-card-body">
+                            <div className="centralize title is-4"><p>Choose Letter</p></div>
                         </section>
                     </div>
                 </div>

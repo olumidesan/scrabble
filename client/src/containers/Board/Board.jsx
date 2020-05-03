@@ -146,7 +146,7 @@ class Board extends React.Component {
                 if (event.target.getAttribute('draggable')) {
                     toast.error(`It's not your turn, ${this.props.name}. Kindly wait your turn.`);
                 }
-                
+
             }
         });
 
@@ -262,7 +262,7 @@ class Board extends React.Component {
 
     render() {
         return (
-            <div className='boardContainer'>
+            <div>
                 <div id="selectionModal" className="modal">
                     <div className="modal-background"></div>
                     <div className="modal-card bagItems">
@@ -271,486 +271,495 @@ class Board extends React.Component {
                         </section>
                     </div>
                 </div>
-                <div className="board">
-                    <div className='row'>
-                        <div className="droppable tile tW">
+                <div className='boardContainer'>
+                    <div className="board">
+                        <div className='row'>
+                            <div className="droppable tile tW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tW">
+                            </div>
                         </div>
-                        <div className="droppable tile">
+                        <div className='row'>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
                         </div>
-                        <div className="droppable tile">
+                        <div className='row'>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
                         </div>
-                        <div className="droppable tile dL">
+                        <div className='row'>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
                         </div>
-                        <div className="droppable tile">
+                        <div className='row'>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
                         </div>
-                        <div className="droppable tile">
+                        <div className='row'>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
                         </div>
-                        <div className="droppable tile">
+                        <div className='row'>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
                         </div>
-                        <div className="droppable tile tW">
+                        <div className='row'>
+                            <div className="droppable tile tW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW cT">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tW">
+                            </div>
                         </div>
-                        <div className="droppable tile">
+                        <div className='row'>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
                         </div>
-                        <div className="droppable tile">
+                        <div className='row'>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
                         </div>
-                        <div className="droppable tile">
+                        <div className='row'>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
                         </div>
-                        <div className="droppable tile dL">
+                        <div className='row'>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
                         </div>
-                        <div className="droppable tile">
+                        <div className='row'>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
                         </div>
-                        <div className="droppable tile">
+                        <div className='row'>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
                         </div>
-                        <div className="droppable tile tW">
+                        <div className='row'>
+                            <div className="droppable tile tW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tW">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile dL">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile">
+                            </div>
+                            <div className="droppable tile tW">
+                            </div>
                         </div>
                     </div>
-                    <div className='row'>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile tW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW cT">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tW">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                    </div>
-                    <div className='row'>
-                        <div className="droppable tile tW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tW">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile dL">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile">
-                        </div>
-                        <div className="droppable tile tW">
-                        </div>
+                    <div className="legend">
+                        <div className='legendItem'><span className="legendColor legendStart"></span><span>Start Point</span></div>
+                        <div className='legendItem'><span className="legendColor legendDW"></span><span>Double Word</span></div>
+                        <div className='legendItem'><span className="legendColor legendDL"></span><span>Double Letter</span></div>
+                        <div className='legendItem'><span className="legendColor legendTW"></span><span>Triple Word</span></div>
+                        <div className='legendItem'><span className="legendColor legendTL"></span><span>Triple Letter</span></div>
                     </div>
                 </div>
             </div>

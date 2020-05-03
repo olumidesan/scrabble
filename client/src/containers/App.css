@@ -34,11 +34,51 @@
 }
 
 .boardContainer {
-    width: 765px;
-    height: 765px;
     display: flex;
+    flex-direction: column;
     margin: auto;
-    border: 8px black solid;
+}
+
+.legend {
+    display: flex;
+    justify-content: space-evenly;
+    width: 765px;
+    align-items: center;
+    padding: 10px;
+    height: 50px;
+}
+
+.legendItem {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 2px;
+}
+
+.legendColor {
+    width: 20px;
+    height: 20px;
+    margin: 0 5px;
+    border: 1px black solid;
+}
+
+.legendTL {
+    background-color: rgb(39, 51, 160);
+}
+
+.legendDL {
+    background-color: cornflowerblue;
+}
+
+.legendDW {
+    background-color: rgb(237, 143, 100);
+}
+
+.legendTW {
+    background-color: brown;
+}
+
+.legendStart {
+    background-color: #928787;
 }
 
 .endMessage {
@@ -193,7 +233,11 @@
 
 .board {
     display: flex;
+    width: 765px;
+    height: 765px;
+    margin-top: 15px;
     flex-direction: column;
+    border: 8px black solid;
 }
 
 .row {

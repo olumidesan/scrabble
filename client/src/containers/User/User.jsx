@@ -364,7 +364,7 @@ export default class GameUser extends Component {
                     emptyMessage = "Only one piece is left in the bag";
                 }
                 else {
-                    emptyMessage = `Only ${data.bagLength} are left in the bag.`;
+                    emptyMessage = `Only ${data.bagLength} pieces are left in the bag.`;
                 }
 
                 if (data.bagLength <= 7) {

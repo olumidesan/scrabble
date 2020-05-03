@@ -359,9 +359,9 @@ export class Rack extends Component {
 
         // Essentially, since each row on the board has a length of 15,
         // go round the board 15 times, effectively making your destination
-        // just one tile away from the current tile. If during that journey,
-        // a tile is found with a child having the identifiable class of a 
-        // just-played piece ('bp'), the surely, the play direction was right
+        // just one tile away from the bottom of the current tile. If during 
+        // that journey, a tile is found with a child having the identifiable 
+        // class of a just-played piece ('bp'), the surely, the play direction was right
         for (let i = 1; i < 16; i++) {
             let index = topmost + i;
             // End of the board. If play direction hasn't been detected as right,

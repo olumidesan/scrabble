@@ -14,14 +14,14 @@ The host is the person who, well, hosts a game session to which other players co
 
 #### Dependency Installation
 As a host, you need the following:
-- A Python irtual environment. If you don't already know how to create one, see [here](https://realpython.com/lessons/creating-virtual-environment/).
+- A Python virtual environment. If you don't already know how to create one, see [here](https://realpython.com/lessons/creating-virtual-environment/).
 - Pipenv: In the activated virtual environment, simply run `pip3 install pipenv`.
 
 #### Game Procedure
  To host a game session:
 
 - Clone and checkout this `master` branch; or alternatively, simply download it as a zip file.
-- Using `pipenv`, install the game's requirements: `pipenv install`.
+- Ensure the virtual environment is activated. Then, using `pipenv`, install the game's requirements: `pipenv install`.
 - When that's done, simply run `pipenv run python3 wsgi.py`. This starts the game server.
 - By default, the application tries to get your local private IP address (not localhost) to run on. However, if you're using a VPN or are on a weird network, it may get it wrong. Feel free to modify the `host` variable in the `wsgi.py` file to your actual local private IP address. The only caveat is that you have to host the app on the private IP address and not `localhost`. This is in order to allow other players on your network to visit the application.
 - Navigate to your local private IP address (`192.168...:5005`) and get playing. 

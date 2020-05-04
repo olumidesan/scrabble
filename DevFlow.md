@@ -10,3 +10,4 @@
 - Improve scoring algorithm 
 - Implement piece swapping
 - Once the game has ended, turn rack buttons to 'Play Again' button, without taking the users back to the configuration screen.
+- Improve randomization

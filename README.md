@@ -35,7 +35,7 @@ Gameplay sneak-peak
 ### Known Issues/Bugs
 - Scrabble allows swapping pieces in place of one's turn. This feature currently hasn't been implemented.
 - Once pieces have been moved from the rack to the board, they can only be returned to the rack using the 'Recall Pieces' button.
-- Last piece in rack sometimes disappears after a player's turn. This bug is known and is currently being attacked. The current fix is simply to use the 'Recall Pieces' button, which effectively refreshes the tile, making the piece re-appear.
+- Last piece in rack sometimes disappears after a player's turn. This bug is known and is currently being attacked. The current fix is simply to use the 'Recall Pieces' button, which effectively refreshes the rack, making the piece re-appear.
 - When the played word has more than one valid word, the actually played word may not be what's read out as being played, and may instead be one of the other linked words.
 
 ### Motivation
@@ -45,4 +45,5 @@ So, I wanted to create a way for all of us to play the game from the comfort of 
 
 ### Collaborations
 Collaborations are more than welcome! 
+
 The scoring algorithm, for example, I'm sure can be refined.

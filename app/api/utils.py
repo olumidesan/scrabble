@@ -109,9 +109,6 @@ def get_pieces(amount, room_id):
     Gets pieces from the bag 
     and updates the bag, of course
     """
-    
-    # Yeah, plant!
-    seed()
 
     # Storage for the requested new pieces
     new_pieces = [] 
@@ -126,7 +123,9 @@ def get_pieces(amount, room_id):
     # Fill up the requested new pieces
     while len(new_pieces) != amount:
         # Get a random piece
+        seed()
         piece = choice(pieces)
+        
         # Get items from the bag
         session_bag = rooms[room_id]
 

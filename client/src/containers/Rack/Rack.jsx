@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { toast } from 'react-toastify';
 import makeServerRequest from '../../helpers/axios';
-import { letterMapping, piecesWeight } from '../../helpers/definitions';
+import { letterMapping } from '../../helpers/definitions';
 
 export class Rack extends Component {
     constructor(props) {
@@ -15,9 +15,29 @@ export class Rack extends Component {
         }
     }
 
-    // Returns the pieces above the piece at index
+    // Saves the current play's weight. Essentially means to record whether
+    // the play had stuff like dL, tW, etc.
+    updatePlayWeight = (tileClasses, pieceClasses, attrs) => {
+        // If a just-played piece...
+        if (pieceClasses.includes('bp')) {
+            if (tileClasses.includes('dL')) {
+                this.playWeights.push([...attrs, 'dL']);
+            }
+            else if (tileClasses.includes('tL')) {
+                this.playWeights.push([...attrs, 'tL']);
+            }
+            else if (tileClasses.includes('dW')) {
+                this.playWeights.push([...attrs, 'dW']);
+            }
+            else if (tileClasses.includes('tW')) {
+                this.playWeights.push([...attrs, 'tW']);
+            }
+        }
+    }
+
+    // Returns the word(s) above the piece at index
     getPiecesAbove = (index) => {
-        let words = "";
+        let words = [];
         let loopLength = 15;
         let position = 'top';
 
@@ -29,7 +49,7 @@ export class Rack extends Component {
             let ind = index - loopLength;
             let tile = this.boardTiles[ind];
             if (tile.firstChild !== null) {
-                words += this.getWordFromPiece(tile.firstChild);
+                words.unshift(this.getPieceAttrs(tile.firstChild, ind));
                 loopLength += 15;
                 // After getting the letter, check if the piece is at
                 // the edge of the board. If it is, then exit, as there'll
@@ -42,12 +62,12 @@ export class Rack extends Component {
                 break;
             }
         }
-        return words.split("").reverse().join("");
+        return words;
     }
 
-    // Returns the pieces below the piece at index
-    getPiecesDown = (index) => {
-        let words = "";
+    // Returns the word(s) below the piece at index
+    getPiecesBelow = (index) => {
+        let words = [];
         let loopLength = 15;
         let position = 'down';
 
@@ -59,7 +79,7 @@ export class Rack extends Component {
             let ind = index + loopLength;
             let tile = this.boardTiles[ind];
             if (tile.firstChild !== null) {
-                words += this.getWordFromPiece(tile.firstChild);
+                words.push(this.getPieceAttrs(tile.firstChild, ind));
                 loopLength += 15;
                 // After getting the letter, check if the piece is at
                 // the edge of the board. If it is, then exit, as there'll
@@ -75,26 +95,9 @@ export class Rack extends Component {
         return words
     }
 
-    // Saves the current play's weight. Essentially means to record whether
-    // the play had stuff like dL, tW, etc.
-    updatePlayWeight = (tileClasses, pieceClasses, word) => {
-        if (pieceClasses.includes('bp') && tileClasses.includes('dL')) {
-            this.playWeights.push([word, 'dL'])
-        }
-        else if (pieceClasses.includes('bp') && tileClasses.includes('tL')) {
-            this.playWeights.push([word, 'tL'])
-        }
-        else if (pieceClasses.includes('bp') && tileClasses.includes('dW')) {
-            this.playWeights.push([word, 'dW'])
-        }
-        else if (pieceClasses.includes('bp') && tileClasses.includes('tW')) {
-            this.playWeights.push([word, 'tW'])
-        }
-    }
-
-    // Returns the pieces on the left of the piece at index
+    // Returns the word(s) on the left of the piece at index
     getPiecesLeft = (index) => {
-        let words = "";
+        let words = [];
         let loopLength = 1;
         let position = 'left';
 
@@ -106,7 +109,7 @@ export class Rack extends Component {
             let ind = index - loopLength;
             let tile = this.boardTiles[ind];
             if (tile.firstChild !== null) {
-                words += this.getWordFromPiece(tile.firstChild);
+                words.unshift(this.getPieceAttrs(tile.firstChild, ind));
                 loopLength += 1;
                 // After getting the letter, check if the piece is at
                 // the edge of the board. If it is, then exit, as there'll
@@ -119,12 +122,12 @@ export class Rack extends Component {
                 break
             }
         }
-        return words.split("").reverse().join("");
+        return words;
     }
 
-    // Returns the pieces on the right of the piece at index
+    // Returns the word(s) on the right of the piece at index
     getPiecesRight = (index) => {
-        let words = "";
+        let words = [];
         let loopLength = 1;
         let position = 'right';
 
@@ -136,10 +139,10 @@ export class Rack extends Component {
             let ind = index + loopLength;
             let tile = this.boardTiles[ind];
             if (tile.firstChild !== null) {
-                words += this.getWordFromPiece(tile.firstChild);
+                words.push(this.getPieceAttrs(tile.firstChild, ind));
                 loopLength += 1;
                 // After getting the letter, check if the piece is at
-                // the edge of the board. If it is, then exit, as there'''
+                // the edge of the board. If it is, then exit, as there
                 // be nothing in the next position.
                 if (this.isBoardEdge(position, ind)) {
                     break;
@@ -148,20 +151,16 @@ export class Rack extends Component {
             else {
                 break
             }
-
         }
         return words
     }
 
-    // Returns the character (letter), given a piece 
-    getWordFromPiece = (piece) => {
+    // Returns the attributes (letter, value, tilePosition), given a piece 
+    getPieceAttrs = (piece, tilePosition) => {
         let letter = piece.firstChild.textContent.slice(0, 1);
-        return letter;
-    }
-    // Returns the value (integer), given a piece 
-    getValueFromPiece = (piece) => {
         let value = parseInt(piece.firstChild.textContent.slice(1));
-        return value;
+
+        return [letter, value, tilePosition];
     }
 
     // Returns if a passed in tile and position is at
@@ -188,23 +187,56 @@ export class Rack extends Component {
         let wrdV, wrdH, playDirection = this.getPlayDirection.cachedDirection;
 
         playedPieces.forEach((piece, index) => {
-            let tile = this.getTilePositionOnBoard(piece.parentNode);
-            let letter = this.getWordFromPiece(this.boardTiles[tile]);
-            let tileClasses = [...this.boardTiles[tile].classList];
+            let tilePosition = this.getTilePositionOnBoard(piece.parentNode);
+            let tileClasses = [...this.boardTiles[tilePosition].classList];
             let pieceClasses = [...piece.classList];
+            let pieceAttrs = this.getPieceAttrs(this.boardTiles[tilePosition], tilePosition);
 
-            this.updatePlayWeight(tileClasses, pieceClasses, letter);
+            // Update play weights used for eventual scoring
+            this.updatePlayWeight(tileClasses, pieceClasses, pieceAttrs);
 
-            // The first piece that's played, in the playing direction, would have all the words
+            // Get the pieces surrounding the tile
+            let piecesLeft = this.getPiecesLeft(tilePosition);
+            let piecesAbove = this.getPiecesAbove(tilePosition);
+            let piecesRight = this.getPiecesRight(tilePosition);
+            let piecesBelow = this.getPiecesBelow(tilePosition);
+
+            // The current piece is saved. It's expected that the piece(s) to 
+            // the left and its right will be added
+            wrdH = [pieceAttrs];
+            wrdV = [pieceAttrs];
+
+            // The first piece that's played, in the playing direction, would have all the pieces
             // played in that direction. So, for the very first piece, get the pieces played in all
             // directions
             if (index === 0) {
-                wrdH = `${this.getPiecesLeft(tile)}${letter}${this.getPiecesRight(tile)}`;
-                // Validate only words with at least two characters
+                // If there's a piece/are pieces on its left, add it/them to the beginning
+                // of the word array
+                if (piecesLeft.length !== 0) {
+                    wrdH.unshift(...piecesLeft)
+                }
+                // If there's a piece/are pieces on its right, add it/them to the end
+                // of the word array
+                if (piecesRight.length !== 0) {
+                    wrdH.push(...piecesRight)
+                }
+                // Validate only word arrays with at least two characters, as
+                // one-word words are invalid in scrabble
                 if (wrdH.length > 1) {
                     allwords.push(wrdH);
                 }
-                wrdV = `${this.getPiecesAbove(tile)}${letter}${this.getPiecesDown(tile)}`;
+                // If there's a piece/are pieces at above it, add it/them to the beginning
+                // of the word array
+                if (piecesAbove.length !== 0) {
+                    wrdV.unshift(...piecesAbove)
+                }
+                // If there's a piece/are pieces below it, add it/them to the end
+                // of the word array
+                if (piecesBelow.length !== 0) {
+                    wrdV.push(...piecesBelow)
+                }
+                // Validate only word arrays with at least two characters, as
+                // one-word words are invalid in scrabble
                 if (wrdV.length > 1) {
                     allwords.push(wrdV);
                 }
@@ -212,13 +244,35 @@ export class Rack extends Component {
             // While for the others, get only those opposite the playing direction
             else {
                 if (playDirection === 'right') {
-                    wrdV = `${this.getPiecesAbove(tile)}${letter}${this.getPiecesDown(tile)}`;
+                    // If there's a piece/are pieces at above it, add it/them to the beginning
+                    // of the word array
+                    if (piecesAbove.length !== 0) {
+                        wrdV.unshift(...piecesAbove)
+                    }
+                    // If there's a piece/are pieces below it, add it/them to the end
+                    // of the word array
+                    if (piecesBelow.length !== 0) {
+                        wrdV.push(...piecesBelow)
+                    }
+                    // Validate only word arrays with at least two characters, as
+                    // one-word words are invalid in scrabble
                     if (wrdV.length > 1) {
                         allwords.push(wrdV);
                     }
                 }
                 else {
-                    wrdH = `${this.getPiecesLeft(tile)}${letter}${this.getPiecesRight(tile)}`;
+                    // If there's a piece/are pieces on its left, add it/them to the beginning
+                    // of the word array
+                    if (piecesLeft.length !== 0) {
+                        wrdH.unshift(...piecesLeft)
+                    }
+                    // If there's a piece/are pieces on its right, add it/them to the end
+                    // of the word array
+                    if (piecesRight.length !== 0) {
+                        wrdH.push(...piecesRight)
+                    }
+                    // Validate only word arrays with at least two characters, as
+                    // one-word words are invalid in scrabble
                     if (wrdH.length > 1) {
                         allwords.push(wrdH);
                     }
@@ -229,40 +283,49 @@ export class Rack extends Component {
     }
 
     computeScore = (args) => { // Can do better than O(n)3
-        // If bingo, add 50 points
-        let score = args.isBingo ? 50 : 0;
+        let finalScore = 0;
+
         // For each word
         args.words.forEach(word => {
-            let mul = 1; // Assign a default multiplier
-            // For each string in each word
-            [...word].forEach(s => {
+            // Assign initial values
+            let wordScore = 0, mul = 1;
+            // For each string array in each word
+            word.forEach(s => {
                 // Get the associated weight with the string
-                let weight = piecesWeight[s];
+                let weight = s[1];
                 // For each weighted play, previously identified
                 this.playWeights.forEach(a => {
-                    // If the strings are equal
-                    if (s === a[0]) {
-                        // Confirm the type of weighted play and 
-                        // update accordingly
-                        if (['dL', 'tL'].includes(a[1])) {
-                            weight *= letterMapping[a[1]];
-                        }
-                        else if (['tW', 'dW'].includes(a[1])) {
-                            mul = letterMapping[a[1]];
+                    if (s[2] !== undefined) {
+                        // If the strings are equal
+                        if (s[0] === a[0] && s[1] === a[1] && s[2] === a[2]) {
+                            // Confirm the type of weighted play and 
+                            // update accordingly
+                            if (['dL', 'tL'].includes(a[3])) {
+                                weight = weight * letterMapping[a[3]];
+                            }
+                            else if (['tW', 'dW'].includes(a[3])) {
+                                mul = letterMapping[a[3]];
+                            }
                         }
                     }
                 });
-                score = score + weight;
+                wordScore = wordScore + weight;
             });
-            score = score * mul;
+            wordScore = wordScore * mul;
+            finalScore = finalScore + wordScore;
         });
-        return score;
+
+        // If bingo, add 50 points
+        if (args.isBingo) {
+            finalScore += 50;
+        }
+        return finalScore;
     }
 
     playTurn = () => {
         // You can, of course, only play when it's your turn
         if (this.props.isTurn && !this.props.gameEnded) {
-            // Reset the played weights per turn
+            // Reset the weights per turn
             this.playWeights = [];
 
             // Get pieces that were played
@@ -277,7 +340,17 @@ export class Rack extends Component {
                 }
 
                 // Validate words, compute score, and announce to everybody
-                let validWords = this.getPlayedWords(playedPieces);
+                let validWords = [];
+                let playedWords = this.getPlayedWords(playedPieces);
+
+                // Extract the words from the playedWords array
+                playedWords.forEach(wordArray => {
+                    let word = "";
+                    wordArray.forEach(attr => {
+                        word += attr[0];
+                    });
+                    validWords.push(word);
+                });
 
                 let wordValidation = makeServerRequest({
                     requestType: 'post',
@@ -301,11 +374,11 @@ export class Rack extends Component {
 
                     // Compute score
                     let score = this.computeScore({
-                        words: validWords,
+                        words: playedWords,
                         isBingo: playedPieces.length === 7
                     });
 
-                    // Get new pieces and Refill player's rack
+                    // Get new pieces the exact amount that was played
                     let newPieces = this.getFromBag(playedPieces.length);
 
                     // Refill rack
@@ -785,7 +858,7 @@ export class Rack extends Component {
                 <div className="rackPieces">
                 </div>
                 <div className='rackButtons'>
-                    <div onClick={this.toggleBag} className='bag'>
+                    <div title={`Bag with ${this.props.bagLength} remaining pieces`} onClick={this.toggleBag} className='bag'>
                         <span><i className="fa fa-shopping-bag fa-2x"></i></span>
                         <span className="bagLength">{this.props.bagLength}</span>
                     </div>

@@ -30,6 +30,7 @@
     width: 354px;
     height: 54px;
     border: 2px black solid;
+    background: #bdb4b4;
     margin: auto;
 }
 
@@ -41,7 +42,7 @@
 
 .legend {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-between;
     width: 765px;
     align-items: center;
     padding: 10px;

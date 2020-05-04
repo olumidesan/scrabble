@@ -10,26 +10,31 @@ from .utils import rooms, get_pieces, get_remaining_pieces
 
 
 @api.route('/rooms')
+# @token_auth.login_required
 def sio_rooms():
     """Returns the list of socketIO rooms"""
     return jsonify(dict(rooms=list(rooms.keys())))
 
 @api.route('/bag/<int:amount>')
+# @token_auth.login_required
 def bag(amount):
     """
     Returns the requested number of pieces
-    from the bag
+    from the bag in the room
     """
     room_id = request.args.get('roomID')
     return jsonify(dict(pieces=get_pieces(amount, room_id)))
 
 @api.route('/words-check', methods=['POST'])
+# @token_auth.login_required
 def words_check():
     """
     Validates that all the posted words are valid
     """
-
+    # Get the words to be validated
     words = request.get_json().get('words')
+
+    # Validate all. If any is invalid, return an error
     for word in words:
         valid = Word.query.filter_by(word=word).first()
         if not valid:

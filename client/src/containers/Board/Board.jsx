@@ -96,6 +96,8 @@ class Board extends React.Component {
     }
 
     updateBlankPiece = (id) => {
+        // Loop until the player has chosen a letter to 
+        // replace the blank piece with
         if (this.state.blankPiece === '') {
             setTimeout(() => {
                 this.updateBlankPiece(id);
@@ -267,7 +269,7 @@ class Board extends React.Component {
                     <div className="modal-background"></div>
                     <div className="modal-card bagItems">
                         <section id="selectionHome" className="modal-card-body">
-                            <div className="centralize title is-4"><p>Choose Letter</p></div>
+                            <div className="centralize title is-4"><p>Choose Letter...</p></div>
                         </section>
                     </div>
                 </div>
@@ -755,11 +757,11 @@ class Board extends React.Component {
                         </div>
                     </div>
                     <div className="legend">
-                        <div className='legendItem'><span className="legendColor legendStart"></span><span>Start Point</span></div>
-                        <div className='legendItem'><span className="legendColor legendDW"></span><span>Double Word</span></div>
-                        <div className='legendItem'><span className="legendColor legendDL"></span><span>Double Letter</span></div>
-                        <div className='legendItem'><span className="legendColor legendTW"></span><span>Triple Word</span></div>
-                        <div className='legendItem'><span className="legendColor legendTL"></span><span>Triple Letter</span></div>
+                        <div title="A piece must be played on this tile at the beginning of the game" className='legendItem'><span className="legendColor legendStart"></span><span>Start Point</span></div>
+                        <div title="The total score of the word played is doubled when a piece is on this tile" className='legendItem'><span className="legendColor legendDW"></span><span>Double Word</span></div>
+                        <div title="The total score of the letter on this tile is doubled" className='legendItem'><span className="legendColor legendDL"></span><span>Double Letter</span></div>
+                        <div title="The total score of the word played is tripled when a piece is on this tile"className='legendItem'><span className="legendColor legendTW"></span><span>Triple Word</span></div>
+                        <div title="The total score of the letter on this tile is tripled" className='legendItem'><span className="legendColor legendTL"></span><span>Triple Letter</span></div>
                     </div>
                 </div>
             </div>

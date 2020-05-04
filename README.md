@@ -38,3 +38,10 @@ As a host, you need the following:
 ### Sneak-Peak
 Gameplay sneak-peak
 ![](gameplay.png)
+
+
+### Known Issues
+- Once pieces have been moved from the rack to the board, they can only be returned to the rack using the 'Recall Pieces' button.
+- Last piece in rack sometimes disappears after a player's turn. This bug is known and is currently being attacked. The current fix is simply to use the 'Recall Pieces' button, which effectively refreshes the tile, making the piece re-appear.
+- When the played word has more than one valid word, the actually played word may not be what's read out as being played, and may instead be one of the other linked words.
+

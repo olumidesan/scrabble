@@ -9,3 +9,4 @@
 - Game save feature (save board state and player rack, everything). Currently, if player refreshes his/her browser, the whole game has to be restarted
 - Improve scoring algorithm
 - Implement piece swapping
+- Once game has ended, turn rack buttons to 'Play Again' button, without taking the users back to the config screen.

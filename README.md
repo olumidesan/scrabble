@@ -44,4 +44,4 @@ So, I wanted to create a way for all of us to play the game from the comfort of 
 
 ### Collaborations and Development
 - Collaborations are more than welcome! The scoring algorithm, for example, I'm sure can be refined.
-- Development is done in the `dev` branch: `git checkout dev`
+- Development is done in the `dev` branch: `git checkout dev`. Current issues are in the `DevFlow.md` file.

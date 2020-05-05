@@ -6,5 +6,7 @@
 - Cater for shaky connections. Currently, if connection gets lost,
   there are socketio errors
 - Game save feature (save board state and player rack, everything). Currently, if player refreshes his/her browser, the whole game has to be restarted
-- Improve scoring algorithm
+- Improve scoring algorithm 
 - Implement piece swapping
+- Once the game has ended, turn rack buttons to 'Play Again' button, without taking the users back to the configuration screen.
+- Improve randomization

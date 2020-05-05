@@ -8,7 +8,7 @@ class CommonConfig:
     SECRET_KEY = token_generator()
         
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = f'sqlite:////{os.getcwd()}/scrabble.db'
+    SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.getcwd()}/scrabble.db'
 
 class Dev(CommonConfig):
     """Development Config"""

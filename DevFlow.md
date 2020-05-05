@@ -1,7 +1,6 @@
 ### Future fixes/features
 - Audio implementation where players can talk to each other
 - Time limit to play feature | config
-- Restructure nasty css-hacked landing page
 - Play logs and connection status | config
 - Refactor app to use strict React componentization
 - Cater for shaky connections. Currently, if connection gets lost,

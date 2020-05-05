@@ -1,10 +1,10 @@
 
 from app import sio
 from time import sleep
-from collections import defaultdict
+from itertools import cycle
+from threading import Lock
 
 from app.api.utils import (rooms, 
-                           players, 
                            make_bag, 
                            get_all_pieces, 
                            get_player_to_play, 
@@ -13,6 +13,9 @@ from app.api.utils import (rooms,
 from flask import request
 from flask_socketio import join_room, leave_room, emit
 
+
+
+lock = Lock()
 
 @sio.on('join')
 def on_join(data):
@@ -24,7 +27,7 @@ def on_join(data):
     # Mock a bag for the very first
     # connection (host) to the room
     if room not in rooms:
-        rooms[room] = []
+        rooms[room] = dict()
 
     # If it's not a reconnection event
     if not data.get('isReconnection'):
@@ -50,9 +53,12 @@ def from_host(data):
     """
     room = data.get('roomID')
 
-    # Once the game has started, create a 
-    # bag for that game session
-    rooms[room] = make_bag()
+    # Once the game has started, create the needed
+    # items for an entire game session. Bag, players...
+    rooms[room]['players'] = []
+    rooms[room]['bag'] = make_bag()
+    rooms[room]['final_scores'] = []
+    rooms[room]['player_turns'] = []
 
     emit('gameStart', data, room=room)
 
@@ -93,15 +99,29 @@ def draw_event(data):
     room = data.get('roomID')
     ordered_players = data.get('playOrder')
 
-    # Add a turn order variable as the first
-    # item for each room
-    players[room].append(None)
-
+    # Save all players in a room and their turns
     for o_o in ordered_players: # Lol o_o
-        players[room].append(o_o)
+        rooms[room]['players'].append(o_o)
+        rooms[room]['player_turns'].append(o_o)
+
+    # Convert player turns into round robin list
+    rooms[room]['player_turns'] = cycle(rooms[room]['player_turns'])
+    next(rooms[room]['player_turns']) # Client knows initially
 
     # Add bag and its length to payload
     data['bagItems'] = get_all_pieces(room)
     data['bagLength'] = get_remaining_pieces(room)
 
     emit('drawDone', data, room=room)
+
+@sio.on('finalBoardUpdate')
+def board_update(data):
+    """
+    Event handler for the final board update
+    signifying the end of the game
+    """
+    room = data.get('roomID')
+    
+    # If all players have announced their final score
+    if len(rooms[room]['final_scores']) == len(rooms[room]['players']):
+        emit('gameEnd', {"finalPlayerScores": rooms[room]['final_scores']}, room=room)

@@ -1,4 +1,5 @@
 
+from threading import Lock
 from flask import jsonify, request
 
 from app import db
@@ -6,8 +7,10 @@ from app.models import Word
 
 from . import api_bp as api
 from .auth import token_auth
-from .utils import rooms, get_pieces, get_remaining_pieces
+from .utils import rooms, update_scores, get_pieces, get_remaining_pieces
 
+
+lock = Lock()
 
 @api.route('/rooms')
 @token_auth.login_required
@@ -41,3 +44,22 @@ def words_check():
             return jsonify(dict(error=f"'{word}' is not a valid Scrabble word"))
 
     return jsonify(dict(valid="true"))
+
+@api.route('/scores', methods=['POST'])
+@token_auth.login_required
+def scores():
+    """
+    Updates the players' scores in a room
+    """
+
+    payload = request.get_json()
+
+    name = payload.get('name')
+    room = payload.get('roomID')
+    score = payload.get('score')
+
+    # Synchronize
+    with lock:
+        update_scores(room, name, score)
+
+    return jsonify(dict(message="success"))

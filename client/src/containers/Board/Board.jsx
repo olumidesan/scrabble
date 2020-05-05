@@ -89,9 +89,6 @@ class Board extends React.Component {
                 toast.warn(data.message);
             }
         }
-        else if (data.eventType === 'finalBoardUpdate') {
-            document.getElementById(`score_${data.name}`).innerText = data.score;
-        }
         // Implicit updateBlank. Expand as needed
         else {
             document.getElementById(data.id).firstChild.firstChild.innerText = data.pieceLetter;
@@ -272,7 +269,7 @@ class Board extends React.Component {
                     <div className="modal-background"></div>
                     <div className="modal-card bagItems">
                         <section id="selectionHome" className="modal-card-body">
-                            <div className="centralize title is-4"><p>Choose Letter...</p></div>
+                            <div className="centralize title is-4"><p>Choose A Letter...</p></div>
                         </section>
                     </div>
                 </div>
@@ -763,7 +760,7 @@ class Board extends React.Component {
                         <div title="A piece must be played on this tile at the beginning of the game" className='legendItem'><span className="legendColor legendStart"></span><span>Start Point</span></div>
                         <div title="The total score of the word played is doubled when a piece is on this tile" className='legendItem'><span className="legendColor legendDW"></span><span>Double Word</span></div>
                         <div title="The total score of the letter on this tile is doubled" className='legendItem'><span className="legendColor legendDL"></span><span>Double Letter</span></div>
-                        <div title="The total score of the word played is tripled when a piece is on this tile"className='legendItem'><span className="legendColor legendTW"></span><span>Triple Word</span></div>
+                        <div title="The total score of the word played is tripled when a piece is on this tile" className='legendItem'><span className="legendColor legendTW"></span><span>Triple Word</span></div>
                         <div title="The total score of the letter on this tile is tripled" className='legendItem'><span className="legendColor legendTL"></span><span>Triple Letter</span></div>
                     </div>
                 </div>

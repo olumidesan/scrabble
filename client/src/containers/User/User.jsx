@@ -152,8 +152,9 @@ export default class GameUser extends Component {
 
     showHome = (e) => {
         e.preventDefault();
-        this.setState({ isHost: false, name: '' }) // Essentially a reset
+        // Essentially a reset
         this.numOfPlayers = 0;
+        this.setState({ isHost: false, name: '' })
 
         document.querySelector('.landing').style.display = 'block';
         document.querySelector('.joinForm').style.display = 'none';
@@ -286,6 +287,39 @@ export default class GameUser extends Component {
             toast.success(`✨ Welcome, ${this.state.name}! ${welcomeMessage} be notified (just like this) of who gets to play first. Good luck!`)
         });
 
+        // When the game ends. Show a modal with the winner
+        this.socket.on('gameEnd', (data) => {
+            let finalMessage = '';
+            let winner = { name: '', score: 0 };
+
+            data.finalPlayerScores.forEach(player => {
+                // Update final player's score on board
+                document.getElementById(`score_${player.name}`).innerText = player.score;
+
+                // Once that's done, compare and     get winner
+                if (player.score > winner.score) {
+                    winner.name = player.name;
+                    winner.score = player.score;
+                }
+            });
+
+            // Construct final message
+            if (this.state.name === winner.name) {
+                finalMessage = `Congratulations, ${winner.name}! You are the winner with ${winner.score} points.`;
+            }
+            else {
+                finalMessage = `${winner.name} is the winner with ${winner.score} points. Good game, ${this.state.name}.`;
+            }
+
+            // Once all scores have been checked, update the board with the winner
+            document.getElementById(`pid_${winner.name}`).innerText = `${document.getElementById(`pid_${winner.name}`).innerText} 🏆`;
+
+            // Show modal with final message
+            this.toggleModal();
+            document.getElementById('winner').innerText = finalMessage;
+        });
+
+
         // Register for event to effect an actual valid play
         this.socket.on('validPlay', (data) => {
             let turnMessage, message;
@@ -338,12 +372,10 @@ export default class GameUser extends Component {
                 scoreDiv.innerText = parseInt(scoreDiv.innerText) + data.score
             }
 
-
             // If the player's rack is empty and the bag is also 
             // empty, the game has ended
             if (data.numOfRem === 0 && data.bagLength === 0) {
-                let finalMessage = '';
-                let winner = { name: '', score: 0 };
+                let score = 0;
 
                 // Announce to everybody
                 toast.info(`${message}.`);
@@ -353,56 +385,30 @@ export default class GameUser extends Component {
                 remaining pieces left on each player's rack are counted and subtracted from
                 their final score.*/
 
-                // Get winner
-                this.state.players.forEach((player, index) => {
-                    // Get the score for each player
-                    let score = parseInt(document.getElementById(`score_${player}`).innerText);
+                // Get the score for the player
+                score = parseInt(document.getElementById(`score_${this.state.name}`).innerText);
 
-                    if (player === this.state.name) {
-                        // Get the remaining pieces on each player's rack
-                        let remainingRackPieces = this.getPiecesOnRack();
-                        // For each of them, deduct their value from the player's score
-                        remainingRackPieces.forEach(piece => {
-                            score = score - piece.value;
-                        });
-                        // Update player's score
-                        document.getElementById(`score_${player}`).innerText = score
-                    }
-
-                    // Once that's done, compare and get winner
-                    if (score > winner.score) {
-                        winner.name = player;
-                        winner.score = score;
-                    }
-
-                    // Once all scores have been checked, update the board with the winner
-                    if ((index + 1) === this.state.players.length) {
-                        document.getElementById(`pid_${winner.name}`).innerText = `${document.getElementById(`pid_${winner.name}`).innerText} 🏆`;
-                    }
+                // Get the remaining pieces on the player's rack
+                let remainingRackPieces = this.getPiecesOnRack();
+                // For each of them, deduct their value from the player's score
+                remainingRackPieces.forEach(piece => {
+                    score = score - piece.value;
                 });
 
-                // Construct final message
-                if (this.state.name === winner.name) {
-                    finalMessage = `Congratulations, ${winner.name}! You are the winner with ${winner.score} points.`;
-                }
-                else {
-                    finalMessage = `${winner.name} is the winner with ${winner.score} points. Good game, ${this.state.name}.`;
-                }
-                // Show modal with final message
-                this.toggleModal();
-                document.getElementById('winner').innerText = finalMessage;
-
-
-                // Update the board across to reflect the new score. 
-                // Do this while the modal is active
-                this.socket.emit('inPlayEvent',
-                    {
+                // Post the scores
+                // This is done as a post request to streamline the posts, as all
+                // clients will be doing this at the same time.
+                makeServerRequest({
+                    requestType: 'post', url: '/scores', payload: {
                         roomID: this.state.roomID,
-                        eventType: 'finalBoardUpdate',
-                        name: this.state.name, 
-                        score: parseInt(document.getElementById(`score_${this.state.name}`).innerText)
-                    });
-
+                        name: this.state.name,
+                        score: score
+                    }
+                })
+                // Emit an update after posting
+                .then(() => {
+                    this.socket.emit('finalBoardUpdate', { roomID: this.state.roomID, });
+                });
             }
             // If the game hasn't ended
             else {
@@ -430,10 +436,6 @@ export default class GameUser extends Component {
                 }
             }
         });
-    }
-
-    replay = () => {
-        //tbd
     }
 
     toggleModal = () => {
@@ -470,10 +472,10 @@ export default class GameUser extends Component {
             <div className="entry columns is-vcentered">
                 <div className="column is-two-thirds">
                     <Board
-                        roomID={this.state.roomID}
                         socket={this.socket}
                         name={this.state.name}
                         isTurn={this.state.isTurn}
+                        roomID={this.state.roomID}
                         gameEnded={this.state.gameEnded} />
                 </div>
                 <div className="column">
@@ -491,7 +493,6 @@ export default class GameUser extends Component {
 
                         {this.state.gameStarted ?
                             <Rack socket={this.socket}
-                                replay={this.replay}
                                 name={this.state.name}
                                 roomID={this.state.roomID}
                                 isHost={this.state.isHost}

@@ -1,0 +1,27 @@
+{
+  "files": {
+    "main.css": "/client/build/static/css/main.9aaeb877.chunk.css",
+    "main.js": "/client/build/static/js/main.3019ec38.chunk.js",
+    "main.js.map": "/client/build/static/js/main.3019ec38.chunk.js.map",
+    "runtime-main.js": "/client/build/static/js/runtime-main.c0485c0c.js",
+    "runtime-main.js.map": "/client/build/static/js/runtime-main.c0485c0c.js.map",
+    "static/css/2.e473aef7.chunk.css": "/client/build/static/css/2.e473aef7.chunk.css",
+    "static/js/2.71b8bfcd.chunk.js": "/client/build/static/js/2.71b8bfcd.chunk.js",
+    "static/js/2.71b8bfcd.chunk.js.map": "/client/build/static/js/2.71b8bfcd.chunk.js.map",
+    "../../templates/index.html": "/client/build/../../templates/index.html",
+    "precache-manifest.e7f230c2606763d6fcd1f0435e3a99cd.js": "/client/build/precache-manifest.e7f230c2606763d6fcd1f0435e3a99cd.js",
+    "service-worker.js": "/client/build/service-worker.js",
+    "static/css/2.e473aef7.chunk.css.map": "/client/build/static/css/2.e473aef7.chunk.css.map",
+    "static/css/main.9aaeb877.chunk.css.map": "/client/build/static/css/main.9aaeb877.chunk.css.map",
+    "static/js/2.71b8bfcd.chunk.js.LICENSE.txt": "/client/build/static/js/2.71b8bfcd.chunk.js.LICENSE.txt",
+    "static/media/all.css": "/client/build/static/media/fa-solid-900.ec763292.svg",
+    "static/media/roboto.css": "/client/build/static/media/roboto7.479970ff.woff2"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.c0485c0c.js",
+    "static/css/2.e473aef7.chunk.css",
+    "static/js/2.71b8bfcd.chunk.js",
+    "static/css/main.9aaeb877.chunk.css",
+    "static/js/main.3019ec38.chunk.js"
+  ]
+}

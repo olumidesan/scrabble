@@ -89,6 +89,9 @@ class Board extends React.Component {
                 toast.warn(data.message);
             }
         }
+        else if (data.eventType === 'finalBoardUpdate') {
+            document.getElementById(`score_${data.name}`).innerText = data.score;
+        }
         // Implicit updateBlank. Expand as needed
         else {
             document.getElementById(data.id).firstChild.firstChild.innerText = data.pieceLetter;

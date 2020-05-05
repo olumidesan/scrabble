@@ -41,6 +41,22 @@ export default class GameUser extends Component {
         return document.querySelectorAll('.bp');
     }
 
+    getPiecesOnRack = () => {
+        // Storage for the pieces on the rack
+        let pieces = [];
+
+        // For each piece in the rack, get the letter and value and then
+        // store each one in the above array.
+        document.querySelectorAll('.pieceContainer').forEach((piece) => {
+            pieces.push({
+                letter: piece.textContent.slice(0, 1),
+                value: parseInt(piece.textContent.slice(1))
+            });
+        });
+
+        return pieces;
+    }
+
     concretizePlayedPieces = () => {
         // Make all the pieces permanent. Do this, essentially, 
         // by removing their identifiable class
@@ -331,17 +347,41 @@ export default class GameUser extends Component {
 
                 // Announce to everybody
                 toast.info(`${message}.`);
-                this.setState({ gameEnded: true })
+                this.setState({ gameEnded: true });
+
+                /* Once tha game has ended, according to the official Scrabble rules, the 
+                remaining pieces left on each player's rack are counted and subtracted from
+                their final score.*/
 
                 // Get winner
-                this.state.players.forEach(player => {
+                this.state.players.forEach((player, index) => {
+                    // Get the score for each player
                     let score = parseInt(document.getElementById(`score_${player}`).innerText);
+
+                    if (player === this.state.name) {
+                        // Get the remaining pieces on each player's rack
+                        let remainingRackPieces = this.getPiecesOnRack();
+                        // For each of them, deduct their value from the player's score
+                        remainingRackPieces.forEach(piece => {
+                            score = score - piece.value;
+                        });
+                        // Update player's score
+                        document.getElementById(`score_${player}`).innerText = score
+                    }
+
+                    // Once that's done, compare and get winner
                     if (score > winner.score) {
                         winner.name = player;
                         winner.score = score;
                     }
+
+                    // Once all scores have been checked, update the board with the winner
+                    if ((index + 1) === this.state.players.length) {
+                        document.getElementById(`pid_${winner.name}`).innerText = `${document.getElementById(`pid_${winner.name}`).innerText} 🏆`;
+                    }
                 });
 
+                // Construct final message
                 if (this.state.name === winner.name) {
                     finalMessage = `Congratulations, ${winner.name}! You are the winner with ${winner.score} points.`;
                 }
@@ -351,7 +391,20 @@ export default class GameUser extends Component {
                 // Show modal with final message
                 this.toggleModal();
                 document.getElementById('winner').innerText = finalMessage;
+
+
+                // Update the board across to reflect the new score. 
+                // Do this while the modal is active
+                this.socket.emit('inPlayEvent',
+                    {
+                        roomID: this.state.roomID,
+                        eventType: 'finalBoardUpdate',
+                        name: this.state.name, 
+                        score: parseInt(document.getElementById(`score_${this.state.name}`).innerText)
+                    });
+
             }
+            // If the game hasn't ended
             else {
                 let emptyMessage = '';
                 // Announce to everybody
@@ -377,6 +430,10 @@ export default class GameUser extends Component {
                 }
             }
         });
+    }
+
+    replay = () => {
+        //tbd
     }
 
     toggleModal = () => {
@@ -429,22 +486,23 @@ export default class GameUser extends Component {
                             <span id="connstatus" ><i className="fas fa-wifi"></i></span>&nbsp;
                         </div>
                         <ScoreTable
-                            socket={this.socket}
                             name={this.state.name}
                             players={this.state.players} />
 
                         {this.state.gameStarted ?
                             <Rack socket={this.socket}
+                                replay={this.replay}
                                 name={this.state.name}
                                 roomID={this.state.roomID}
                                 isHost={this.state.isHost}
                                 isTurn={this.state.isTurn}
                                 players={this.state.players}
-                                gameEnded={this.state.gameEnded}
                                 bagItems={this.state.bagItems}
                                 bagLength={this.state.bagLength}
+                                gameEnded={this.state.gameEnded}
                                 gameStarted={this.state.gameStarted}
-                                getPlayedPieces={this.getPlayedPieces} /> :
+                                getPlayedPieces={this.getPlayedPieces}
+                                getPiecesOnRack={this.getPiecesOnRack} /> :
                             null}
                     </div>
                 </div>

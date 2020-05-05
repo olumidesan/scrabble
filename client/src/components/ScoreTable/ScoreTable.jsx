@@ -3,7 +3,7 @@ import React from 'react';
 const ScoreTable = (props) => {
     let players = props.players.map((player, index) => {
         return <tr key={index}>
-            <td>{props.name === player ? `${player} (You)` : player}</td>
+            <td id={`pid_${player}`}>{props.name === player ? `${player} (You)` : player}</td>
             <td id={`score_${player}`}>0</td>
             <td id={`turn_${player}`}>No</td>
         </tr>;

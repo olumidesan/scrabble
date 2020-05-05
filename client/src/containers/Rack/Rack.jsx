@@ -370,7 +370,7 @@ export class Rack extends Component {
 
                     // If validated, then get what's on the rack. This
                     // will need to be refilled
-                    let remainingPieces = this.getPiecesOnRack();
+                    let remainingPieces = this.props.getPiecesOnRack();
 
                     // Compute score
                     let score = this.computeScore({
@@ -687,7 +687,7 @@ export class Rack extends Component {
 
     shufflePieces = () => {
         // Get the pieces on the rack
-        let pieces = this.getPiecesOnRack();
+        let pieces = this.props.getPiecesOnRack();
 
         // Shuffle and update rack
         this.populateRack(this.inPlaceShuffle(pieces));
@@ -699,12 +699,12 @@ export class Rack extends Component {
 
         // It has to be your turn for this function to work
         if (this.props.isTurn && !this.props.gameEnded) {
+            this.clearPlayedPieces();
+            this.populateRack(this.state.currentPieces);
             this.props.socket.emit('recallEvent', {
                 name: this.props.name,
                 roomID: this.props.roomID
-            })
-            this.clearPlayedPieces();
-            this.populateRack(this.state.currentPieces);
+            });
         }
     }
 
@@ -718,22 +718,6 @@ export class Rack extends Component {
             arr[j] = temp;
         }
         return arr;
-    }
-
-    getPiecesOnRack = () => {
-        // Storage for the pieces on the rack
-        let pieces = [];
-
-        // For each piece in the rack, get the letter and value and then
-        // store each one in the above array.
-        document.querySelectorAll('.pieceContainer').forEach((piece) => {
-            pieces.push({
-                letter: piece.textContent.slice(0, 1),
-                value: parseInt(piece.textContent.slice(1))
-            });
-        });
-
-        return pieces;
     }
 
     populateRack = (pieces) => {
@@ -795,7 +779,7 @@ export class Rack extends Component {
 
     // Features for Game save. Tbd
     // beforeUnload = () => {
-    //     let rack = this.getPiecesOnRack();
+    //     let rack = this.props.getPiecesOnRack();
     //     let boardshot = this.takeBoardSnapshot();
     //     makeServerRequest({
     //         requestType: 'post',
@@ -871,6 +855,7 @@ export class Rack extends Component {
                         {this.props.isHost ?
                             <button id="drawButton" title="Draw" className="button rackButton is-warning" onClick={this.makeDraw}>Draw</button>
                             : null}
+                        {this.props.gameEnded ? <button title="Play again" onClick={this.props.replay} className="button rackButton is-warning">Play Again</button> : null}
                     </div>
                 </div>
             </div>

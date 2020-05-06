@@ -13,13 +13,13 @@ from .utils import rooms, update_scores, get_pieces, get_remaining_pieces
 lock = Lock()
 
 @api.route('/rooms')
-# @token_auth.login_required
+@token_auth.login_required
 def sio_rooms():
     """Returns the list of socketIO rooms"""
     return jsonify(dict(rooms=list(rooms.keys())))
 
 @api.route('/bag/<int:amount>')
-# @token_auth.login_required
+@token_auth.login_required
 def bag(amount):
     """
     Returns the requested number of pieces
@@ -29,7 +29,7 @@ def bag(amount):
     return jsonify(dict(pieces=get_pieces(amount, room_id)))
 
 @api.route('/words-check', methods=['POST'])
-# @token_auth.login_required
+@token_auth.login_required
 def words_check():
     """
     Validates that all the posted words are valid
@@ -46,7 +46,7 @@ def words_check():
     return jsonify(dict(valid="true"))
 
 @api.route('/scores', methods=['POST'])
-# @token_auth.login_required
+@token_auth.login_required
 def scores():
     """
     Updates the players' scores in a room

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// axios.defaults.baseURL = `http://${window.serverIP}:5005/api/v1`;
+// axios.defaults.baseURL = `${window.hostURL}/api/v1`;
 axios.defaults.baseURL = 'http://192.168.0.165:5005/api/v1';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 // axios.defaults.headers.common['Authorization'] = `Bearer ${window.b2ctk}`;

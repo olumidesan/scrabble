@@ -1,6 +1,6 @@
 
 from copy import deepcopy
-from random import choice, seed
+from secrets import choice
 
 # ----------- Persistence ------------
 # Don't want to use a database. 
@@ -122,7 +122,6 @@ def get_pieces(amount, room_id):
     # Fill up the requested new pieces
     while len(new_pieces) != amount:
         # Get a random piece
-        seed()
         piece = choice(pieces)
         
         # Get items from the bag

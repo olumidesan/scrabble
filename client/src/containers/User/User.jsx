@@ -17,7 +17,7 @@ export default class GameUser extends Component {
 
         this.numOfPlayers = 0;
         this.socket = io('http://192.168.0.165:5005', { transports: ['websocket'] });
-        // this.socket = io(`http://${window.serverIP}:5005`, { transports: ['websocket'] });
+        // this.socket = io(window.hostURL), { transports: ['websocket'] });
 
         // Randomly generated id that represents the game room, just in case the client
         // decides to be a game session host

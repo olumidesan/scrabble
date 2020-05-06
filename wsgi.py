@@ -13,4 +13,4 @@ app = create_app(app_env)
 
 if __name__ == '__main__':
     print(f"Running in {env} environment...")
-    sio.run(app, host=get_ip_address(), port=5005)
+    sio.run(app, host=get_ip_address(), port=5009)

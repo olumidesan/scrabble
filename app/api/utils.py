@@ -82,9 +82,9 @@ def make_bag():
     """Creates a scrabble bag for a game session"""
     return deepcopy(pieces_number)
 
-def update_scores(room, name, score):
+def update_scores(room_id, name, score):
     """Updates the final scores of the players in a room"""
-    rooms[room]['final_scores'].append(dict(name=name, score=score))
+    rooms[room_id]['final_scores'].append(dict(name=name, score=score))
 
 def get_player_to_play(room_id):
     """Returns the player to play next in a given room"""

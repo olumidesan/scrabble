@@ -1,6 +1,6 @@
 
-from flask import jsonify, request
 from threading import Lock
+from flask import jsonify, request
 
 from app import db
 from app.models import Word
@@ -63,17 +63,3 @@ def scores():
         update_scores(room, name, score)
 
     return jsonify(dict(message="success"))
-
-# For game save feature/page refresh.Tbd
-# @api.route('/snapshot/<room_id>', methods=['GET', 'POST'])
-# def snapshot(room_id):
-#     """Saves/Returns room board states"""
-    
-#     if request.method == 'GET':
-#         snapshot = snapshots.get(room_id)
-#         return jsonify(dict(snapshot=snapshot))
-    
-#     # Implicit POST
-#     snapshots[room_id].append(request.get_json(silent=True))
-
-#     return jsonify(dict(message="Saved successfully"))

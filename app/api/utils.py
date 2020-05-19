@@ -104,7 +104,7 @@ def get_all_pieces(room_id):
     """
     return sorted(rooms[room_id]['bag'].items(), key=lambda x: x[0])
 
-def not_all_vowels(pieces):
+def not_all_consonants(pieces):
     """
 Prevents all vowels
     """

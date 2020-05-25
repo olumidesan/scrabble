@@ -108,7 +108,7 @@ def not_all_consonants(pieces):
     """
 Prevents all consonants
     """
-while not_all_consonants(pieces): pieces = get_pieces(amount, room_id)
+while not_all_consonants('A','E','I','O','U'): pieces = get_pieces(amount, room_id)
     
 def get_pieces(amount, room_id):
     """

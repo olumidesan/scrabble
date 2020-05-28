@@ -106,11 +106,15 @@ def get_all_pieces(room_id):
 
 def not_all_consonants(pieces):
     """
-Prevents all consonants
+    Should prevent all consonants on
+    only on first play. 
+    Currently not implemented. To be fixed
     """
     while not_all_consonants('A','E','I','O','U'):
-      if  not_all_consonants('A','E','I','O','U') == False: get_pieces(amount, room_id)
-      if not_all_consonants('A','E','I', 'O', 'U') == True: break 
+        if  not_all_consonants('A','E','I','O','U') == False:
+            get_pieces(amount, room_id)
+        if not_all_consonants('A','E','I', 'O', 'U') == True: 
+            break 
     
 def get_pieces(amount, room_id):
     """

@@ -104,17 +104,19 @@ def get_all_pieces(room_id):
     """
     return sorted(rooms[room_id]['bag'].items(), key=lambda x: x[0])
 
-def not_all_consonants(pieces):
-    """
-    Should prevent all consonants on
-    only on first play. 
-    Currently not implemented. To be fixed
-    """
-    while not_all_consonants('A','E','I','O','U'):
-        if  not_all_consonants('A','E','I','O','U') == False:
-            get_pieces(amount, room_id)
-        if not_all_consonants('A','E','I', 'O', 'U') == True: 
-            break 
+# def not_all_consonants(pieces):
+#     """
+#     (As per @kcdark's PR)
+
+#     Should prevent all consonants on
+#     only on first play. 
+#     Currently not implemented. To be fixed
+#     """
+#     while not_all_consonants('A','E','I','O','U'):
+#         if  not_all_consonants('A','E','I','O','U') == False:
+#             get_pieces(amount, room_id)
+#         if not_all_consonants('A','E','I', 'O', 'U') == True: 
+#             break 
     
 def get_pieces(amount, room_id):
     """

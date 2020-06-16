@@ -1,6 +1,11 @@
 ## Scrabble
 A strictly multi-player Scrabble game that allows gameplay between people on a network
 
+### Update (16/06/2020)
+- Added the ability for players to talk to each other (click to talk), but due to browsers' security policies that prevents microphone or camera access over HTTP, this feature is currently disabled as it's only available via HTTPS. 
+- Currently, the only remedy to this to allow this new feature to be used is to either use Ngrok to host the app over the internet, or host one's own server with SSL certificates installed.
+- I'll creating a self-signed certificate and integrate it into the game's startup pipeline soon. Again, collaboration is welcome.
+
 ### Requirements
 - A laptop, or any device that allows dragging web elements with a mouse.
 - Please note that development was tailored specifically towards laptops, as they fully support the [HTML5 Draggable](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API) API, unlike mobile devices or tablets.

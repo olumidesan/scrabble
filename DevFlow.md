@@ -8,3 +8,4 @@
 - Game save feature (save board state and player rack, everything). Currently, if player refreshes his/her browser, the whole game has to be restarted
 - Improve scoring algorithm
 - Implement piece swapping
+- Improve randomization

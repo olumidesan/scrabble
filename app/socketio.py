@@ -69,6 +69,14 @@ def in_play_event(data):
     """
     emit('inPlay', data, room=data.get('roomID'))
 
+
+@sio.on('radio')
+def radio(data):
+    """
+    Event handler for in voice transmissions
+    """
+    emit('voiceT', data, room=data.get('roomID'))
+
 @sio.on('recallEvent')
 def recall_event(data):
     """

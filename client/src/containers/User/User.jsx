@@ -15,7 +15,7 @@ export default class GameUser extends Component {
     super(props);
 
     this.numOfPlayers = 0;
-    this.socket = io("http://192.168.0.165:5005", {
+    this.socket = io("http://192.168.0.168:5005", {
       transports: ["websocket"],
     });
     this.audioElement = document.getElementById("audioT");
@@ -36,6 +36,8 @@ export default class GameUser extends Component {
       bagItems: {},
       isTurn: false,
       isHost: false,
+      serverPing: 0,
+      intervalID: "",
       bagLength: 100,
       gameEnded: false,
       isRecording: false,
@@ -48,6 +50,23 @@ export default class GameUser extends Component {
     return document.querySelectorAll(".bp");
   };
 
+  populateRack = (pieces) => {
+    let rack = document.querySelector('.rackPieces');
+    while (rack.firstChild) {
+      rack.firstChild.remove();
+    }
+    for (const [index, alphabet] of Object.entries(pieces)) {
+      let piece;
+      let pieceContainer = document.createElement('div');
+      pieceContainer.setAttribute('id', `userPiece${index}`);
+      pieceContainer.setAttribute('class', 'pieceContainer');
+      pieceContainer.setAttribute('draggable', 'true');
+      piece = `<div draggable="false" class='piece'><span draggable="false" class="letter">${alphabet.letter}</span><span draggable="false" class="value">${alphabet.value}</span></div>`;
+      pieceContainer.innerHTML = piece;
+      rack.appendChild(pieceContainer);
+    }
+  }
+
   getPiecesOnRack = () => {
     // Storage for the pieces on the rack
     let pieces = [];
@@ -56,8 +75,8 @@ export default class GameUser extends Component {
     // store each one in the above array.
     document.querySelectorAll(".pieceContainer").forEach((piece) => {
       pieces.push({
-        letter: piece.textContent.slice(0, 1),
-        value: parseInt(piece.textContent.slice(1)),
+        letter: piece.firstChild.lastChild.innerText === "0" ? "" : piece.textContent.slice(0, 1),
+        value: piece.firstChild.lastChild.innerText === "0" ? 0 : parseInt(piece.textContent.slice(1)),
       });
     });
 
@@ -100,7 +119,7 @@ export default class GameUser extends Component {
   };
 
   saveUser = (event) => {
-    this.setState({ name: event.target.value });
+    this.setState({ name: event.target.value.trim() });
   };
 
   savePlayers = (event) => {
@@ -150,7 +169,7 @@ export default class GameUser extends Component {
       // Validate
       if (!data.rooms.includes(this.state.roomID)) {
         toast.error(
-          `😬 There's currently no game session with ID, ${this.state.roomID}.`
+          `There's no game session with ID, ${this.state.roomID}.`
         );
         return;
       }
@@ -186,7 +205,15 @@ export default class GameUser extends Component {
 
     /* Register event listeners */
 
-    // window.addEventListener('beforeunload', this.beforeUnload);
+    window.addEventListener('beforeunload', this.beforeUnload);
+
+    this.pingServer();
+    let iID = setInterval(() => {
+      if (this.state.gameStarted) {
+        this.pingServer();
+      }
+    }, 10000);
+    this.setState({ intervalID: iID });
 
     // Incase socket.io loses connection to the server
     this.socket.on("reconnect_attempt", () => {
@@ -354,9 +381,8 @@ export default class GameUser extends Component {
       }
 
       // Once all scores have been checked, update the board with the winner
-      document.getElementById(`pid_${winner.name}`).innerText = `${
-        document.getElementById(`pid_${winner.name}`).innerText
-      } 🏆`;
+      document.getElementById(`pid_${winner.name}`).innerText = `${document.getElementById(`pid_${winner.name}`).innerText
+        } 🏆`;
 
       // Show modal with final message
       this.toggleModal();
@@ -536,7 +562,7 @@ export default class GameUser extends Component {
     } else {
       try {
         mediaRecorder.stop();
-      } catch {}
+      } catch { }
     }
   };
 
@@ -567,13 +593,28 @@ export default class GameUser extends Component {
     document.getElementById("endModal").classList.toggle("is-active");
   };
 
-  // beforeUnload = () => {
-  //     this.socket.emit('leave', { roomID: this.state.roomID })
-  // }
+  beforeUnload = () => {
+    this.socket.emit('leave', { roomID: this.state.roomID })
+  }
 
-  // componentWillUnmount = () => {
-  //     window.removeEventListener('beforeunload', this.beforeUnload);
-  // }
+  componentWillUnmount = () => {
+    window.removeEventListener('beforeunload', this.beforeUnload);
+  }
+
+  componentWillUnmount = () => {
+    clearInterval(this.state.intervalID);
+    window.removeEventListener('beforeunload', this.beforeUnload);
+  }
+
+  pingServer = async () => {
+    let startTime = new Date();
+    let response = await makeServerRequest({ requestType: 'get', url: `/ping`, payload: {} });
+    if (response.status === "pingSuccess") {
+      let endTime = new Date();
+      let ping = endTime.getTime() - startTime.getTime();
+      this.setState({ serverPing: ping });
+    }
+  }
 
   render() {
     let gameConfig = (
@@ -611,7 +652,9 @@ export default class GameUser extends Component {
             name={this.state.name}
             isTurn={this.state.isTurn}
             roomID={this.state.roomID}
+            populateRack={this.populateRack}
             gameEnded={this.state.gameEnded}
+            getPiecesOnRack={this.getPiecesOnRack}
           />
         </div>
         <div className="column"></div>
@@ -622,7 +665,9 @@ export default class GameUser extends Component {
               <span id="connstatus">
                 <i className="fas fa-wifi"></i>
               </span>
-              &nbsp;
+              <span id="connstatus" style={{ paddingLeft: '10px' }} className="has-text-grey">
+                {this.state.serverPing}ms
+              </span>
             </div>
             <ScoreTable name={this.state.name} players={this.state.players} />
 
@@ -636,6 +681,7 @@ export default class GameUser extends Component {
                 players={this.state.players}
                 bagItems={this.state.bagItems}
                 bagLength={this.state.bagLength}
+                populateRack={this.populateRack}
                 gameEnded={this.state.gameEnded}
                 gameStarted={this.state.gameStarted}
                 getPlayedPieces={this.getPlayedPieces}

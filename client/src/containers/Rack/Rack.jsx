@@ -388,7 +388,7 @@ export class Rack extends Component {
                         })
                         .then(() => {
                             this.setState({ currentPieces: remainingPieces });
-                            this.populateRack(remainingPieces);
+                            this.props.populateRack(remainingPieces);
                             // Publish score [among other things] to everyone
                             this.props.socket.emit('playEvent', {
                                 numOfRem: remainingPieces.length,
@@ -690,7 +690,7 @@ export class Rack extends Component {
         let pieces = this.props.getPiecesOnRack();
 
         // Shuffle and update rack
-        this.populateRack(this.inPlaceShuffle(pieces));
+        this.props.populateRack(this.inPlaceShuffle(pieces));
     }
 
     recallPieces = () => {
@@ -700,7 +700,7 @@ export class Rack extends Component {
         // It has to be your turn for this function to work
         if (this.props.isTurn && !this.props.gameEnded) {
             this.clearPlayedPieces();
-            this.populateRack(this.state.currentPieces);
+            this.props.populateRack(this.state.currentPieces);
             this.props.socket.emit('recallEvent', {
                 name: this.props.name,
                 roomID: this.props.roomID
@@ -718,23 +718,6 @@ export class Rack extends Component {
             arr[j] = temp;
         }
         return arr;
-    }
-
-    populateRack = (pieces) => {
-        let rack = document.querySelector('.rackPieces');
-        while (rack.firstChild) {
-            rack.firstChild.remove();
-        }
-        for (const [index, alphabet] of Object.entries(pieces)) {
-            let piece;
-            let pieceContainer = document.createElement('div');
-            pieceContainer.setAttribute('id', `userPiece${index}`);
-            pieceContainer.setAttribute('class', 'pieceContainer');
-            pieceContainer.setAttribute('draggable', 'true');
-            piece = `<div draggable="false" class='piece'><span draggable="false" class="letter">${alphabet.letter}</span><span draggable="false" class="value">${alphabet.value}</span></div>`;
-            pieceContainer.innerHTML = piece;
-            rack.appendChild(pieceContainer);
-        }
     }
 
     toggleBag = () => {
@@ -824,7 +807,7 @@ export class Rack extends Component {
         let newPieces = this.getFromBag(7 - this.state.currentPieces.length);
         newPieces.then((data) => {
             this.setState({ currentPieces: data.pieces },
-                () => { this.populateRack(this.state.currentPieces) });
+                () => { this.props.populateRack(this.state.currentPieces) });
         });
     }
 
@@ -841,7 +824,7 @@ export class Rack extends Component {
                 <div className="rackPieces">
                 </div>
                 <div className='rackButtons'>
-                    <div title={`Bag with ${this.props.bagLength} remaining pieces`} onClick={this.toggleBag} className='bag'>
+                    <div tyle={{cursor: 'pointer'}} title={`Bag with ${this.props.bagLength} remaining pieces`} onClick={this.toggleBag} className='bag'>
                         <span><i className="fa fa-shopping-bag fa-2x"></i></span>
                         <span className="bagLength">{this.props.bagLength}</span>
                     </div>

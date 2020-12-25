@@ -11,7 +11,9 @@ class Board extends React.Component {
             blankPiece: '',
             swappable: true,
             currentPiece: null,
-            isBoardDrag: false,
+            isRackToBoardDrag: false,
+            isBoardToRackDrag: false,
+            isBoardToBoardDrag: false,
         }
     }
 
@@ -82,6 +84,11 @@ class Board extends React.Component {
                 this.populateBoard(data.elementString, data.elementPosition);
             }
         }
+        else if (data.eventType === 'boardToRack') {
+            if (data.name !== this.props.name) {
+                this.populateBoard(data.elementString, data.elementPosition);
+            }
+        }
         else if (data.eventType === 'bagNearEmpty') {
             // Announce only once
             if (this.state.swappable) {
@@ -131,7 +138,10 @@ class Board extends React.Component {
                         // A piece having a classname with 'bp' is originated
                         // from the board itself, signifying a drag
                         if (cL.includes('bp')) {
-                            this.setState({ isBoardDrag: true });
+                            this.setState({ isBoardToBoardDrag: true });
+                        }
+                        if (cL.includes('pieceContainer')) {
+                            this.setState({ isRackToBoardDrag: true });
                         }
                         this.setState({ currentPiece: event.target });
                     }
@@ -158,8 +168,15 @@ class Board extends React.Component {
         document.addEventListener("dragenter", (event) => {
             event.preventDefault();
             if (this.props.isTurn && !this.props.gameEnded) {
-                if (event.target.className.includes('droppable')) {
-                    event.target.style.border = "0.4px solid yellow";
+                if (this.state.isBoardToBoardDrag || this.state.isRackToBoardDrag) {
+                    // Show yellow border if destination is board
+                    if ((event.target.className) && event.target.classList.contains('droppable')) {
+                        event.target.style.border = "0.4px solid yellow";
+                    }
+                    // Do nothing if destination is rack
+                    if ((event.target.className) && (event.target.classList.contains('rackPieces')) && !(this.state.currentPiece.classList.contains('pieceContainer'))) {
+                        this.setState({ isBoardToRackDrag: true, isBoardToBoardDrag: false });
+                    }
                 }
             }
         });
@@ -182,46 +199,26 @@ class Board extends React.Component {
             if (this.props.isTurn && !this.props.gameEnded) {
                 event.target.removeAttribute('style'); //  Reset the border
                 let piece = this.state.currentPiece;
-                if (event.target.className.includes('droppable') && piece !== null) {
+                if ((event.target.classList.contains('droppable') || event.target.classList.contains('rackPieces')) && piece !== null) {
                     let cL = [...piece.classList]
                     // Register only for valid movements. Avoid stuff like
                     // a mistakenly-made drag or a bare tile drag
+                    // First condition is a rack to board move
+                    // Second condition is a board to board move
                     if (cL.includes('pieceContainer') || cL.includes('bp')) {
-                        // Get the position of the tile the piece was dropped in
-                        let piecePosition = this.getTilePositionOnBoard(event.target);
-
-                        // Make a new parent element with a custom class and duplicate the
-                        // contents of the current piece to it, and then add it as a child 
-                        // to the tile where it is placed
-                        let bp = document.createElement('div');
-                        bp.setAttribute('draggable', 'true');
-                        bp.setAttribute('id', `jp_${piecePosition}`);
-                        bp.setAttribute('class', 'bp');
-
-                        // Piece is a blank? 
-                        if (piece.firstChild.firstChild.innerText === "") {
-                            // Show modal for selection
-                            this.toggleSelectionModal();
-                            this.updateBlankPiece(`jp_${piecePosition}`);
-                        }
-
-                        // Make piece appear on board
-                        bp.innerHTML = piece.innerHTML;
-                        event.target.appendChild(bp);
-
-                        // If it's a board drag i.e the user is shifting the position of the
-                        // piece whilst still playing on the board
-                        if (this.state.isBoardDrag) {
-                            let children = piece.parentNode.children; // Get all the children of the source tile
-                            // Special tiles (dL, tW, etc) will have more than one children (one for the actual message and
-                            // the other for the piece that was previously on it). Normal tiles will have just one child.
-                            // We want to remove the just the piece from the tile. So, get an index based on the length of the children.
+                        if (this.state.isBoardToRackDrag) {
+                            let children = piece.parentNode.children;
                             let index = children.length === 1 ? 0 : 1;
-                            // Remove appropriately
+                            let piecesOnRack = this.props.getPiecesOnRack();
+                            piecesOnRack.push({
+                                // If blank piece reset to blank
+                                letter: piece.firstChild.lastChild.innerText === "0" ? "" : piece.textContent.slice(0, 1),
+                                value: parseInt(piece.textContent.slice(1)),
+                            });
+                            // Repopulate rack
+                            this.props.populateRack(piecesOnRack);
+                            // Remove piece on board
                             piece.parentNode.removeChild(children[index]);
-
-                            // Reset 
-                            this.setState({ isBoardDrag: false });
 
                             // Reflect on other players' boards 
                             // that a board-drag happened
@@ -232,23 +229,74 @@ class Board extends React.Component {
                                 id: piece.id,
                             });
                         }
-                        // Implicit movement of tile from rack to board
                         else {
-                            // The rack pieces can be deleted, as they have been duplicated on the board
-                            let prevPiece = document.getElementById(piece.id);
-                            if (prevPiece) { prevPiece.remove() };
+                            // Get the position of the tile the piece was dropped in
+                            let piecePosition = this.getTilePositionOnBoard(event.target);
+
+                            // If not in-rack drag motion
+                            if (piecePosition !== -1) {
+                                // Make a new parent element with a custom class and duplicate the
+                                // contents of the current piece to it, and then add it as a child 
+                                // to the tile where it is placed
+                                let bp = document.createElement('div');
+                                bp.setAttribute('draggable', 'true');
+                                bp.setAttribute('id', `jp_${piecePosition}`);
+                                bp.setAttribute('class', 'bp');
+
+                                // Piece is a blank? 
+                                if (piece.firstChild.firstChild.innerText === "") {
+                                    // Show modal for selection
+                                    this.toggleSelectionModal();
+                                    this.updateBlankPiece(`jp_${piecePosition}`);
+                                }
+
+                                // Make piece appear on board
+                                bp.innerHTML = piece.innerHTML;
+                                event.target.appendChild(bp);
+
+                                // If it's a board drag i.e the user is shifting the position of the
+                                // piece whilst still playing on the board
+                                if (this.state.isBoardToBoardDrag) {
+                                    let children = piece.parentNode.children; // Get all the children of the source tile
+                                    // Special tiles (dL, tW, etc) will have more than one children (one for the actual message and
+                                    // the other for the piece that was previously on it). Normal tiles will have just one child.
+                                    // We want to remove the just the piece from the tile. So, get an index based on the length of the children.
+                                    let index = children.length === 1 ? 0 : 1;
+                                    // Remove appropriately
+                                    piece.parentNode.removeChild(children[index]);
+
+                                    // Reset 
+                                    this.setState({ isBoardToBoardDrag: false });
+
+                                    // Reflect on other players' boards 
+                                    // that a board-drag happened
+                                    this.props.socket.emit('inPlayEvent', {
+                                        roomID: this.props.roomID,
+                                        name: this.props.name,
+                                        eventType: 'drag',
+                                        id: piece.id,
+                                    });
+                                }
+                                // Implicit movement of tile from rack to board
+                                else {
+                                    // The rack pieces can be deleted, as they have been duplicated on the board
+                                    let prevPiece = document.getElementById(piece.id);
+                                    if (prevPiece) { prevPiece.remove() };
+                                }
+                                // Reflect on other players' boards that a rack-event
+                                // happened
+                                this.props.socket.emit('inPlayEvent', {
+                                    name: this.props.name,
+                                    eventType: 'rackToBoard',
+                                    roomID: this.props.roomID,
+                                    elementString: bp.innerHTML,
+                                    elementPosition: piecePosition
+                                });
+
+                            }
                         }
-                        // Reflect on other players' boards that a rack-event
-                        // happened
-                        this.props.socket.emit('inPlayEvent', {
-                            name: this.props.name,
-                            eventType: 'rackToBoard',
-                            roomID: this.props.roomID,
-                            elementString: bp.innerHTML,
-                            elementPosition: piecePosition
-                        });
                         // Reset
-                        this.setState({ currentPiece: null });
+                        this.setState({ currentPiece: null, isBoardToRackDrag: false, isRackToBoardDrag: false });
                     }
                 }
             }
@@ -264,7 +312,7 @@ class Board extends React.Component {
 
     render() {
         return (
-            <div>
+            <div style={{ width: "765px" }}>
                 <div id="selectionModal" className="modal">
                     <div className="modal-background"></div>
                     <div className="modal-card bagItems">

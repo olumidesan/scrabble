@@ -12,6 +12,13 @@ from .utils import rooms, update_scores, get_pieces, get_remaining_pieces
 
 lock = Lock()
 
+@api.route('/ping')
+@token_auth.login_required
+def ping():
+    """Server ping route"""
+    list(rooms.keys())
+    return jsonify(dict(status="pingSuccess"))
+
 @api.route('/rooms')
 @token_auth.login_required
 def sio_rooms():

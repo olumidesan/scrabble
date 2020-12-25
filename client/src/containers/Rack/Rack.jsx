@@ -824,7 +824,7 @@ export class Rack extends Component {
                 <div className="rackPieces">
                 </div>
                 <div className='rackButtons'>
-                    <div tyle={{cursor: 'pointer'}} title={`Bag with ${this.props.bagLength} remaining pieces`} onClick={this.toggleBag} className='bag'>
+                    <div style={{cursor: 'pointer'}} title={`Bag with ${this.props.bagLength} remaining pieces`} onClick={this.toggleBag} className='bag'>
                         <span><i className="fa fa-shopping-bag fa-2x"></i></span>
                         <span className="bagLength">{this.props.bagLength}</span>
                     </div>

@@ -648,7 +648,7 @@ export default class GameUser extends Component {
     );
     let gameComponents = (
       <div className="entry columns is-vcentered">
-        <div className="column is-two-thirds">
+        <div className="column is-two-thirds" style={{paddingRight: '40px'}}>
           <Board
             socket={this.socket}
             name={this.state.name}
@@ -661,7 +661,7 @@ export default class GameUser extends Component {
         </div>
         <div className="column"></div>
         <div className="column"></div>
-        <div className="column is-one-third">
+        <div className="column is-one-third" style={{paddingLeft: '40px'}}>
           <div className="extras">
             <div className="connection">
               <span id="connstatus">

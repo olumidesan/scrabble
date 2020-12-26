@@ -18,11 +18,13 @@
     width: 300px;
     display: flex;
     margin: auto;
+    margin-right: 0;
     justify-content: center;
 }
 .rack {
     display: flex;
     margin: auto;
+    margin-right: 0;
     flex-direction: column;
 }
 .rackPieces {
@@ -154,10 +156,10 @@
 }
 
 .connection {
+    margin: auto;
     display: flex;
     align-self: flex-end;
-    margin-right: 15px;
-    margin-top: 5px;
+    margin-right: 0;
 }
 
 .bagLength {

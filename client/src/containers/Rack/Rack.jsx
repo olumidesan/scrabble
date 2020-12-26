@@ -598,28 +598,28 @@ export class Rack extends Component {
         let validCount = 0;
 
         playedPieces.forEach((piece, index) => {
-            if ((index + 1) !== playedPieces.length) {
-                // Get the tile for the piece by the playDirection
-                let tileIndex = this.getTilePositionOnBoard(piece.parentNode);
-                let tile = this.boardTiles[tileIndex + loopLength];
+            // if ((index + 1) !== playedPieces.length) {
+            // Get the tile for the piece by the playDirection
+            let tileIndex = this.getTilePositionOnBoard(piece.parentNode);
+            let tile = this.boardTiles[tileIndex + loopLength];
 
-                // If it doesn't have a first child, then no new piece was appended to it
-                // Invalidate the play
-                if (tile.firstChild === null) {
-                    return false;
-                }
-                // Get the classlist of the piece by the playDirection
-                let pieceClasses = [...tile.firstChild.classList];
-
-                condition = boardIsEmpty ?
-                    pieceClasses.includes('bp') :
-                    condition = pieceClasses.includes('bp') || pieceClasses.includes('vP');
-
-                // Includes either
-                if (condition) {
-                    validCount += 1;
-                }
+            // If it doesn't have a first child, then no new piece was appended to it
+            // Invalidate the play
+            if (tile.firstChild === null) {
+                return false;
             }
+            // Get the classlist of the piece by the playDirection
+            let pieceClasses = [...tile.firstChild.classList];
+
+            condition = boardIsEmpty ?
+                pieceClasses.includes('bp') :
+                condition = pieceClasses.includes('bp') || pieceClasses.includes('vP');
+
+            // Includes either
+            if (condition) {
+                validCount += 1;
+            }
+            // }
         });
 
         return validCount;

@@ -400,12 +400,14 @@ export default class GameUser extends Component {
 
       // Don't talk to yourself
       if (data.name !== this.state.name) {
+        speaker.innerText = `${speakerText} 🗣️`;
         setTimeout(() => {
-          speaker.innerText = `${speakerText} 🗣️`;
           this.audioElement.src = window.URL.createObjectURL(audioBlob);
           this.audioElement.play();
-          speaker.innerText = speakerText;
-        }, 50);
+          setTimeout(() => {
+            speaker.innerText = speakerText
+          }, 2000);
+        }, 100);
       }
     });
 
@@ -463,7 +465,7 @@ export default class GameUser extends Component {
 
         // Update the score board with the score
         let scoreDiv = document.getElementById(`score_${data.name}`);
-        scoreDiv.innerText = parseInt(scoreDiv.innerText) + data.score;
+        scoreDiv.innerText = data.updatedScore;
       }
 
       // If the player's rack is empty and the bag is also

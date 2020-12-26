@@ -11,6 +11,7 @@ export class Rack extends Component {
         this.boardTiles = null;
 
         this.state = {
+            usesHTTPS: false,
             currentPieces: []
         }
     }
@@ -401,7 +402,7 @@ export class Rack extends Component {
                 });
             }
             else {
-                toast.error("Err...You haven't played anything. You can alternatively skip your turn.");
+                toast.error("You haven't played anything. You can alternatively skip your turn.");
                 return;
             }
         }
@@ -791,7 +792,14 @@ export class Rack extends Component {
     //     return boardState;
     // }
 
+    isHTTPSContext = () => {
+        this.setState({ usesHTTPS: isSecureContext });
+    }
+
     componentDidMount = () => {
+
+        this.isHTTPSContext();
+
         // Assign global variable
         this.boardTiles = document.querySelectorAll('.tile');
 
@@ -820,16 +828,17 @@ export class Rack extends Component {
                         <section id="bagHome" className="modal-card-body">
                         </section>
                     </div>
+
                 </div>
                 <div className="rackPieces">
                 </div>
                 <div className='rackButtons'>
-                    <div style={{cursor: 'pointer'}} title={`Bag with ${this.props.bagLength} remaining pieces`} onClick={this.toggleBag} className='bag'>
+                    <div style={{ cursor: 'pointer' }} title={`Bag with ${this.props.bagLength} remaining pieces`} onClick={this.toggleBag} className='bag'>
                         <span><i className="fa fa-shopping-bag fa-2x"></i></span>
                         <span className="bagLength">{this.props.bagLength}</span>
                     </div>
                     <div className="buttons is-fullwidth has-addons">
-                        {/* <button id="micstatus" title="Record" onClick={this.props.changeRecordingStatus} className="button rackButton is-dark"><i className="fas fa-microphone-alt-slash"></i></button> */}
+                        {this.state.usesHTTPS ? <button id="micstatus" title="Record" onClick={this.props.changeRecordingStatus} className="button rackButton is-dark"><i className="fas fa-microphone-alt-slash"></i></button> : null}
                         <button title="Recall Pieces" onClick={this.recallPieces} className="button rackButton is-link"><i className="fas fa-undo"></i></button>
                         <button title="Shuffle Pieces" onClick={this.shufflePieces} className="button rackButton is-link"><i className="fas fa-random"></i></button>
                         {/* <button title="Swap Pieces" onClick={this.swapPieces} className="button rackButton is-link"><i className="fas fa-exchange-alt"></i></button> */}

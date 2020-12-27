@@ -7,6 +7,8 @@ from threading import Lock
 from app.api.utils import (rooms, 
                            make_bag, 
                            get_all_pieces, 
+                           get_player_score,
+                           set_player_score,
                            get_player_to_play, 
                            get_remaining_pieces)
 
@@ -59,6 +61,7 @@ def from_host(data):
     rooms[room]['bag'] = make_bag()
     rooms[room]['final_scores'] = []
     rooms[room]['player_turns'] = []
+    rooms[room]['player_scores'] = {}
 
     emit('gameStart', data, room=room)
 
@@ -68,6 +71,14 @@ def in_play_event(data):
     Event handler for in play happenings
     """
     emit('inPlay', data, room=data.get('roomID'))
+
+
+@sio.on('radio')
+def radio(data):
+    """
+    Event handler for in voice transmissions
+    """
+    emit('voiceT', data, room=data.get('roomID'))
 
 @sio.on('recallEvent')
 def recall_event(data):
@@ -88,6 +99,11 @@ def play_event(data):
     data['bagItems'] = get_all_pieces(room)
     data['bagLength'] = get_remaining_pieces(room)
     data['playerToPlay'] = get_player_to_play(room)
+
+    if not data.get('isTurnSkipped'):
+        updated_score = data['score'] + get_player_score(data.get('name'), room)
+        set_player_score(data.get('name'), room, updated_score)
+        data['updatedScore'] = updated_score
     
     emit('validPlay', data, room=room)
 
@@ -102,6 +118,7 @@ def draw_event(data):
     # Save all players in a room and their turns
     for o_o in ordered_players: # Lol o_o
         rooms[room]['players'].append(o_o)
+        rooms[room]['player_scores'][o_o] = 0
         rooms[room]['player_turns'].append(o_o)
 
     # Convert player turns into round robin list

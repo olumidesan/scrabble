@@ -90,6 +90,18 @@ def get_player_to_play(room_id):
     """Returns the player to play next in a given room"""
     return next(rooms[room_id]['player_turns'])    
 
+## --------------------------------------------------
+## Keep cache of players' scores to prevent changing
+## scores by DOM manipulation
+def get_player_score(name, room_id):
+    """Returns the player's score in a given room"""
+    return rooms[room_id]['player_scores'].get(name)
+
+def set_player_score(name, room_id, score):
+    """Sets the player's score in a given room"""
+    rooms[room_id]['player_scores'][name] = score
+## ---------------------------------------------------
+
 def get_remaining_pieces(room_id): 
     """
     Returns the number of pieces left 

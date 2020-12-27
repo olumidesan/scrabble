@@ -8,6 +8,7 @@ from app.api.utils import (rooms,
                            make_bag, 
                            get_all_pieces, 
                            get_player_score,
+                           set_player_score,
                            get_player_to_play, 
                            get_remaining_pieces)
 
@@ -98,8 +99,11 @@ def play_event(data):
     data['bagItems'] = get_all_pieces(room)
     data['bagLength'] = get_remaining_pieces(room)
     data['playerToPlay'] = get_player_to_play(room)
+
     if not data.get('isTurnSkipped'):
-        data['updatedScore'] = data['score'] + get_player_score(data.get('name'), room)
+        updated_score = data['score'] + get_player_score(data.get('name'), room)
+        set_player_score(data.get('name'), room, updated_score)
+        data['updatedScore'] = updated_score
     
     emit('validPlay', data, room=room)
 

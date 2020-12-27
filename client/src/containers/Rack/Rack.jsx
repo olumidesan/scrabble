@@ -496,7 +496,6 @@ export class Rack extends Component {
         }
         else { // 2 or more pieces were played
             let playDirection = this.getPlayDirection(playedPieces);
-
             // Validate that the play direction didn't oscillate between the two
             // options
             if (playDirection === false) {
@@ -543,7 +542,6 @@ export class Rack extends Component {
 
     validateNearestNeighbours = (playedPieces) => {
         let validCount = 0;
-
         playedPieces.forEach(piece => {
             let tilesToCheck = [];
             let indexLeft, indexUp, indexDown, indexRight;
@@ -588,6 +586,7 @@ export class Rack extends Component {
                     }
                 }
             });
+
         });
 
         return validCount;
@@ -601,27 +600,70 @@ export class Rack extends Component {
             // if ((index + 1) !== playedPieces.length) {
             // Get the tile for the piece by the playDirection
             let tileIndex = this.getTilePositionOnBoard(piece.parentNode);
-            let tile = this.boardTiles[tileIndex + loopLength];
+            let tileNext = this.boardTiles[tileIndex + loopLength];
+            let tilePrevious = this.boardTiles[tileIndex - loopLength];
 
-            // If it doesn't have a first child, then no new piece was appended to it
-            // Invalidate the play
-            if (tile.firstChild === null) {
-                return false;
+            if (index === 0) {
+                if (tileNext.firstChild === null) {
+                    validCount -= 1;
+                }
+                else {
+                    // Get the classlist of the piece by the playDirection
+                    let pieceClasses = [...tileNext.firstChild.classList];
+
+                    condition = boardIsEmpty ?
+                        pieceClasses.includes('bp') :
+                        pieceClasses.includes('bp') || pieceClasses.includes('vP');
+
+                    // Includes either
+                    if (condition) {
+                        validCount += 1;
+                    }
+                }
             }
-            // Get the classlist of the piece by the playDirection
-            let pieceClasses = [...tile.firstChild.classList];
+            else if ((index + 1) === playedPieces.length) {
+                if (tilePrevious.firstChild === null) {
+                    validCount -= 1;
+                }
+                else {
+                    // Get the classlist of the piece by the playDirection
+                    let pieceClasses = [...tilePrevious.firstChild.classList];
 
-            condition = boardIsEmpty ?
-                pieceClasses.includes('bp') :
-                condition = pieceClasses.includes('bp') || pieceClasses.includes('vP');
+                    condition = boardIsEmpty ?
+                        pieceClasses.includes('bp') :
+                        pieceClasses.includes('bp') || pieceClasses.includes('vP');
 
-            // Includes either
-            if (condition) {
-                validCount += 1;
+                    // Includes either
+                    if (condition) {
+                        validCount += 1;
+                    }
+                }
             }
-            // }
+            else {
+                if (tilePrevious.firstChild === null || tileNext.firstChild === null) {
+                    validCount -= 1;
+                }
+                else {
+                    let condition1, condition2;
+                    // Get the classlist of the piece by the playDirection
+                    let pieceClasses1 = [...tileNext.firstChild.classList];
+                    let pieceClasses2 = [...tilePrevious.firstChild.classList];
+
+                    condition1 = boardIsEmpty ?
+                        pieceClasses1.includes('bp') :
+                        pieceClasses1.includes('bp') || pieceClasses1.includes('vP');
+
+                    condition2 = boardIsEmpty ?
+                        pieceClasses2.includes('bp') :
+                        pieceClasses2.includes('bp') || pieceClasses2.includes('vP');
+
+                    // Includes either
+                    if (condition1 && condition2) {
+                        validCount += 1;
+                    }
+                }
+            }
         });
-
         return validCount;
     }
 

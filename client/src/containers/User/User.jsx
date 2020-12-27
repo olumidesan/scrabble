@@ -20,7 +20,7 @@ export default class GameUser extends Component {
     });
     this.audioElement = document.getElementById("audioT");
 
-    // this.socket = io(window.hostURL), { transports: ['websocket'] });
+    // this.socket = io(window.hostURL, { transports: ['websocket'] });
     this.md = null;
     // Randomly generated id that represents the game room, just in case the client
     // decides to be a game session host

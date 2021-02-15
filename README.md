@@ -34,7 +34,7 @@ As a host, you need the following:
 
 ### Sneak-Peak
 Gameplay sneak-peak
-![](gameplay.png)
+![](gameplay_update.png)
 
 ### Motivation
 It's Corona times, sadly, and we're stuck indoors for who knows how long. My housemates and I play Scrabble on our game nights. However, gameplay isn't as smooth, as we have to turn the Scrabble board each time its our turn, usually causing the pieces to jangle.

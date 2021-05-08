@@ -8,7 +8,7 @@ verify_ssl = true
 [packages]
 click = "==7.1.1"
 dnspython = "==1.16.0"
-eventlet = "==0.25.2"
+eventlet = "==0.31.0"
 greenlet = "==0.4.15"
 itsdangerous = "==1.1.0"
 monotonic = "==1.5"

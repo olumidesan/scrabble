@@ -1,8 +1,10 @@
 ### Future fixes/features
-- Time limit to play feature | config
 - Play logs and connection status | config
-- Refactor app to use strict React componentization
 - Cater for shaky connections. Currently, if connection gets lost,
   there are socketio errors
 - Game save feature (save board state and player rack, everything). Currently, if player refreshes his/her browser, the whole game has to be restarted
-- Implement piece swapping
+
+
+## Possible bugs
+- Update scoring to add other players' scores to the player's whose rack was emptied
+- In-rack drag on not turn

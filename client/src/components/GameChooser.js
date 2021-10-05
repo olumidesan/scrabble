@@ -28,7 +28,7 @@ const GameChooser = (props) => {
                 </button> */}
             </div>
             <div className="flex my-4 mb-2 space-x-6 block justify-center">
-                <div className="text-gray-400">Familiarize yourself with the <a className="text-blue-500" href="#">Game Notes</a> before you begin</div>
+                <div className="text-gray-400">Familiarize yourself with the <a className="text-blue-500" href="https://github.com/olumidesan/scrabble" target="_blank" referrerPolicy="no-referrer">Game Notes</a> before you begin</div>
             </div>
         </div>
     )

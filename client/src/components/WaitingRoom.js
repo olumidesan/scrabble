@@ -58,7 +58,7 @@ const WaitingRoom = (props) => {
 
             // Dilly-dally for effect
             setTimeout(() => {
-                setPrepText("Populating rack...")
+                setPrepText("Fetching game bag...")
             }, 1500);
             
             setTimeout(() => {

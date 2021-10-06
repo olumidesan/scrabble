@@ -124,7 +124,7 @@ const Rack = (props) => {
     }, [playedWords.current]);
 
 
-    // Get 7 pieces when game starts
+    // Play timer implementation
     useEffect(() => {
         // Set the default countdown
         setCountDown(timeToPlay.current);
@@ -144,8 +144,8 @@ const Rack = (props) => {
 
 
     // Get actual played word
-    // Strategy is to weight each played word by the
-    // pieces played from the rack and chose highest
+    // Strategy is to weigh each played word by the
+    // pieces played from the rack and choose highest
     const getPlayedWord = (playedWords, playedPieces) => {
         let playedWord, wordWeight = 0;
 
@@ -355,7 +355,8 @@ const Rack = (props) => {
         }
     }
 
-
+    // Get tiles played on a row or column within the
+    // bounds of the first and last tile the player played
     const getNeigbouringTiles = (tile, playDirection, playedTiles) => {
         let tiles = [], allTiles = [];
         let source = playDirection === "horizontal" ? getTileRow(tile) : getTileColumn(tile);
@@ -366,7 +367,7 @@ const Rack = (props) => {
         // Loop fifteen tiles, that is
         // all tiles in row or column
         for (let i = 0; i < 15; i++) {
-            // Get scrabble tiles
+            // Get played tiles
             if (playedTiles.includes(startTile)) tiles.push(startTile)
 
             // Push irregardless
@@ -379,7 +380,6 @@ const Rack = (props) => {
 
         // Return tile range between 
         // played/cemented tiles
-
         return allTiles.slice(first, last + 1);
     }
 

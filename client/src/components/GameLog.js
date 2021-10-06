@@ -14,7 +14,7 @@ const GameLog = (props) => {
     // Close modal
     const closeModal = () => setShowModal(false);
 
-    // If game ends, recompute score and announce
+    // Get logs from the server when div is pressed
     useEffect(async () => {
         if (showModal.current) {
             let response = await makeServerRequest({

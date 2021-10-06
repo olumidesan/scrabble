@@ -49,9 +49,10 @@ def on_join(data):
     data['enableAudio'] = existing_game_room.audio_is_enabled
     data['connectedPlayers'] = existing_game_room.get_connected_players()
 
+    # Not Implemented
     # If it's not a reconnection event
-    if not data.get('isReconnection'):
-        emit('joinedRoom', data, room=room_id)
+    # if not data.get('isReconnection'):
+    #     emit('joinedRoom', data, room=room_id)
 
 
 @sio.on('leave')
@@ -175,17 +176,3 @@ def draw_event(data):
     data['bag'] = game_room.get_bag()
 
     emit('drawDone', data, room=room_id)
-
-
-# @sio.on('finalBoardUpdate')
-# def board_update(data):
-#     """
-#     Event handler for the final board update
-#     signifying the end of the game
-#     """
-#     room = data.get('roomID')
-
-#     # If all players have announced their final score
-#     if len(rooms[room]['final_scores']) == len(rooms[room]['players']):
-#         emit('gameEnd', {
-#              "finalPlayerScores": rooms[room]['final_scores']}, room=room)

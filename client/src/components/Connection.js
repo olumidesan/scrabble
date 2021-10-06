@@ -41,7 +41,7 @@ const Connection = (props) => {
             setPing(pingDuration); // Save difference
 
             // Set Icon
-            if (pingDuration < 100) setStatus("on");
+            if (pingDuration < 120) setStatus("on");
             else if (pingDuration < 500) setStatus("warning");
             else setStatus("off");
         }

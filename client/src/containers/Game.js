@@ -7,6 +7,8 @@ import LandingPage from '../components/LandingPage';
 import WinnerModal from '../components/WinnerModal';
 
 
+// [TODO] Definitely need to revamp this
+
 // Game has two played pieces store
 // The rack's own for its own use,
 // and the Game's own for use with

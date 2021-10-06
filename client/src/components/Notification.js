@@ -43,28 +43,12 @@ const Notification = (props) => {
                 <div className="pb-2"></div>
             </div>;
 
-            // ns.push(newNotification);
-
             // Add to state
             setTimeoutNotifications([newNotification]);
-            // setTimeoutNotifications([...timeoutNotifications.current, newNotification]);
         }
     }, [notifications.current]);
-
-    // useEffect(() => {
-    //     // for (const notification of timeoutNotifications.current) {
-    //     //     let oldNotifications = timeoutNotifications.current.filter((n) => n !== notification);
-    //     //     setTimeout(() => {
-    //     //         setTimeoutNotifications(oldNotifications);
-    //     //     }, 5000);
-    //     // }
-    // }, [timeoutNotifications.current]);
-
-    // message = `played 'BIMODAL' worth 40 points. You will also be notified of any other thing like this. Audio
-    // // is enabled too. Just so you know. Enjoy! ✨`;
 
     return (timeoutNotifications.current)
 };
 
-// {/* <span className="inline text-left"><span className="">{player}</span> {message}.</span> */ }
 export default Notification;

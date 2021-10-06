@@ -37,7 +37,7 @@ As a host, you need the following:
 - Ensure the virtual environment is activated. Then, using `pipenv`, install the game's requirements: `pipenv install`.
 - When that's done, simply run `pipenv run python3 wsgi.py`. This starts the game server.
 - By default, the application tries to get your local private IP address (not `localhost`) to run on. However, if you're using a VPN or are on a weird network, it may get it wrong. Feel free to modify the `host` variable in the `wsgi.py` file to your actual local private IP address. The only caveat is that you have to host the app on the private IP address and not `localhost`. This is in order to allow other players on your network to visit the application. 
-- Modify firewall permissions to allow incoming traffic from port 5005.
+- Modify firewall permissions to allow incoming traffic from port `5005`.
 - Navigate to your local private IP address (`192.168...:5005`) and get playing. 
 - Host a game session. During this, a Game ID would be automatically generated for you. Share this with the people you want to play with.
 

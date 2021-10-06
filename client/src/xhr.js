@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { API_URL } from './constants'
+import { API_URL, SERVER_TOKEN } from './constants'
 
 axios.defaults.baseURL = API_URL;
 axios.defaults.headers.post['Content-Type'] = 'application/json';
-axios.defaults.headers.common['Authorization'] = `Bearer ${window.b2ctk}`;
+axios.defaults.headers.common['Authorization'] = `Bearer ${SERVER_TOKEN}`;
 
 axios.interceptors.request.use(request => {
     // console.log(request);

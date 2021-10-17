@@ -3,7 +3,7 @@ A strictly multi-player Scrabble game that allows gameplay between people on a n
 
 ### Extra Features
 - Time to play: Game host can configure a time within which each player must play before the turn is automatically skipped.
-- Push to Talk: Allows players talk to each other via PTT audio. Only works over HTTPS due to security policies.
+- Push to Talk: Allows players talk to each other via PTT audio. Only works over HTTPS or `localhost` due to security policies.
 - 3-Try-Validation: Each player has at most three tries to play a valid word (since challenging plays isn't possible), before which the turn is automatically skipped.
 - Game Logs: See history of in-game plays.
 
@@ -33,7 +33,7 @@ As a host, you need the following:
 - By default, the application tries to get your local private IP address (not `localhost`) to run on. However, if you're using a VPN or are on a weird network, it may get it wrong. Feel free to modify the `host` variable in the `wsgi.py` file to your actual local private IP address. The only caveat is that you have to host the app on the private IP address and not `localhost`. This is in order to allow other players on your network to visit the application. 
 - Modify firewall permissions to allow incoming traffic from port `5005`.
 - Navigate to your local private IP address (`192.168...:5005`) and get playing. 
-- Host a game session. During this, a Game ID would be automatically generated for you. Share this with the people you want to play with.
+- Host a game session. During this, a Session ID would be automatically generated for you. Share this with the people you want to play with.
 
 ### Sneak-Peak
 Gameplay sneak-peak
@@ -42,7 +42,7 @@ Gameplay sneak-peak
 ### Known Issues / Ongoing Bug Fixes
 - Certain in-rack drags of pieces cause them to disappear. Only happens if it's not your turn to play.
 - The final scoring pipeline hasn't been updated to add the scores of other players to the player who emptied his/her rack to end the game.
-- Zoom needs to be adjusted (reduced or increased) to get proper game layout. This isn't anything but my poor CSS skills. I should fix this soon
+- Zoom needs to be adjusted (reduced or increased) to get proper game layout.  My display is 1920x1080 and it was developed for that. This isn't anything but my [very] poor CSS skills. I should fix this soon
 - Game cannot be resumed, so do not refresh your page once the game starts. I'm currently working on adding this feature.
 
 ### Collaborations and Development

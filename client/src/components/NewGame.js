@@ -163,18 +163,24 @@ const NewGame = (props) => {
 
                         </div>
                     </div>
-                    <div className="flex self-center wrap mx-3 mb-4">
-                        <div className="w-full px-3">
-                            <div title="If checked, push-to-talk audio between players will be allowed. That is, of course, if the player allows it" className="w-80 cursor-help md:flex md:items-center mb-2">
-                                <label className="pb-1 block text-gray-500 font-bold">
-                                    <input onChange={handleEnableAudioChange} className="mr-2 leading-tight h-5 w-5" type="checkbox" />
-                                </label>
-                                <span className="text-sm pb-2">
-                                    Enable Audio Chat (Push-To-Talk)
-                                </span>
+                    {/* Audio chat is only available locally or when deployed on an SSL-enabled server */}
+                    {window.location.protocol === 'https' || window.location.hostname === 'localhost'
+                        ?
+                        <div className="flex self-center wrap mx-3 mb-4">
+                            <div className="w-full px-3">
+                                <div title="If checked, push-to-talk audio between players will be allowed. That is, of course, if the player allows it" className="w-80 cursor-help md:flex md:items-center mb-2">
+                                    <label className="pb-1 block text-gray-500 font-bold">
+                                        <input onChange={handleEnableAudioChange} className="mr-2 leading-tight h-5 w-5" type="checkbox" />
+                                    </label>
+                                    <span className="text-sm pb-2">
+                                        Enable Audio Chat (Push-To-Talk)
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                        :
+                        null
+                    }
                     <div className="h-14 border-t flex border">
                         <div className="block w-1/2">
                             <button onClick={() => props.setGameChoice("cancel")} className="h-full w-full bg-red-600 hover:bg-red-700 text-white font-bold border border-red-700 inline-flex justify-center items-center">

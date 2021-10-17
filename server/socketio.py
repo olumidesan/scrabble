@@ -6,7 +6,6 @@ from .data import GameRoom, GameRooms, Player
 from flask_socketio import join_room, leave_room, emit
 
 
-game_events = {}
 game_rooms = GameRooms()
 
 
@@ -52,7 +51,7 @@ def on_join(data):
     # Not Implemented
     # If it's not a reconnection event
     # if not data.get('isReconnection'):
-    #     emit('joinedRoom', data, room=room_id)
+    emit('joinedRoom', data, room=room_id)
 
 
 @sio.on('leave')

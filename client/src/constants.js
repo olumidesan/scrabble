@@ -1,6 +1,6 @@
 
 // In PROD, Jinja would pass the host url to the window object as apiURL
-const URL = window.apiURL === '{{ ip }}' ? 'http://192.168.0.166:5005' : window.apiURL;
+const URL = window.apiURL === '{{ ip }}' ? 'http://192.168.0.167:5005' : window.apiURL;
 const SERVER_TOKEN = window.b2ctk === '{{ b2ctk }}' ? 'ScrabbleDevToken' : window.b2ctk;
 
 const API_URL = `${URL}/api/v1`;

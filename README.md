@@ -12,6 +12,8 @@ To create a production build, and make the Flask server run the entire applicati
 - Push to Talk: Allows players talk to each other via PTT audio. Only works over HTTPS or `localhost` due to security policies.
 - 3-Try-Validation: Each player has at most three tries to play a valid word (since challenging isn't possible), before which the turn is automatically skipped.
 - Game Logs: See history of in-game plays.
+- AutoSave: Game automatically saves, so you can always resume it.
+- Resume Game: If you leave a game session, you can resume it using the session ID and the names of the players who played in the session.
 
 ### Requirements
 - A laptop, or any device that allows dragging web elements with a mouse.
@@ -49,7 +51,6 @@ Gameplay sneak-peak
 - Certain in-rack drags of pieces cause them to disappear. Only happens if it's not your turn to play.
 - The final scoring pipeline hasn't been updated to add the scores of other players to the player who emptied his/her rack to end the game.
 - Zoom needs to be adjusted (reduced or increased) to get proper game layout. This isn't anything but my poor CSS skills. I should fix this soon
-- Game cannot be resumed, so do not refresh your page once the game starts. I'm currently working on adding this feature.
 
 
 ### Collaborations and Development

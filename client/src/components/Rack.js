@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useContext } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import { SocketIOContext, ValidDragContext, GameContext, NotificationContext } from '../context';
-import { getDragData, inPlaceShuffle, secondsToMMSS } from '../utils';
+import { excludeMeSioEvent, getDragData, inPlaceShuffle, secondsToMMSS } from '../utils';
 import { useStateRef } from '../hooks';
 import makeServerRequest from '../xhr';
 import { Clock } from 'react-feather';
@@ -8,12 +8,14 @@ import SwapModal from './SwapModal';
 import Controls from './Controls';
 import Piece from './Piece';
 import Bag from './Bag';
+import { timeoutDelay } from '../constants';
 
 
 
 const Rack = (props) => {
 
     const thisRack = useRef();
+    const [pingIntervalID, setPingIntervalID] = useState();
     const [_c, setTryCount, tryCount] = useStateRef(0);
     const [_, setPieces, currPieces] = useStateRef([]);
     const [__, setStartSwap, startSwap] = useStateRef(false);
@@ -23,7 +25,7 @@ const Rack = (props) => {
     const sio = useContext(SocketIOContext);
     const { setValidDrag } = useContext(ValidDragContext);
     const { notifications, setNotifications } = useContext(NotificationContext);
-    const { player, setPlayer, bag, setPlayedWords, setPlayFlag, gameStarted, timeToPlay, playedTiles, playedWords, usedTiles, gameEnded, setRecallFlag } = useContext(GameContext);
+    const { player, gameResumed, boardState, gameExited, rackState, setRackState, setPlayer, bag, setPlayedWords, setPlayFlag, gameStarted, timeToPlay, playedTiles, playedWords, usedTiles, gameEnded, setRecallFlag } = useContext(GameContext);
     const [_a_, setCountDown, countDown] = useStateRef(timeToPlay.current);
 
 
@@ -34,7 +36,17 @@ const Rack = (props) => {
                 setPieces(await getFromBag(7));
             }
         }
-        getPieces();
+
+        // If game is resumed, use set pieces, 
+        // else if new game, fetch pieces from server
+        if (rackState.current.length !== 0) {
+            setPieces(rackState.current);
+            setTimeout(() => {
+                sio.emit("resumeEvent", { roomID: player.current.roomID });
+                setRackState([]);
+            }, 3000);
+        }
+        else getPieces();
     }, []); // [] ensures only on first render
 
 
@@ -398,7 +410,7 @@ const Rack = (props) => {
         for (const tile of tiles) {
             if (!usedTiles.current.includes(tile) && !playedTiles.includes(tile)) {
                 valid = false;
-                return valid;   
+                return valid;
             }
         }
 
@@ -416,7 +428,7 @@ const Rack = (props) => {
             if (tileLeft >= 0) linkedTiles.push(tileLeft)
 
             if (tileDown <= 224) linkedTiles.push(tileDown)
-            if (tileRight <= 224)  linkedTiles.push(tileRight)
+            if (tileRight <= 224) linkedTiles.push(tileRight)
 
             // Check all linked tiles
             linkedTiles.forEach((tileTC) => {
@@ -436,7 +448,7 @@ const Rack = (props) => {
     const initiatePlayPipeline = (playedTiles, boardIsEmpty) => {
         let playDirection = getPlayDirection(playedTiles);
         let neighborsAreValid = validateNeighbors(playedTiles, boardIsEmpty, playDirection);
-        
+
         // Must play in just one direction or weird play move
         if (playDirection === "both" || !neighborsAreValid) {
             setNotifications([{
@@ -461,7 +473,7 @@ const Rack = (props) => {
         }
 
         // If it's the player's turn and the game has started
-        if (player.current.turn && gameStarted.current) {
+        if (player.current.turn && (gameStarted.current || gameResumed.current)) {
 
             // If nothing was played. Warn player...
             if (currPlayedPieces.current.length === 0) {
@@ -507,7 +519,7 @@ const Rack = (props) => {
             return;
         }
 
-        if (player.current.turn && gameStarted.current) {
+        if (player.current.turn && (gameStarted.current || gameResumed.current)) {
             // Pieces in bag must be more than 7 to swap
             if (bag.current.length <= 7) {
                 setNotifications([
@@ -546,7 +558,7 @@ const Rack = (props) => {
             return;
         }
 
-        if (player.current.turn && gameStarted.current) {
+        if (player.current.turn && (gameStarted.current || gameResumed.current)) {
             // Merge back played pieces to current pieces on rack
             setPieces([...currPieces.current, ...currPlayedPieces.current]);
 
@@ -610,7 +622,7 @@ const Rack = (props) => {
             return;
         }
 
-        if (player.current.turn && gameStarted.current) {
+        if (player.current.turn && (gameStarted.current || gameResumed.current)) {
             let shouldSkipTurn = window.confirm("Are you sure you want to skip your turn?");
             if (shouldSkipTurn) actualTurnSkip();
         }
@@ -648,7 +660,7 @@ const Rack = (props) => {
 
             // Don't allow drags of cemented tiles
             if (!usedTiles.current.includes(pieceData.tileID)) {
-                // Get piece dragged back from the ones in raack state
+                // Get piece dragged back from the ones in rack state
                 let piece = findPiece(pieceData, currPlayedPieces.current);
 
                 // Tell other players
@@ -666,17 +678,76 @@ const Rack = (props) => {
         }
     }
 
+
+    // Save rack state in interval (autosave)
+    useEffect(() => {
+        let iID = setInterval(() => {
+            // Save the pieces on the rack
+            if (currPieces.current.length > 0) {
+                setRackState([...currPieces.current, ...currPlayedPieces.current]);
+            }
+        }, timeoutDelay);
+
+        setPingIntervalID(iID);
+        return () => clearInterval(pingIntervalID);
+    }, []); // [] Ensures only on first render
+
+
+    // Save board and player rack
+    const saveGame = async () => {
+        let payload = {
+            player: player.current,
+            rack: rackState.current,
+            board: boardState.current,
+            roomID: player.current.roomID,
+        }
+
+        await makeServerRequest({ requestType: 'post', url: `/cache`, payload: payload });
+    }
+
+
+    // If game is exited, save first
+    useEffect(async () => {
+        if (gameExited.current) {
+            recall(); // Recall any played piece(s)
+            await saveGame(); // Save the game state
+            alert("Note that you can still resume this game session using your name and the session ID.");
+
+            setTimeout(() => {
+                sio.emit("leave", { roomID: player.current.roomID, name: player.current.name })
+                window.location.reload(); // Refresh page (go to home page)                            
+            }, 700);
+        }
+    }, [gameExited.current]);
+
+
+    // If game is exited by any player, then let me know
+    // Also save the game first and recall any pieces
+    useEffect(() => {
+        sio.on("leftRoom", async (data) => {
+            if (data.name !== player.current.name) {
+                recall();
+                await saveGame();
+                alert(`${data.name} has left the game session. Note that you can still resume this game session using your name and the session ID.`);
+                setTimeout(() => {
+                    window.location.reload(); // Refresh page (go to home page)                            
+                }, 700);
+            }
+        })
+    }, []);
+
+
     const handleDragOver = (e) => e.preventDefault();
     const handleDragEnter = (e) => e.preventDefault();
     const handleDragLeave = (e) => e.preventDefault();
 
-    // // Effects
+    // Effects
     useEffect(() => thisRack.current.addEventListener("drop", handleDragDrop));
     useEffect(() => thisRack.current.addEventListener("dragover", handleDragOver));
     useEffect(() => thisRack.current.addEventListener("dragleave", handleDragLeave));
     useEffect(() => thisRack.current.addEventListener("dragenter", handleDragEnter));
 
-    const classNames = gameStarted.current ? "flex justify-between items-end" : "flex justify-end items-end";
+    const classNames = (gameStarted.current || gameResumed.current) ? "flex justify-between items-end" : "flex justify-end items-end";
 
     // Render
     return (
@@ -700,7 +771,7 @@ const Rack = (props) => {
             <div className={classNames}>
 
                 {/* Show bag only when game has started */}
-                {gameStarted.current ? <Bag bag={bag.current} /> : null}
+                {gameStarted.current || gameResumed.current ? <Bag bag={bag.current} /> : null}
 
                 <Controls
                     gameStarted={gameStarted}

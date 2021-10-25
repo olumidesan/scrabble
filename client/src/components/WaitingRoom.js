@@ -10,7 +10,7 @@ const WaitingRoom = (props) => {
     const { setNotifications } = useContext(NotificationContext);
     const [_, setConnectedPlayers, connectedPlayers] = useStateRef([]);
     const [_s, setPrepText, prepText] = useStateRef("Preparing game room...");
-    const { player, setGameCreated, setAllowAudio, setPlayers, setTimeToPlay } = useContext(GameContext);
+    const { player, setRackState, setGameResumed, setGameCreated, setAllowAudio, setPlayers, setUsedTiles, setTimeToPlay } = useContext(GameContext);
 
 
     useEffect(() => {
@@ -29,13 +29,14 @@ const WaitingRoom = (props) => {
             setConnectedPlayers(data.connectedPlayers);
 
             // If it's not my connection event
-            if (data.player.name !== player.current.name) {
-                // Game should start if the required number of players is reached and I'm the host
-                if (connectedPlayers.current.length === props.numPlayers && player.current.isHost) {
-                    sio.emit("gameCreateEvent", { roomID: props.roomID });
-                }
+            // if (data.player.name !== player.current.name) {
+            // Game should start if the required number of players is reached and I'm the host
+            if (connectedPlayers.current.length === props.numPlayers && player.current.isHost) {
+                sio.emit(data.mode === 'create' ? "gameCreateEvent" : "gameResumeEvent", { roomID: props.roomID });
             }
+            // }
         });
+
 
         // When game is created, overwrite 
         // players with what host sent
@@ -50,7 +51,7 @@ const WaitingRoom = (props) => {
                 {
                     message: `Welcome, ${player.current.name}! ${welcomeMessage} be notified (just like this) of who gets to play first. Good luck! 🍀`,
                     overwrite: false,
-                    type: "success",
+                    type: "info",
                 }
             ]);
 
@@ -60,10 +61,47 @@ const WaitingRoom = (props) => {
             setTimeout(() => {
                 setPrepText("Fetching game bag...")
             }, 1500);
-            
+
             setTimeout(() => {
                 setGameCreated(true);
             }, 3500);
+
+        }, []);
+
+        // When game is resumed, overwrite 
+        // players with what host sent
+        // and signal that game has started
+        sio.on("gameResume", (data) => {
+
+            setNotifications([
+                {
+                    message: `Welcome back, ${player.current.name}. Again, Good luck! 🍀`,
+                    overwrite: false,
+                    type: "info",
+                }
+            ]);
+
+            setPlayers(data.allPlayers);
+
+            // Replace already played tiles on board
+            setUsedTiles(data.usedTiles);
+
+            // Replace rack
+            setRackState(data.rack[player.current.name])
+
+            // Dilly-dally for effect
+            setTimeout(() => {
+                setPrepText("Fetching your pieces...")
+            }, 1500);
+
+            // Dilly-dally for effect
+            setTimeout(() => {
+                setPrepText("Resuming board state...")
+            }, 3500);
+
+            setTimeout(() => {
+                setGameResumed(true);
+            }, 5500);
 
         }, []);
     }, []);

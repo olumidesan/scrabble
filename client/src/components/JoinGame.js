@@ -24,7 +24,7 @@ const JoinGame = (props) => {
         setSessionID({ ...sessionID, valid: true, roomID: e.target.value.trim() });
     }
 
-    const getGameRoomData = async (gameRoomID) => await makeServerRequest({ requestType: 'get', url: `/room/${gameRoomID}?name=${sessionName.name}`, payload: {} });
+    const getGameRoomData = async (gameRoomID, mode) => await makeServerRequest({ requestType: 'get', url: `/room/${gameRoomID}?name=${sessionName.name}&mode=${mode}`, payload: {} });
 
     const handleJoinGameSession = async () => {
 
@@ -46,7 +46,7 @@ const JoinGame = (props) => {
             return;
         }
 
-        const gameRoomData = await getGameRoomData(sessionID.roomID);
+        const gameRoomData = await getGameRoomData(sessionID.roomID, 'join');
 
         // If no game is created with that room/session ID
         if (gameRoomData.status === "error") {

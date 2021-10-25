@@ -17,12 +17,16 @@ const Game = () => {
 
     const [e________, setGameEnded, gameEnded] = useStateRef(false);
     const [g_______, setGameCreated, gameCreated] = useStateRef(false);
+    const [gd_______, setGameExited, gameExited] = useStateRef(false);
+    const [r_______, setGameResumed, gameResumed] = useStateRef(false);
     const [________, setGameStarted, gameStarted] = useStateRef(false);
     const [_sp, setPlayFlag, playFlag] = useStateRef(false);
     const [_, setRecallFlag, recallFlag] = useStateRef(false);
     const [_a, setAllowAudio, allowAudio] = useStateRef(false);
     const [_s, setTimeToPlay, timeToPlay] = useStateRef(null);
     const [__, setPlayedTiles, playedTiles] = useStateRef([]);
+    const [_b_, setBoardState, boardState] = useStateRef([]);
+    const [_r_, setRackState, rackState] = useStateRef([]);
     const [__pw, setPlayedWords, playedWords] = useStateRef([]);
     const [__f, setUsedTiles, usedTiles] = useStateRef([]);
     const [___, setValidDrag, validDrag] = useStateRef(true);
@@ -39,11 +43,15 @@ const Game = () => {
         playFlag, setPlayFlag,
         gameEnded, setGameEnded,
         usedTiles, setUsedTiles,
+        rackState, setRackState,
+        boardState, setBoardState,
         allowAudio, setAllowAudio,
         recallFlag, setRecallFlag,
+        gameExited, setGameExited,
         timeToPlay, setTimeToPlay,
         gameStarted, setGameStarted,
         gameCreated, setGameCreated,
+        gameResumed, setGameResumed,
         playedTiles, setPlayedTiles,
         playedWords, setPlayedWords,
     }
@@ -51,6 +59,47 @@ const Game = () => {
 
     // Register listeners
     useEffect(() => {
+        sio.on("ResumeDone", (data) => {
+            // Save bag
+            setBag(data.bag);
+            setGameResumed(true);
+            setGameStarted(true);
+
+
+            const updatedPlayers = [];
+            const playerToPlay = data.playerToPlay;
+            let playerToPlayMessage = "";
+
+            // Set turn for each player
+            for (const p of players.current) {
+                if (p.name === playerToPlay) {
+                    p['turn'] = true;
+                }
+                updatedPlayers.push(p);
+            }
+
+            // Update player's players
+            setPlayers(updatedPlayers);
+
+            // Say who gets to play first
+            if (playerToPlay === player.current.name) {
+                playerToPlayMessage = `You were to play before the game was paused`;
+                setPlayer({ ...player.current, turn: true })
+            } else {
+                playerToPlayMessage = `${playerToPlay} was to play before the play was paused`;
+            }
+
+            // Notify everyone
+            setNotifications([
+                {
+                    message: `${playerToPlayMessage}. The game has resumed.`,
+                    overwrite: false,
+                    type: "info",
+                    timeout: 5
+                }
+            ]);
+        });
+
         sio.on("drawDone", (data) => {
             // Save bag
             setBag(data.bag);
@@ -212,7 +261,7 @@ const Game = () => {
             message += ` ${turnPlayer} turn to play`;
         }
 
-        setNotifications([{ type: "info", message }]);
+        setNotifications([{ type: "success", message }]);
     }
 
 
@@ -228,7 +277,7 @@ const Game = () => {
             <NotificationContext.Provider value={{ notifications, setNotifications }}>
                 <GameContext.Provider value={gameContext}>
                     <ValidDragContext.Provider value={{ validDrag, setValidDrag }}>
-                        {gameCreated.current ? gameSpace : <LandingPage />}
+                        {gameCreated.current || gameResumed.current ? gameSpace : <LandingPage />}
                         <WinnerModal />
                     </ValidDragContext.Provider>
                 </GameContext.Provider>

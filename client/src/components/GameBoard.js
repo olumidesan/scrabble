@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { GameContext, SocketIOContext } from '../context';
 import { excludeMeSioEvent } from '../utils';
 import Legend from './Legend';
@@ -6,6 +6,7 @@ import Piece from './Piece';
 import Tile from './Tile';
 import Modal from './Modal';
 import { useStateRef } from '../hooks';
+import { timeoutDelay } from '../constants';
 
 
 // 15 tiles per row
@@ -14,10 +15,11 @@ const GameBoard = (props) => {
 
     let rows = [];
     const tileRefs = useRef([]);
+    const [pingIntervalID, setPingIntervalID] = useState();
 
     const sio = useContext(SocketIOContext);
     const [_, setRequestChoosePiece, requestChoosePiece] = useStateRef({ tileID: "", pieceID: "", status: false });
-    const { player, playFlag, usedTiles, setPlayFlag, playedTiles, setPlayedWords, setPlayedTiles, recallFlag, setRecallFlag } = useContext(GameContext);
+    const { player, playFlag, setUsedTiles, setBoardState, usedTiles, setPlayFlag, playedTiles, setPlayedWords, setPlayedTiles, recallFlag, setRecallFlag } = useContext(GameContext);
 
 
     // Register Event Listeners
@@ -352,6 +354,47 @@ const GameBoard = (props) => {
         setRequestChoosePiece({ tileID: "", pieceID: "", status: false });
     }
 
+
+    // Save board state in interval (autosave)
+    useEffect(() => {
+        let iID = setInterval(() => {
+            if (usedTiles.current.length > 0) {
+                let state = [];
+                for (const tileIndex of usedTiles.current) {
+                    state.push(getTile(tileIndex).getPiece());
+                }
+                setBoardState(state);
+            };
+        }, timeoutDelay);
+
+        setPingIntervalID(iID);
+        return () => clearInterval(pingIntervalID);
+    }, []); // [] Ensures only on first render
+
+
+    // Save board state
+    // [Hacky]: Use data in current used tiles to
+    // restore all pieces; after, restore the used
+    // tiles to contain only tileIDs, as is normal
+    useEffect(() => {
+        if (usedTiles.current.length > 0) {
+            // Add all played pieces to tile
+            for (const piece of usedTiles.current) {
+                let playedPiece = <Piece
+                    id={piece.id}
+                    onBoard={true}
+                    isPlayed={true}
+                    char={piece.char}
+                    weight={piece.weight}
+                    tileID={piece.tileID}
+                    isTransformed={piece.isTransformed}
+                />;
+                addPieceToTile(piece.tileID, playedPiece);
+            }
+            // Rewrite used tiles to store only tileIDs
+            setUsedTiles(usedTiles.current.map(t => t.tileID));
+        }
+    }, []); // [] Ensures only on first render
 
 
     return (

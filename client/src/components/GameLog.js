@@ -1,18 +1,27 @@
 import React, { useContext, useEffect } from 'react';
-import { FileText, Share2 } from 'react-feather';
-import { GameContext } from '../context';
+import { FileText, Share2, LogOut } from 'react-feather';
+import { GameContext, SocketIOContext } from '../context';
 import { useStateRef } from '../hooks';
 import makeServerRequest from '../xhr';
 
 import GameLogModal from './GameLogModal';
 
+
 const GameLog = (props) => {
+    const sio = useContext(SocketIOContext);
     const [_, setShowModal, showModal] = useStateRef(false);
     const [__, setLogs, logs] = useStateRef([]);
-    const { player } = useContext(GameContext);
+    const { player, setGameExited } = useContext(GameContext);
 
     // Close modal
     const closeModal = () => setShowModal(false);
+
+    const leaveHandler = () => {
+        let confirmed = window.confirm("Are you sure you want to leave the game?");
+        if (confirmed) {
+            setGameExited(true); // Set signal
+        }
+    }
 
     // Get logs from the server when div is pressed
     useEffect(async () => {
@@ -26,7 +35,6 @@ const GameLog = (props) => {
         }
     }, [showModal.current]);
 
-
     return (
         <>
             <div className="flex justify-between items-center">
@@ -38,10 +46,13 @@ const GameLog = (props) => {
                     <div className="font-bold pt-2 text-sm text-gray-500"><Share2 size={22} className="inline pb-1 pr-1" />{player.current.roomID}
                     </div>
                 </div>
+                <div onClick={leaveHandler} className="flex cursor-pointer justify-end items-end space-x-1">
+                    <div className="font-bold pt-2 text-sm text-red-500"><LogOut size={22} className="inline pb-1 pr-1" />Leave
+                    </div>
+                </div>
             </div>
             <GameLogModal logs={logs.current} close={closeModal} show={showModal} />
         </>
-
     );
 };
 

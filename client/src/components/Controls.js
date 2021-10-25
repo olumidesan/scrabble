@@ -21,6 +21,7 @@ const Controls = (props) => {
         if (player.current.isHost && !gameStarted.current) {
             buttons.push(<ControlButton handler={props.draw} key={6} type={"draw"} size={iconSize} />)
         }
+
         setControlButtons(buttons);
     }, [gameStarted.current, player.current]);
 

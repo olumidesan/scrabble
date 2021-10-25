@@ -22,10 +22,10 @@ const GameChooser = (props) => {
                     <ChevronsRight strokeWidth={3} size={26} />
                     <span title="Join a game session"  className="pl-1 pr-2 text-md">Join</span>
                 </button>
-                {/* <button onClick={() => props.setGameChoice("resume")} className="h-12 w-36 bg-red-600 hover:bg-red-700 text-white font-bold px-4 border border-red-700 rounded inline-flex justify-center items-center">
+                <button onClick={() => props.setGameChoice("resume")} className="h-12 w-36 bg-red-600 hover:bg-red-700 text-white font-bold px-4 border border-red-700 rounded inline-flex justify-center items-center">
                     <CornerUpRight strokeWidth={3} size={22} />
                     <span title="Resume a game session"  className="pl-1 pr-1 text-md">Resume</span>
-                </button> */}
+                </button>
             </div>
             <div className="flex my-4 mb-2 space-x-6 block justify-center">
                 <div className="text-gray-400">Familiarize yourself with the <a className="text-blue-500" href="https://github.com/olumidesan/scrabble" target="_blank" referrerPolicy="no-referrer">Game Notes</a> before you begin</div>

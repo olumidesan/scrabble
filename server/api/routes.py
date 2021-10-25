@@ -105,6 +105,8 @@ def cache():
 
     if is_player_turn:
         player.set_turn(True)
+    else:
+        player.set_turn(False)
 
     return dict(status="success")
 

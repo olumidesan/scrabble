@@ -679,6 +679,18 @@ const Rack = (props) => {
     }
 
 
+    // window.onbeforeunload = (event) => {
+    //     const e = event || window.event;
+    //     // Cancel the event
+    //     e.preventDefault();
+    //     if (e) {
+    //         console.log("Ughcxghxc");
+    //       e.returnValue = ''; // Legacy method for cross browser support
+    //     }
+    //     return ''; // Legacy method for cross browser support
+    //   };
+
+
     // Save rack state in interval (autosave)
     useEffect(() => {
         let iID = setInterval(() => {

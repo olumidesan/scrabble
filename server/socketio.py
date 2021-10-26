@@ -43,7 +43,10 @@ def on_join(data):
         existing_game_room.add_player(new_player)
         join_room(room_id)
 
+    new_player.activate() # Make player object usable
+
     # Tell client of connected players, so they can know
+    data['mode'] = "create"
     data['timeToPlay'] = existing_game_room.time_to_play
     data['enableAudio'] = existing_game_room.audio_is_enabled
     data['connectedPlayers'] = existing_game_room.get_connected_players()
@@ -54,17 +57,52 @@ def on_join(data):
     emit('joinedRoom', data, room=room_id)
 
 
+@sio.on('resume')
+def on_resume(data):
+    """Event handler for room joins"""
+
+    room_id = data.get('roomID')
+    game_room = game_rooms.get_room(room_id)
+    player_name = data.get('player').get('name')
+
+    if game_room:
+        join_room(room_id)
+
+        player = game_room.get_player(player_name)
+        player.activate()
+
+        # Tell client of connected players, so they can know
+        data['mode'] = "resume"
+        data['timeToPlay'] = game_room.time_to_play
+        data['enableAudio'] = game_room.audio_is_enabled
+        data['connectedPlayers'] = game_room.get_connected_players()
+
+        emit('joinedRoom', data, room=room_id)
+
+
 @sio.on('leave')
 def on_leave(data):
     """Event handler for room exits"""
 
     room_id = data['roomID'] # Get room
-    game_rooms.pop(room_id) # Remove room
-    leave_room(room_id) # Remove sio room
+    game_room = game_rooms.get_room(room_id)
+
+    if game_room:            
+        # Will use this if the option to kill sessions
+        # is enabled. It currently isn't implemented
+        # game_rooms.pop(room_id) # Remove room
+
+        leave_room(room_id) # Remove sio room
+
+        # Make all players inactive (so game can be resumed)
+        for player in game_room.get_all_players():
+            player.deactivate()        
+        
+        emit('leftRoom', data, room=room_id) # Announce
 
 
 @sio.on('gameCreateEvent')
-def from_host(data):
+def on_create(data):
     """
     Event handler for game official creation
     """
@@ -78,6 +116,22 @@ def from_host(data):
     data['allPlayers'] = game_room.get_connected_players()
 
     emit('gameCreate', data, room=room_id)
+
+
+@sio.on('gameResumeEvent')
+def on_resume(data):
+    """
+    Event handler for game official resumption
+    """
+    room_id = data.get('roomID')
+    game_room = game_rooms.get_room(room_id)
+
+    # Tell client of all connected players
+    data['rack'] = { p.name:p.get_rack() for p in game_room.get_all_players() }
+    data['allPlayers'] = game_room.get_connected_players()
+    data['usedTiles'] = game_room.get_board()
+
+    emit('gameResume', data, room=room_id)
 
 
 @sio.on('inPlayEvent')
@@ -175,3 +229,20 @@ def draw_event(data):
     data['bag'] = game_room.get_bag()
 
     emit('drawDone', data, room=room_id)
+
+
+@sio.on('resumeEvent')
+def draw_event(data):
+    """
+    Event handler for draw play
+    """
+    room_id = data.get('roomID')
+    game_room = game_rooms.get(room_id)
+
+    # Get the player whose turn it was to play
+    player_to_play = list(filter(lambda p: p.get_turn(), game_room.get_all_players()))[0]
+    data['playerToPlay'] = player_to_play.name
+
+    data['bag'] = game_room.get_bag()
+
+    emit('resumeDone', data, room=room_id)

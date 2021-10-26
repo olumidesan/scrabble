@@ -145,6 +145,31 @@ class Player:
         self.has_score_set = False
         self.is_speaking = is_speaking
 
+        self._rack = []
+        self._is_active = False
+
+    @property
+    def is_active(self) -> bool:
+        return self._is_active
+
+    def activate(self) -> None:
+        self._is_active = True
+
+    def deactivate(self) -> None:
+        self._is_active = False
+
+    def get_rack(self) -> None:
+        return self._rack
+
+    def set_rack(self, rack) -> None:
+        self._rack = rack
+
+    def set_turn(self, turn) -> None:
+        self.turn = turn
+
+    def get_turn(self) -> bool:
+        return self.turn
+
     def get_score(self) -> int:
         return self.score
 
@@ -166,7 +191,7 @@ class Player:
         }
 
     def __repr__(self) -> str:
-        return f"Player <name={self.name}, score={self._score}, host={self.is_host}>"
+        return f"Player <name={self.name}, turn={self.turn}, score={self.score}, host={self.is_host}>"
 
 
 class GameRoom:
@@ -176,6 +201,7 @@ class GameRoom:
         self.limit = limit
 
         self._logs = []
+        self._board = []
         self._players = {}
         self._turn_skips = 0
         self._is_joinable = True
@@ -205,12 +231,18 @@ class GameRoom:
     def get_logs(self) -> list:
         return self._logs
 
+    def update_board(self, board) -> None:
+        self._board = board
+
     def reset_turn_skips(self) -> None:
         self._turn_skips = 0
 
     def increment_turn_skips(self) -> None:
         self._turn_skips += 1
 
+    def get_board(self) -> list:
+        return self._board
+    
     def get_bag(self) -> dict:
         return self._bag.serialize()
 
@@ -226,20 +258,26 @@ class GameRoom:
     def get_player_to_play(self) -> dict:
         return next(self._player_turns).serialize()
 
-    def get_player_turns(self) -> list:
-        return [i.name for i in seeded_shuffle(self._players.values())]
+    def get_host(self) -> Player:
+        return [i.is_host for i in self._players.values()][0]
+
+    def get_all_players(self):
+        return self._players.values()
+
+    def has_game_ended(self) -> bool:
+        return all([p.has_score_set for p in self._players.values()])
 
     def is_joinable(self) -> bool:
         return len(self._players) != self.limit and self._is_joinable
+
+    def get_player_turns(self) -> list:
+        return [i.name for i in seeded_shuffle(self._players.values())]
 
     def serialize(self) -> dict:
         return dict(id=self.id, limit=self.limit, joinable=self.is_joinable())
 
     def get_connected_players(self):
-        return [i.serialize() for i in self._players.values()]
-
-    def has_game_ended(self) -> bool:
-        return all([p.has_score_set for p in self._players.values()])
+        return [i.serialize() for i in self._players.values() if i.is_active]
 
     def close(self):
         if self._is_joinable:

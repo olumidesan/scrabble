@@ -28,16 +28,33 @@ def sio_rooms(room_id):
     """
 
     name = request.args.get("name")
+    mode = request.args.get("mode")
     room = game_rooms.get_room(room_id)
 
-    if room:
-        # Check if name is already being used
-        existing_names = list(filter(lambda x: x['name'].lower() == name.lower(), room.get_connected_players()))
+    if room:        
+        if mode == "join":
+            # Check if name is already being used
+            existing_names = list(filter(lambda x: x['name'].lower() == name.lower(), room.get_connected_players()))
+            
+            if existing_names:
+                response = dict(status="nameError", message="Name is already being used by another player")
+            else:
+                response = dict(status="success", room=room.serialize())
+                    
+        elif mode == "resume":
+            name = name.capitalize()
+
+            if name not in [p.name for p in room.get_all_players()]:
+                response = dict(status="nameError", message="No such player in game session")
+            else:
+                player = room.get_player(name)
+                if player.is_active:                    
+                    response = dict(status="nameError", message=f"{name} has already joined the game session")
+                else:
+                    response = dict(status="success", limit=room.limit, player=room.get_player(name).serialize())
         
-        if len(existing_names) > 0:
-            response = dict(status="nameError", message="Name is already being used by another player")
         else:
-            response = dict(status="success", room=room.serialize())
+            response = dict(status="error", message="Invalid game mode")
 
     else:
         response = dict(status="error", message="No such game room")
@@ -63,6 +80,36 @@ def bag(amount):
         pieces = game_room.bag.get_pieces(amount)
 
     return dict(status="success", pieces=pieces)
+
+
+@router('/cache', methods=['POST'])
+@token_auth.login_required
+def cache():
+    """
+    Caches state of the game
+    """
+    payload = request.get_json()
+
+    rack = payload.get('rack')
+    room_id = payload.get('roomID')
+    game_room = game_rooms.get_room(room_id)
+    player_name = payload.get('player').get('name')
+    is_player_turn = payload.get('player').get('turn')
+
+    if not game_room:
+        return dict(status="error", message="No such game room")
+
+    game_room.update_board(payload.get('board'))
+    player = game_room.get_player(player_name)
+    player.set_rack(rack)
+
+    if is_player_turn:
+        player.set_turn(True)
+    else:
+        player.set_turn(False)
+
+    return dict(status="success")
+
 
 @router('/logs/<room_id>')
 @token_auth.login_required

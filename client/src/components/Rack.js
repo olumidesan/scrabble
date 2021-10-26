@@ -25,7 +25,7 @@ const Rack = (props) => {
     const sio = useContext(SocketIOContext);
     const { setValidDrag } = useContext(ValidDragContext);
     const { notifications, setNotifications } = useContext(NotificationContext);
-    const { player, gameResumed, boardState, gameExited, rackState, setRackState, setPlayer, bag, setPlayedWords, setPlayFlag, gameStarted, timeToPlay, playedTiles, playedWords, usedTiles, gameEnded, setRecallFlag } = useContext(GameContext);
+    const { player, gameResumed, boardState, rackState, setRackState, setPlayer, bag, setPlayedWords, setPlayFlag, gameStarted, timeToPlay, playedTiles, playedWords, usedTiles, gameEnded, setRecallFlag } = useContext(GameContext);
     const [_a_, setCountDown, countDown] = useStateRef(timeToPlay.current);
 
 
@@ -44,7 +44,7 @@ const Rack = (props) => {
             setTimeout(() => {
                 sio.emit("resumeEvent", { roomID: player.current.roomID });
                 setRackState([]);
-            }, 3000);
+            }, 1000);
         }
         else getPieces();
     }, []); // [] ensures only on first render
@@ -678,24 +678,38 @@ const Rack = (props) => {
         }
     }
 
-
-    // window.onbeforeunload = (event) => {
-    //     const e = event || window.event;
-    //     // Cancel the event
-    //     e.preventDefault();
-    //     if (e) {
-    //         console.log("Ughcxghxc");
-    //       e.returnValue = ''; // Legacy method for cross browser support
+    // useEffect(() => {
+    //     window.addEventListener('beforeunload', alertUser);
+    //     window.addEventListener('unload', handleGameExit);
+    //     return () => {
+    //         window.removeEventListener('beforeunload', alertUser);
+    //         window.removeEventListener('unload', handleGameExit);
     //     }
-    //     return ''; // Legacy method for cross browser support
-    //   };
+    // }, []);
+
+    // const alertUser = e => {
+    //     e.preventDefault()
+    //     e.returnValue = ''
+    // }
+
+    // setGamedExited(true);
+
+
+    // const handleGameExit = async () => {
+    //     await saveGame(); // Save the game state
+    //     alert("Note that you can still resume this game session using your name and the session ID.");
+
+    //     setTimeout(() => {
+    //         sio.emit("leave", { roomID: player.current.roomID, name: player.current.name })
+    //     }, 700); 
+    // }
 
 
     // Save rack state in interval (autosave)
     useEffect(() => {
         let iID = setInterval(() => {
             // Save the pieces on the rack
-            if (currPieces.current.length > 0) {
+            if (currPieces.current.length > 0 || currPlayedPieces.current.length > 0) {
                 setRackState([...currPieces.current, ...currPlayedPieces.current]);
             }
         }, timeoutDelay);
@@ -705,48 +719,12 @@ const Rack = (props) => {
     }, []); // [] Ensures only on first render
 
 
-    // Save board and player rack
-    const saveGame = async () => {
-        let payload = {
-            player: player.current,
-            rack: rackState.current,
-            board: boardState.current,
-            roomID: player.current.roomID,
-        }
-
-        await makeServerRequest({ requestType: 'post', url: `/cache`, payload: payload });
-    }
-
-
-    // If game is exited, save first
-    useEffect(async () => {
-        if (gameExited.current) {
-            recall(); // Recall any played piece(s)
-            await saveGame(); // Save the game state
-            alert("Note that you can still resume this game session using your name and the session ID.");
-
-            setTimeout(() => {
-                sio.emit("leave", { roomID: player.current.roomID, name: player.current.name })
-                window.location.reload(); // Refresh page (go to home page)                            
-            }, 700);
-        }
-    }, [gameExited.current]);
-
-
-    // If game is exited by any player, then let me know
-    // Also save the game first and recall any pieces
-    useEffect(() => {
-        sio.on("leftRoom", async (data) => {
-            if (data.name !== player.current.name) {
-                recall();
-                await saveGame();
-                alert(`${data.name} has left the game session. Note that you can still resume this game session using your name and the session ID.`);
-                setTimeout(() => {
-                    window.location.reload(); // Refresh page (go to home page)                            
-                }, 700);
-            }
-        })
-    }, []);
+    // useEffect(async () => {
+    //     if (gameExited.current) {
+    //         await handleGameExit();
+    //         window.location.reload(); // Refresh page (go to home page)                            
+    //     }
+    // }, [gameExited.current]);
 
 
     const handleDragOver = (e) => e.preventDefault();

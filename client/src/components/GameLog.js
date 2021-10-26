@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import { FileText, Share2, LogOut } from 'react-feather';
 import { GameContext, SocketIOContext } from '../context';
 import { useStateRef } from '../hooks';
+import { excludeMeSioEvent } from '../utils';
 import makeServerRequest from '../xhr';
 
 import GameLogModal from './GameLogModal';
@@ -11,17 +12,50 @@ const GameLog = (props) => {
     const sio = useContext(SocketIOContext);
     const [_, setShowModal, showModal] = useStateRef(false);
     const [__, setLogs, logs] = useStateRef([]);
-    const { player, setGameExited } = useContext(GameContext);
+    const { player, rackState, boardState } = useContext(GameContext);
 
     // Close modal
     const closeModal = () => setShowModal(false);
 
-    const leaveHandler = () => {
+    const leaveHandler = async () => {
         let confirmed = window.confirm("Are you sure you want to leave the game?");
         if (confirmed) {
-            setGameExited(true); // Set signal
+            await saveGame(); // Save the game state
+            alert("Note that you can still resume this game session using your name and the session ID.");
+
+            setTimeout(() => {
+                sio.emit("leave", { roomID: player.current.roomID, name: player.current.name })
+                window.location.reload(); // Refresh page (go to home page)                            
+            }, 700);
         }
     }
+
+
+    // Save board and player rack
+    const saveGame = async () => {
+        let payload = {
+            player: player.current,
+            rack: rackState.current,
+            board: boardState.current,
+            roomID: player.current.roomID,
+        }
+
+        await makeServerRequest({ requestType: 'post', url: `/cache`, payload: payload });
+    }
+
+
+    // If game is exited by any player, then let me know
+    // Also save the game first
+    useEffect(() => {
+        const dispatch = async (data) => {
+            await saveGame();
+            alert(`${data.name} has left the game session. Note that you can still resume this game session using your name and the session ID.`);
+            window.location.reload(); // Refresh page (go to home page)                            
+        }
+
+        excludeMeSioEvent(sio, "leftRoom", player.current.name, dispatch);
+    }, []);
+
 
     // Get logs from the server when div is pressed
     useEffect(async () => {

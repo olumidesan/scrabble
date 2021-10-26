@@ -17,7 +17,6 @@ const Game = () => {
 
     const [e________, setGameEnded, gameEnded] = useStateRef(false);
     const [g_______, setGameCreated, gameCreated] = useStateRef(false);
-    const [gd_______, setGameExited, gameExited] = useStateRef(false);
     const [r_______, setGameResumed, gameResumed] = useStateRef(false);
     const [________, setGameStarted, gameStarted] = useStateRef(false);
     const [_sp, setPlayFlag, playFlag] = useStateRef(false);
@@ -47,7 +46,6 @@ const Game = () => {
         boardState, setBoardState,
         allowAudio, setAllowAudio,
         recallFlag, setRecallFlag,
-        gameExited, setGameExited,
         timeToPlay, setTimeToPlay,
         gameStarted, setGameStarted,
         gameCreated, setGameCreated,
@@ -59,7 +57,7 @@ const Game = () => {
 
     // Register listeners
     useEffect(() => {
-        sio.on("ResumeDone", (data) => {
+        sio.on("resumeDone", (data) => {
             // Save bag
             setBag(data.bag);
             setGameResumed(true);

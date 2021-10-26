@@ -30,10 +30,10 @@ const WaitingRoom = (props) => {
 
             // If it's not my connection event
             // if (data.player.name !== player.current.name) {
-            // Game should start if the required number of players is reached and I'm the host
-            if (connectedPlayers.current.length === props.numPlayers && player.current.isHost) {
-                sio.emit(data.mode === 'create' ? "gameCreateEvent" : "gameResumeEvent", { roomID: props.roomID });
-            }
+                // Game should start if the required number of players is reached and I'm the host
+                if (connectedPlayers.current.length === props.numPlayers && player.current.isHost) {
+                    sio.emit(data.mode === 'create' ? "gameCreateEvent" : "gameResumeEvent", { roomID: props.roomID });
+                }
             // }
         });
 

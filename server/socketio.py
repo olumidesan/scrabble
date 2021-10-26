@@ -126,9 +126,6 @@ def on_resume(data):
     room_id = data.get('roomID')
     game_room = game_rooms.get_room(room_id)
 
-    # Close the room
-    game_room.close()  # Game has started
-
     # Tell client of all connected players
     data['rack'] = { p.name:p.get_rack() for p in game_room.get_all_players() }
     data['allPlayers'] = game_room.get_connected_players()
@@ -248,4 +245,4 @@ def draw_event(data):
 
     data['bag'] = game_room.get_bag()
 
-    emit('ResumeDone', data, room=room_id)
+    emit('resumeDone', data, room=room_id)

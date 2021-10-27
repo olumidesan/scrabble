@@ -86,7 +86,7 @@ const Game = () => {
                 playerToPlayMessage = `You were to play before the game was paused`;
                 setPlayer({ ...player.current, turn: true })
             } else {
-                playerToPlayMessage = `${playerToPlay} was to play before the play was paused`;
+                playerToPlayMessage = `${playerToPlay} was to play before the game was paused`;
             }
 
             // Notify everyone

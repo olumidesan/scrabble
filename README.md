@@ -45,7 +45,6 @@ Gameplay sneak-peak
 - Certain in-rack drags of pieces cause them to disappear. Only happens if it's not your turn to play.
 - The final scoring pipeline hasn't been updated to add the scores of other players to the player who emptied his/her rack to end the game.
 - Zoom needs to be adjusted (reduced or increased) to get proper game layout.  My display is 1920x1080 and it was developed for that. This isn't anything but my [very] poor CSS skills. I should fix this soon
-- Game cannot be resumed, so do not refresh your page once the game starts. I'm currently working on adding this feature.
 
 ### Collaborations and Development
 - Development is done in the `dev` branch: `git checkout dev`. Current issues are in the `DevFlow.md` file.

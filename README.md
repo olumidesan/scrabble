@@ -7,7 +7,7 @@ A strictly multi-player Scrabble game that allows gameplay between people on a n
 - 3-Try-Validation: Each player has at most three tries to play a valid word (since challenging plays isn't possible), before which the turn is automatically skipped.
 - Game Logs: See history of in-game plays.
 - AutoSave: Game automatically saves, so you can always resume it.
-- Resume Game: If you leave a game session, you can resume it using the session ID and the names of the players who played in the session.
+- Resume Game: If you leave a game session (by using the in-game `Leave` button), you can resume it using the session ID and the names of the players who played in the session.
 
 ### Requirements
 - A laptop, or any device that allows dragging web elements with a mouse.

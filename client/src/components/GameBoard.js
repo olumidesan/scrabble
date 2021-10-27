@@ -19,7 +19,7 @@ const GameBoard = (props) => {
 
     const sio = useContext(SocketIOContext);
     const [_, setRequestChoosePiece, requestChoosePiece] = useStateRef({ tileID: "", pieceID: "", status: false });
-    const { player, playFlag, setUsedTiles, setBoardState, usedTiles, setPlayFlag, playedTiles, setPlayedWords, setPlayedTiles, recallFlag, setRecallFlag } = useContext(GameContext);
+    const { player, playFlag, gameExited, setUsedTiles, setBoardState, usedTiles, setPlayFlag, playedTiles, setPlayedWords, setPlayedTiles, recallFlag, setRecallFlag } = useContext(GameContext);
 
 
     // Register Event Listeners
@@ -355,16 +355,19 @@ const GameBoard = (props) => {
     }
 
 
+    const saveBoardState = () => {
+        let state = [];
+        for (const tileIndex of usedTiles.current) {
+            state.push(getTile(tileIndex).getPiece());
+        }
+        setBoardState(state);
+    }
+
+
     // Save board state in interval (autosave)
     useEffect(() => {
         let iID = setInterval(() => {
-            if (usedTiles.current.length > 0) {
-                let state = [];
-                for (const tileIndex of usedTiles.current) {
-                    state.push(getTile(tileIndex).getPiece());
-                }
-                setBoardState(state);
-            };
+            saveBoardState();
         }, timeoutDelay);
 
         setPingIntervalID(iID);
@@ -372,7 +375,14 @@ const GameBoard = (props) => {
     }, []); // [] Ensures only on first render
 
 
-    // Save board state
+    // If game is to be exited, save board state
+    useEffect(() => {
+        if (gameExited.current) saveBoardState();
+    }, [gameExited.current]);
+
+
+    // Restore board state if used tiles are present
+    // on the first render. See below for hackiness
     // [Hacky]: Use data in current used tiles to
     // restore all pieces; after, restore the used
     // tiles to contain only tileIDs, as is normal

@@ -10,7 +10,7 @@ const WaitingRoom = (props) => {
     const { setNotifications } = useContext(NotificationContext);
     const [_, setConnectedPlayers, connectedPlayers] = useStateRef([]);
     const [_s, setPrepText, prepText] = useStateRef("Preparing game room...");
-    const { player, setRackState, setGameResumed, setGameCreated, setAllowAudio, setPlayers, setUsedTiles, setTimeToPlay } = useContext(GameContext);
+    const { player, setRackState, setGameStarted, setGameResumed, setGameCreated, setAllowAudio, setPlayers, setUsedTiles, setTimeToPlay } = useContext(GameContext);
 
 
     useEffect(() => {
@@ -100,6 +100,7 @@ const WaitingRoom = (props) => {
             }, 3500);
 
             setTimeout(() => {
+                setGameStarted(true);
                 setGameResumed(true);
             }, 5500);
 

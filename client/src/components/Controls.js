@@ -17,7 +17,7 @@ const Controls = (props) => {
         for (const [index, type] of ["recall", "shuffle", "swap", "skip", "play"].entries()) {
             buttons.push(<ControlButton handler={props[type]} key={index} type={type} size={iconSize} />)
         }
-        // If game hasn't started and player is host
+        // If game hasn't started and player is host, show Draw button
         if (player.current.isHost && !gameStarted.current) {
             buttons.push(<ControlButton handler={props.draw} key={6} type={"draw"} size={iconSize} />)
         }

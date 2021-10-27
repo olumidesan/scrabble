@@ -25,7 +25,7 @@ const Rack = (props) => {
     const sio = useContext(SocketIOContext);
     const { setValidDrag } = useContext(ValidDragContext);
     const { notifications, setNotifications } = useContext(NotificationContext);
-    const { player, gameResumed, boardState, rackState, setRackState, setPlayer, bag, setPlayedWords, setPlayFlag, gameStarted, timeToPlay, playedTiles, playedWords, usedTiles, gameEnded, setRecallFlag } = useContext(GameContext);
+    const { player, gameResumed, gameExited, rackState, setRackState, setPlayer, bag, setPlayedWords, setPlayFlag, gameStarted, timeToPlay, playedTiles, playedWords, usedTiles, gameEnded, setRecallFlag } = useContext(GameContext);
     const [_a_, setCountDown, countDown] = useStateRef(timeToPlay.current);
 
 
@@ -705,18 +705,29 @@ const Rack = (props) => {
     // }
 
 
+    const saveRackState = () => {
+        // Save the pieces on the rack as well as any played pieces
+        if (currPieces.current.length > 0 || currPlayedPieces.current.length > 0) {
+            setRackState([...currPieces.current, ...currPlayedPieces.current]);
+        }
+    }
+
+
     // Save rack state in interval (autosave)
     useEffect(() => {
         let iID = setInterval(() => {
-            // Save the pieces on the rack
-            if (currPieces.current.length > 0 || currPlayedPieces.current.length > 0) {
-                setRackState([...currPieces.current, ...currPlayedPieces.current]);
-            }
+            saveRackState();
         }, timeoutDelay);
 
         setPingIntervalID(iID);
         return () => clearInterval(pingIntervalID);
     }, []); // [] Ensures only on first render
+
+
+    // If game is to be exited, save board state
+    useEffect(() => {
+        if (gameExited.current) saveRackState();
+    }, [gameExited.current]);
 
 
     // useEffect(async () => {

@@ -12,12 +12,14 @@ const GameLog = (props) => {
     const sio = useContext(SocketIOContext);
     const [_, setShowModal, showModal] = useStateRef(false);
     const [__, setLogs, logs] = useStateRef([]);
-    const { player, rackState, boardState } = useContext(GameContext);
+    const { player, rackState, boardState, setGameExited } = useContext(GameContext);
 
     // Close modal
     const closeModal = () => setShowModal(false);
 
     const leaveHandler = async () => {
+        setGameExited(true); // Signal game is about to be exited, so save can happen
+
         let confirmed = window.confirm("Are you sure you want to leave the game?");
         if (confirmed) {
             await saveGame(); // Save the game state
@@ -28,6 +30,7 @@ const GameLog = (props) => {
                 window.location.reload(); // Refresh page (go to home page)                            
             }, 700);
         }
+        else setGameExited(false);
     }
 
 
@@ -47,13 +50,15 @@ const GameLog = (props) => {
     // If game is exited by any player, then let me know
     // Also save the game first
     useEffect(() => {
-        const dispatch = async (data) => {
-            await saveGame();
-            alert(`${data.name} has left the game session. Note that you can still resume this game session using your name and the session ID.`);
-            window.location.reload(); // Refresh page (go to home page)                            
-        }
-
-        excludeMeSioEvent(sio, "leftRoom", player.current.name, dispatch);
+        sio.on("leftRoom", async (data) => {
+            if (data.name !== player.current.name) {
+                await saveGame();
+                alert(`${data.name} has left the game session. Note that you can still resume this game session using your name and the session ID.`);
+                setTimeout(() => {
+                    window.location.reload(); // Refresh page (go to home page)                                            
+                }, 1700);
+            }
+        });
     }, []);
 
 

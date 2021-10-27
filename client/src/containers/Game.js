@@ -17,6 +17,7 @@ const Game = () => {
 
     const [e________, setGameEnded, gameEnded] = useStateRef(false);
     const [g_______, setGameCreated, gameCreated] = useStateRef(false);
+    const [eg_______, setGameExited, gameExited] = useStateRef(false);
     const [r_______, setGameResumed, gameResumed] = useStateRef(false);
     const [________, setGameStarted, gameStarted] = useStateRef(false);
     const [_sp, setPlayFlag, playFlag] = useStateRef(false);
@@ -47,6 +48,7 @@ const Game = () => {
         allowAudio, setAllowAudio,
         recallFlag, setRecallFlag,
         timeToPlay, setTimeToPlay,
+        gameExited, setGameExited,
         gameStarted, setGameStarted,
         gameCreated, setGameCreated,
         gameResumed, setGameResumed,
@@ -90,7 +92,7 @@ const Game = () => {
             // Notify everyone
             setNotifications([
                 {
-                    message: `${playerToPlayMessage}. The game has resumed.`,
+                    message: `${playerToPlayMessage}. The game has officially resumed.`,
                     overwrite: false,
                     type: "info",
                     timeout: 5

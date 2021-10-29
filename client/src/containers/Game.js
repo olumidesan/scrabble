@@ -5,6 +5,8 @@ import { useStateRef } from '../hooks';
 import { ValidDragContext, GameContext, SocketIOContext, NotificationContext } from '../context';
 import LandingPage from '../components/LandingPage';
 import WinnerModal from '../components/WinnerModal';
+import { isMobile } from '../utils';
+import { Smartphone } from 'react-feather';
 
 
 // [TODO] Definitely need to revamp this
@@ -274,14 +276,21 @@ const Game = () => {
 
     return (
         <div className="container mx-auto p-10 flex h-screen justify-center">
-            <NotificationContext.Provider value={{ notifications, setNotifications }}>
-                <GameContext.Provider value={gameContext}>
-                    <ValidDragContext.Provider value={{ validDrag, setValidDrag }}>
-                        {gameCreated.current || gameResumed.current ? gameSpace : <LandingPage />}
-                        <WinnerModal />
-                    </ValidDragContext.Provider>
-                </GameContext.Provider>
-            </NotificationContext.Provider>
+            {isMobile() ?
+                <div className="flex flex-col justify-center items-center">
+                    <div><Smartphone size={48} /></div>
+                    <div className="pt-2">Mobile Device Detected. Sorry, this game cannot be played on mobile device. Kindly use a laptop/desktop.</div>
+                </div>
+                :
+                <NotificationContext.Provider value={{ notifications, setNotifications }}>
+                    <GameContext.Provider value={gameContext}>
+                        <ValidDragContext.Provider value={{ validDrag, setValidDrag }}>
+                            {gameCreated.current || gameResumed.current ? gameSpace : <LandingPage />}
+                            <WinnerModal />
+                        </ValidDragContext.Provider>
+                    </GameContext.Provider>
+                </NotificationContext.Provider>
+            }
         </div>
     )
 };

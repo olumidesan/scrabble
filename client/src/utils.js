@@ -39,11 +39,16 @@ const excludeMeSioEvent = (sio, eventName, myName, dispatch) => {
     });
 };
 
+const isMobile = () => {
+    return (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+}
+
 const dragCancelled = (e) => e.dataTransfer.dropEffect === "none";
 const getDragData = (e) => JSON.parse(e.dataTransfer.getData("draggedPiece"));
 const setDragData = (e, data) => e.dataTransfer.setData("draggedPiece", JSON.stringify(data));
 
 export { countUp };
+export { isMobile };
 export { countDown };
 export { setDragData };
 export { getDragData };

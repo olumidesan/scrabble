@@ -12,7 +12,7 @@ A strictly multi-player Scrabble game that allows gameplay between people on a n
 ### Requirements
 - A laptop, or any device that allows dragging web elements with a mouse.
 - Please note that development was tailored specifically towards laptops/desktops, as they fully support the [HTML5 Draggable](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API) API, unlike mobile devices or tablets.
-- Err...just use a laptop and adjust the zoom as needed. See the Known Issues section below for zoom issues.
+- Err...just use a laptop and adjust the zoom as needed. **See the Known Issues section below for game layout issues.**
 - Python 3.6+
 
 ### Usage

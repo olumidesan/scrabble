@@ -111,11 +111,12 @@ const NewGame = (props) => {
                             </label>
                             <div className="relative">
                                 <input ref={sessionContainer} title="Automatically-generated session ID" disabled value={roomID} className="w-80 cursor-not-allowed appearance-none block bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" placeholder="E.g. Joey" />
-                                <div className="absolute inset-y-0 right-0 w-1/6">
-                                    <button title="Copy" onClick={copyToClipboard} className="h-full w-full border- rounded-r bg-gray-700 hover:bg-gray-700 text-white font-bold inline-flex justify-center items-center">
-                                        {copied ? <CheckCircle strokeWidth={3} size={20} /> : <Copy strokeWidth={3} size={20} />}
-                                    </button>
-                                </div>
+                                {window.location.protocol === 'https:' || window.location.hostname === 'localhost' ?
+                                    <div className="absolute inset-y-0 right-0 w-1/6">
+                                        <button title="Copy" onClick={copyToClipboard} className="h-full w-full border- rounded-r bg-gray-700 hover:bg-gray-700 text-white font-bold inline-flex justify-center items-center">
+                                            {copied ? <CheckCircle strokeWidth={3} size={20} /> : <Copy strokeWidth={3} size={20} />}
+                                        </button>
+                                    </div> : null}
                             </div>
                         </div>
                     </div>

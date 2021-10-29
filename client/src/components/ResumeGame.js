@@ -87,7 +87,7 @@ const ResumeGame = (props) => {
                     <div className="flex self-center pt-6 mx-3 mb-1">
                         <div className="px-3">
                             <label className="block uppercase text-left tracking-wide text-gray-700 text-xs font-bold mb-1">
-                                Your Name
+                                Previous Session Name
                             </label>
                             <input minLength={3} maxLength={10} onChange={handleNameChange} title="Your name" className={classNames} type="text" placeholder="E.g. Joey" />
                         </div>
@@ -109,7 +109,7 @@ const ResumeGame = (props) => {
                     <div className="flex self-center mx-3 mb-0">
                         <div className="px-3">
                             <label className="block uppercase text-left tracking-wide text-gray-700 text-xs font-bold mb-2">
-                                Session ID
+                                Previous Session ID
                             </label>
                             <input onChange={handleRoomIDChange} maxLength={11} className="w-80 appearance-none block bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-1 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" placeholder="E.g. 41828-11860" />
                         </div>

@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { Plus, ChevronDown, X, AlertOctagon } from 'react-feather';
+import React, { useContext, useRef, useState } from 'react';
+import { Plus, ChevronDown, X, Copy, CheckCircle } from 'react-feather';
 import { GameContext, SocketIOContext } from '../context';
 import { generateRandomID, isAlphanumeric } from '../utils';
 import WaitingRoom from './WaitingRoom';
@@ -10,12 +10,14 @@ let roomID = `${generateRandomID(5)}-${generateRandomID(5)}`;
 
 const NewGame = (props) => {
 
+    const [copied, setCopied] = useState(false);
     const [numPlayers, setNumPlayers] = useState(2);
     const [timeToPlay, setTimeToPlay] = useState(null);
     const [gameCreated, setGameCreated] = useState(false);
     const [enableAudio, setEnableAudio] = useState(false);
     const [sessionName, setSessionName] = useState({ valid: true, message: "", name: "" });
 
+    const sessionContainer = useRef(null);
     const sio = useContext(SocketIOContext);
     const { setPlayer } = useContext(GameContext);
 
@@ -50,6 +52,14 @@ const NewGame = (props) => {
             // If room is killed, regenerate ID
             roomID = `${generateRandomID(5)}-${generateRandomID(5)}`;
         }
+    }
+
+    const copyToClipboard = () => {
+        navigator.clipboard.writeText(sessionContainer.current.value);
+        setCopied(true);
+        setTimeout(() => {
+            setCopied(false);
+        }, 1500);
     }
 
     const handleCreateGameSession = () => {
@@ -99,7 +109,14 @@ const NewGame = (props) => {
                             <label className="block uppercase text-left tracking-wide text-gray-700 text-xs font-bold mb-2">
                                 Your Session ID
                             </label>
-                            <input title="Automatically-generated session ID" disabled value={roomID} className="w-80 cursor-not-allowed appearance-none block bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" placeholder="E.g. Joey" />
+                            <div className="relative">
+                                <input ref={sessionContainer} title="Automatically-generated session ID" disabled value={roomID} className="w-80 cursor-not-allowed appearance-none block bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" type="text" placeholder="E.g. Joey" />
+                                <div className="absolute inset-y-0 right-0 w-1/6">
+                                    <button title="Copy" onClick={copyToClipboard} className="h-full w-full border- rounded-r bg-gray-700 hover:bg-gray-700 text-white font-bold inline-flex justify-center items-center">
+                                        {copied ? <CheckCircle strokeWidth={3} size={20} /> : <Copy strokeWidth={3} size={20} />}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className="flex self-center mx-3 mb-1">
